@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="hi-IN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1f5e">
+  <title>Aspirant Dashboard - RONE MentorOS</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Dashboard Specific Styles */
+    body {
+      background-color: #f8fafc; /* Light gray background for dashboard */
+      color: #0f172a;
+    }
+
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background-color: #1a1f5e;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo-icon {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .sidebar-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-nav {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar-nav-item.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-left: 3px solid #3b82f6;
+    }
+
+    .sidebar-nav-item span.icon {
+      font-size: 1.25rem;
+    }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile-sm {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f59e0b;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .user-info-sm h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .user-info-sm p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .logout-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 72px;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .notification-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dashboard Canvas */
+    .dashboard-canvas {
+      padding: 32px;
+      flex: 1;
+    }
+
+    /* Header Section */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+
+    .welcome-text h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+    }
+
+    .welcome-text p {
+      color: #64748b;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .streak-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    }
+
+    .stat-info h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #0f172a;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .stat-info p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .stat-card.amber .stat-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-action {
+      color: #3b82f6;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .panel-action:hover { text-decoration: underline; }
+
+    /* Task List */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    
+    .task-item:hover { border-color: #cbd5e1; }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .task-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: transparent;
+      transition: all 0.2s;
+    }
+
+    .task-item.completed .task-checkbox {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+
+    .task-details h4 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    .task-item.completed .task-details h4 {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+
+    .task-details p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .task-tag {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .tag-history { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .tag-current { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+    .tag-writing { background: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+
+    /* Progress Bars */
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .progress-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: #3b82f6;
+    }
+
+    /* Upcoming Session */
+    .upcoming-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 12px;
+      padding: 20px;
+      color: white;
+      margin-top: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upcoming-card::after {
+      content: '📞';
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      font-size: 100px;
+      opacity: 0.05;
+    }
+
+    .upcoming-card h4 { margin: 0 0 8px 0; font-size: 1.05rem; }
+    .upcoming-card p { margin: 0 0 16px 0; font-size: 0.85rem; color: #94a3b8; }
+    
+    .btn-join {
+      display: inline-block;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-menu-toggle { display: block; }
+      .dash-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .dashboard-canvas { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">R</div>
+        <div class="sidebar-logo-text">MentorOS</div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-nav-item active">
+          <span class="icon">🏠</span> Home
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📚</span> My Courses
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📅</span> Daily Planner
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">✍️</span> Answer Writing
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📝</span> Test Series
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📊</span> Report Card
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📰</span> Current Affairs
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">🤖</span> AI Study Planner
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-sm">
+          <div class="user-avatar" id="user-avatar-initial">A</div>
+          <div class="user-info-sm">
+            <h4 id="sidebar-user-email">Loading...</h4>
+            <p>Aspirant</p>
+          </div>
+        </div>
+        <button class="logout-btn" id="btnLogout">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuBtn">☰</button>
+          <h2 class="page-title">Dashboard</h2>
+        </div>
+        <div class="topbar-right">
+          <button class="notification-btn">
+            🔔
+            <span class="notification-badge">3</span>
+          </button>
+          <div class="user-avatar" style="width:36px; height:36px; cursor:pointer;" id="topbar-avatar">A</div>
+        </div>
+      </header>
+
+      <!-- Dashboard Canvas -->
+      <div class="dashboard-canvas">
+        
+        <!-- Header Section -->
+        <div class="dash-header">
+          <div class="welcome-text">
+            <h1 id="welcome-message">Welcome back! 👋</h1>
+            <p>📅 <span id="current-date">Loading date...</span> • Day 142 of Preparation</p>
+          </div>
+          <div class="streak-badge">
+            🔥 42 Day Streak!
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-info">
+              <h3>6h 30m</h3>
+              <p>Today's Study Time</p>
+            </div>
+            <div class="stat-icon">⏱️</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-info">
+              <h3>8/10</h3>
+              <p>Tasks Completed</p>
+            </div>
+            <div class="stat-icon">✅</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-info">
+              <h3>#12</h3>
+              <p>Batch Rank</p>
+            </div>
+            <div class="stat-icon">🏆</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-info">
+              <h3>78%</h3>
+              <p>Overall Accuracy</p>
+            </div>
+            <div class="stat-icon">🎯</div>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+          
+          <!-- Tasks Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📅 Today's Action Plan</h2>
+              <a href="#" class="panel-action">View Full Planner</a>
+            </div>
+            <div class="task-list">
+              <!-- Task 1 -->
+              <div class="task-item completed">
+                <div class="task-left">
+                  <div class="task-checkbox">✓</div>
+                  <div class="task-details">
+                    <h4>Morning Current Affairs</h4>
+                    <p>Read daily digest & complete 10 MCQs</p>
+                  </div>
+                </div>
+                <div class="task-meta">
+                  <span class="task-tag tag-current">Current Affairs</span>
+                  <span style="font-size:0.8rem; color:#64748b;">9:00 AM</span>
+                </div>
+              </div>
+
+              <!-- Task 2 -->
+              <div class="task-item">
+                <div class="task-left">
+                  <div class="task-checkbox"></div>
+                  <div class="task-details">
+                    <h4>GS1 History Lecture - Modern India</h4>
+                    <p>Watch Lecture 12 & prepare short notes</p>
+                  </div>
+                </div>
+                <div class="task-meta">
+                  <span class="task-tag tag-history">History</span>
+                  <span style="font-size:0.8rem; color:#64748b;">11:30 AM</span>
+                </div>
+              </div>
+
+              <!-- Task 3 -->
+              <div class="task-item">
+                <div class="task-left">
+                  <div class="task-checkbox"></div>
+                  <div class="task-details">
+                    <h4>Daily Answer Writing Practice</h4>
+                    <p>Write answers for Q3 and Q4 from Polity</p>
+                  </div>
+                </div>
+                <div class="task-meta">
+                  <span class="task-tag tag-writing">Mains AW</span>
+                  <span style="font-size:0.8rem; color:#64748b;">4:00 PM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📈 Syllabus Progress</h2>
+            </div>
+            <div class="progress-list">
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>Modern History</span>
+                  <span>85%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 85%;"></div>
+                </div>
+              </div>
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>Indian Polity</span>
+                  <span>72%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 72%; background:#10b981;"></div>
+                </div>
+              </div>
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>Economy</span>
+                  <span>58%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 58%; background:#f59e0b;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upcoming Mentor Session -->
+            <div class="upcoming-card">
+              <h4>Upcoming Mentor Review</h4>
+              <p>Weekly review with Dr. Priya Sharma</p>
+              <p style="font-size:0.8rem; margin-bottom:12px; color:white;">Today at 6:30 PM</p>
+              <a href="#" class="btn-join">Join Video Call</a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase Auth Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Same config as index.html
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0T0bh7b7WpaGYyBk81MrqfRn2AUkXjfg",
+      authDomain: "mains-rone-cse-e5268.firebaseapp.com",
+      projectId: "mains-rone-cse-e5268",
+      storageBucket: "mains-rone-cse-e5268.firebasestorage.app",
+      messagingSenderId: "275537569597",
+      appId: "1:275537569597:web:e8e4ad1dc25e7b9744c754"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Set Date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', options);
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User logged in
+        const email = user.email;
+        const namePart = email.split('@')[0];
+        const initial = namePart.charAt(0).toUpperCase();
+
+        document.getElementById('welcome-message').textContent = `Welcome back, ${namePart}! 👋`;
+        document.getElementById('sidebar-user-email').textContent = email;
+        document.getElementById('user-avatar-initial').textContent = initial;
+        document.getElementById('topbar-avatar').textContent = initial;
+
+        // Note: You can add extra checks here to kick out non-Aspirants if they try to access this page directly
+      } else {
+        // Not logged in -> redirect to login
+        window.location.href = 'index.html';
+      }
+    });
+
+    // Logout
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = 'index.html';
+      });
+    });
+
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    
+    mobileBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="hi-IN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1f5e">
+  <title>Mentor Dashboard - RONE MentorOS</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Dashboard Specific Styles (Shared with Aspirant) */
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar - Mentor Theme */
+    .sidebar {
+      width: 280px;
+      background-color: #0f172a; /* Slightly darker/different shade for Mentor */
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo-icon {
+      background: linear-gradient(135deg, #10b981, #059669); /* Green gradient for mentor */
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .sidebar-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-nav {
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+
+    .sidebar-nav-item.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-left: 3px solid #10b981;
+    }
+
+    .sidebar-nav-item span.icon {
+      font-size: 1.25rem;
+    }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile-sm {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #10b981;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .user-info-sm h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .user-info-sm p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .logout-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 72px;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #475569;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .notification-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dashboard Canvas */
+    .dashboard-canvas {
+      padding: 32px;
+      flex: 1;
+    }
+
+    /* Header Section */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+
+    .welcome-text h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+    }
+
+    .welcome-text p {
+      color: #64748b;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mentor-badge {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    }
+
+    .stat-info h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #0f172a;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .stat-info p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .stat-card.red .stat-icon { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .stat-card.amber .stat-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-action {
+      color: #3b82f6;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .panel-action:hover { text-decoration: underline; }
+
+    /* Pending Evaluations List */
+    .eval-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .eval-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      transition: border-color 0.2s;
+    }
+    
+    .eval-item:hover { border-color: #cbd5e1; }
+
+    .eval-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .student-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .eval-details h4 {
+      margin: 0 0 4px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .eval-details p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .btn-evaluate {
+      background: #10b981;
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn-evaluate:hover { background: #059669; }
+
+    /* Upcoming Meetings List */
+    .meeting-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .meeting-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .meeting-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .meeting-time {
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      min-width: 65px;
+    }
+
+    .meeting-info h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+      color: #0f172a;
+    }
+
+    .meeting-info p {
+      margin: 0 0 8px 0;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    
+    .btn-meet {
+      background: white;
+      color: #3b82f6;
+      border: 1px solid #3b82f6;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .btn-meet:hover { background: #eff6ff; }
+
+    @media (max-width: 1024px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-menu-toggle { display: block; }
+      .dash-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .dashboard-canvas { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">R</div>
+        <div class="sidebar-logo-text">Mentor Workspace</div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-nav-item active">
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">👥</span> My Students
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">✍️</span> Evaluations <span style="background:#ef4444; color:white; font-size:0.7rem; padding:2px 6px; border-radius:10px; margin-left:auto;">12</span>
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📅</span> Calendar & Calls
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">📊</span> Batch Analytics
+        </a>
+        <a href="#" class="sidebar-nav-item">
+          <span class="icon">🤖</span> AI Copilot
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-sm">
+          <div class="user-avatar" id="user-avatar-initial">M</div>
+          <div class="user-info-sm">
+            <h4 id="sidebar-user-email">Loading...</h4>
+            <p>Senior Mentor</p>
+          </div>
+        </div>
+        <button class="logout-btn" id="btnLogout">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuBtn">☰</button>
+          <h2 class="page-title">Mentor Dashboard</h2>
+        </div>
+        <div class="topbar-right">
+          <button class="notification-btn">
+            🔔
+            <span class="notification-badge">5</span>
+          </button>
+          <div class="user-avatar" style="width:36px; height:36px; cursor:pointer;" id="topbar-avatar">M</div>
+        </div>
+      </header>
+
+      <!-- Dashboard Canvas -->
+      <div class="dashboard-canvas">
+        
+        <!-- Header Section -->
+        <div class="dash-header">
+          <div class="welcome-text">
+            <h1 id="welcome-message">Welcome, Mentor! 👋</h1>
+            <p>📅 <span id="current-date">Loading date...</span> • 3 Meetings Scheduled Today</p>
+          </div>
+          <div class="mentor-badge">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Verified Mentor
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-info">
+              <h3>45</h3>
+              <p>Active Students</p>
+            </div>
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-info">
+              <h3>12</h3>
+              <p>Pending Copies</p>
+            </div>
+            <div class="stat-icon">✍️</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-info">
+              <h3>8</h3>
+              <p>Doubt Queries</p>
+            </div>
+            <div class="stat-icon">❓</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-info">
+              <h3>4.8/5</h3>
+              <p>Mentorship Rating</p>
+            </div>
+            <div class="stat-icon">⭐</div>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+          
+          <!-- Pending Evaluations Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📝 Pending Copies to Evaluate</h2>
+              <a href="#" class="panel-action">View All (12)</a>
+            </div>
+            <div class="eval-list">
+              
+              <!-- Copy 1 -->
+              <div class="eval-item">
+                <div class="eval-left">
+                  <div class="student-icon">RS</div>
+                  <div class="eval-details">
+                    <h4>Rahul Singh — GS2 Governance</h4>
+                    <p>Submitted: 2 hours ago • Mains 2025 Batch</p>
+                  </div>
+                </div>
+                <a href="#" class="btn-evaluate">Evaluate Now</a>
+              </div>
+
+              <!-- Copy 2 -->
+              <div class="eval-item">
+                <div class="eval-left">
+                  <div class="student-icon">PM</div>
+                  <div class="eval-details">
+                    <h4>Priya Mishra — Essay Paper</h4>
+                    <p>Submitted: 5 hours ago • Essay Foundation</p>
+                  </div>
+                </div>
+                <a href="#" class="btn-evaluate">Evaluate Now</a>
+              </div>
+
+              <!-- Copy 3 -->
+              <div class="eval-item">
+                <div class="eval-left">
+                  <div class="student-icon">AK</div>
+                  <div class="eval-details">
+                    <h4>Amit Kumar — GS4 Ethics Case Study</h4>
+                    <p>Submitted: Yesterday • RPSC RAS Batch</p>
+                  </div>
+                </div>
+                <a href="#" class="btn-evaluate">Evaluate Now</a>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Schedule Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📅 Today's Meetings</h2>
+            </div>
+            <div class="meeting-list">
+              
+              <div class="meeting-item">
+                <div class="meeting-time">14:00</div>
+                <div class="meeting-info">
+                  <h4>Weekly Review — Neha Sharma</h4>
+                  <p>Discussion on Prelims Test 4 performance.</p>
+                  <a href="#" class="btn-meet">Start Meet</a>
+                </div>
+              </div>
+
+              <div class="meeting-item">
+                <div class="meeting-time">16:30</div>
+                <div class="meeting-info">
+                  <h4>Doubt Clearing — Vikram</h4>
+                  <p>Economy concepts clarity.</p>
+                  <a href="#" class="btn-meet">Start Meet</a>
+                </div>
+              </div>
+
+              <div class="meeting-item">
+                <div class="meeting-time">18:00</div>
+                <div class="meeting-info">
+                  <h4>Batch Orientation</h4>
+                  <p>Group mentoring session (45 students)</p>
+                  <a href="#" class="btn-meet">Start Meet</a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase Auth Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Same config as index.html
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0T0bh7b7WpaGYyBk81MrqfRn2AUkXjfg",
+      authDomain: "mains-rone-cse-e5268.firebaseapp.com",
+      projectId: "mains-rone-cse-e5268",
+      storageBucket: "mains-rone-cse-e5268.firebasestorage.app",
+      messagingSenderId: "275537569597",
+      appId: "1:275537569597:web:e8e4ad1dc25e7b9744c754"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Set Date
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', options);
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User logged in
+        const email = user.email;
+        const namePart = email.split('@')[0];
+        const initial = namePart.charAt(0).toUpperCase();
+
+        document.getElementById('welcome-message').textContent = `Welcome, ${namePart}! 👋`;
+        document.getElementById('sidebar-user-email').textContent = email;
+        document.getElementById('user-avatar-initial').textContent = initial;
+        document.getElementById('topbar-avatar').textContent = initial;
+
+      } else {
+        // Not logged in -> redirect to login
+        window.location.href = 'index.html';
+      }
+    });
+
+    // Logout
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = 'index.html';
+      });
+    });
+
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    
+    mobileBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
