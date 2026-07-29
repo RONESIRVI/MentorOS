@@ -638,8 +638,8 @@
           </div>
           <div class="stat-card purple">
             <div class="stat-info">
-              <h3>78%</h3>
-              <p>Overall Accuracy</p>
+              <h3 id="overall-progress-stat">--%</h3>
+              <p>Overall Syllabus</p>
             </div>
             <div class="stat-icon">🎯</div>
           </div>
@@ -676,34 +676,8 @@
             <div class="panel-header">
               <h2 class="panel-title">📈 Syllabus Progress</h2>
             </div>
-            <div class="progress-list">
-              <div class="progress-item">
-                <div class="progress-header">
-                  <span>Modern History</span>
-                  <span>85%</span>
-                </div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: 85%;"></div>
-                </div>
-              </div>
-              <div class="progress-item">
-                <div class="progress-header">
-                  <span>Indian Polity</span>
-                  <span>72%</span>
-                </div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: 72%; background:#10b981;"></div>
-                </div>
-              </div>
-              <div class="progress-item">
-                <div class="progress-header">
-                  <span>Economy</span>
-                  <span>58%</span>
-                </div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" style="width: 58%; background:#f59e0b;"></div>
-                </div>
-              </div>
+            <div class="progress-list" id="syllabus-progress-list">
+              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading progress...</p>
             </div>
 
             <!-- Upcoming Mentor Session -->
@@ -762,6 +736,8 @@
         fetchLatestPlanner();
         // Fetch Today's Dynamic Tasks
         fetchTodayTasks();
+        // Fetch Syllabus Progress
+        fetchProgress();
       } else {
         // Not logged in -> redirect to login
         window.location.href = 'index.html';
@@ -878,6 +854,67 @@
       } catch (err) {
         console.error(err);
         taskList.innerHTML = '<p style="color: #ef4444; padding: 16px; text-align: center;">Failed to load tasks. Please check the planner image.</p>';
+      }
+    }
+
+    // Fetch Dynamic Syllabus Progress from JSON
+    async function fetchProgress() {
+      const progressList = document.getElementById('syllabus-progress-list');
+      if (!progressList) return;
+      
+      const timestamp = new Date().getTime();
+      const jsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/progress.json?v=${timestamp}`;
+      
+      try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) throw new Error("Failed to fetch progress JSON");
+        
+        const data = await response.json();
+        progressList.innerHTML = ''; // Clear loading text
+        
+        let hasProgress = false;
+        let overallCompleted = 0;
+        let overallTotal = 0;
+        
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899', '#14b8a6'];
+        let colorIndex = 0;
+        
+        for (const [subject, stats] of Object.entries(data)) {
+          if (stats.total > 0) {
+            hasProgress = true;
+            overallCompleted += stats.completed;
+            overallTotal += stats.total;
+            
+            const percent = Math.round((stats.completed / stats.total) * 100);
+            const color = colors[colorIndex % colors.length];
+            colorIndex++;
+            
+            progressList.innerHTML += `
+              <div class="progress-item">
+                <div class="progress-header">
+                  <span>${subject}</span>
+                  <span>${percent}%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: ${percent}%; background: ${color};"></div>
+                </div>
+              </div>
+            `;
+          }
+        }
+        
+        if (!hasProgress) {
+          progressList.innerHTML = '<p style="color: #64748b; text-align: center;">No progress data available.</p>';
+        } else if (overallTotal > 0) {
+          // Update Overall Progress Stat
+          const overallPercent = Math.round((overallCompleted / overallTotal) * 100);
+          const overallEl = document.getElementById('overall-progress-stat');
+          if(overallEl) overallEl.textContent = `${overallPercent}%`;
+        }
+
+      } catch (err) {
+        console.error(err);
+        progressList.innerHTML = '<p style="color: #ef4444; text-align: center;">Failed to load progress data.</p>';
       }
     }
 
