@@ -1,0 +1,445 @@
+import re
+
+with open(r'R:\RONE_Studio\RONE_MentorOS\Mentor\mentor-dashboard.html', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# We will inject the JS block at the end
+js_block = r"""
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { firebaseConfig } from '../firebase-config.js';
+    import { initSessionManager } from '../session-manager.js';
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Authentication Guard
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists() && docSnap.data().role === 'mentor') {
+            const data = docSnap.data();
+            const namePart = (data.name || user.email).split('@')[0];
+            const welcomeMessage = document.getElementById('welcome-message');
+            if (welcomeMessage) welcomeMessage.textContent = `Welcome, ${namePart}! 👋`;
+            
+            const avatar = document.getElementById('topbar-avatar');
+            if (avatar) avatar.textContent = namePart.charAt(0).toUpperCase();
+
+            // Format date
+            const dateStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const dateEl = document.getElementById('current-date');
+            if(dateEl) dateEl.textContent = dateStr;
+
+            initSessionManager(auth, signOut, '../index.html');
+            
+            // Load initial data
+            loadMentorData();
+          } else {
+            alert('Access Denied. Mentor role required.');
+            await signOut(auth);
+            window.location.href = '../index.html';
+          }
+        } catch (e) {
+          console.error(e);
+          window.location.href = '../index.html';
+        }
+      } else {
+        window.location.href = '../index.html';
+      }
+    });
+
+    const btnLogoutTop = document.getElementById('btnLogoutTop');
+    if (btnLogoutTop) {
+      btnLogoutTop.addEventListener('click', () => {
+        signOut(auth).then(() => window.location.href = '../index.html');
+      });
+    }
+
+    // Navigation Logic
+    window.switchMentorSection = function(sectionId) {
+      document.querySelectorAll('.admin-section').forEach(el => el.style.display = 'none');
+      const sec = document.getElementById(`section-${sectionId}`);
+      if (sec) sec.style.display = 'block';
+
+      document.querySelectorAll('.sidebar-nav-item').forEach(el => el.classList.remove('active'));
+      const activeLink = document.querySelector(`a[onclick*="${sectionId}"]`);
+      if (activeLink) activeLink.classList.add('active');
+
+      if(sectionId === 'overview') loadMentorData();
+      if(sectionId === 'students') loadStudents();
+      if(sectionId === 'evaluations') loadEvaluations();
+      if(sectionId === 'schedule') loadSchedule();
+    };
+
+    const _esc = (s) => (s||'').replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+
+    // Main Data Load
+    async function loadMentorData() {
+      try {
+        // Students
+        const stuSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
+        document.getElementById('stat-students').textContent = stuSnap.size;
+
+        // Evaluations
+        const evSnap = await getDocs(collection(db, 'evaluations'));
+        let pending = 0;
+        evSnap.forEach(d => { if(d.data().status === 'Pending') pending++; });
+        document.getElementById('stat-evals').textContent = pending;
+
+        // Schedule
+        const scSnap = await getDocs(collection(db, 'meetings'));
+        document.getElementById('stat-meetings').textContent = scSnap.size;
+      } catch (e) {
+        console.error('Stats load error', e);
+      }
+    }
+
+    async function loadStudents() {
+      const tbody = document.getElementById('students-table-body');
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;">Loading...</td></tr>';
+      try {
+        const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
+        let html = '';
+        snap.forEach(d => {
+          const user = d.data();
+          html += `<tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:15px; font-weight:600;">${_esc(user.name||'Student')}</td>
+            <td style="padding:15px; color:#64748b;">${_esc(user.email)}</td>
+            <td style="padding:15px;">Active</td>
+            <td style="padding:15px; text-align:right;">
+              <button onclick="alert('View progress coming soon')" class="btn-meet" style="border-color:#10b981; color:#10b981;">Progress</button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="4" style="padding:20px;text-align:center;">No students found</td></tr>';
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:red;">Error loading students</td></tr>';
+      }
+    }
+
+    async function loadEvaluations() {
+      const tbody = document.getElementById('evaluations-table-body');
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;">Loading...</td></tr>';
+      try {
+        const snap = await getDocs(collection(db, 'evaluations'));
+        let html = '';
+        snap.forEach(d => {
+          const ev = d.data();
+          const isPending = ev.status === 'Pending';
+          const badge = isPending ? '<span style="background:#fef3c7;color:#d97706;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Pending</span>' : '<span style="background:#dcfce7;color:#166534;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Evaluated</span>';
+          html += `<tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:15px; font-weight:600;">${_esc(ev.studentName)}</td>
+            <td style="padding:15px;">${_esc(ev.assignmentTitle)}</td>
+            <td style="padding:15px;">${badge}</td>
+            <td style="padding:15px;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:15px; text-align:right;">
+              ${isPending ? `<button onclick="window.openEvalModal('${d.id}')" class="btn-evaluate">Evaluate</button>` : `<button onclick="window.viewEval('${d.id}')" class="btn-meet">View</button>`}
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="5" style="padding:20px;text-align:center;">No evaluations found</td></tr>';
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:red;">Error loading evaluations</td></tr>';
+      }
+    }
+
+    async function loadSchedule() {
+      const list = document.getElementById('meeting-list-container');
+      list.innerHTML = '<div style="padding:20px;">Loading meetings...</div>';
+      try {
+        const snap = await getDocs(collection(db, 'meetings'));
+        let html = '';
+        snap.forEach(d => {
+          const m = d.data();
+          html += `<div class="meeting-item">
+            <div class="meeting-time">${_esc(m.time)}</div>
+            <div class="meeting-info" style="flex:1;">
+              <h4>${_esc(m.title)} — ${_esc(m.studentName)}</h4>
+              <p>${_esc(m.description)}</p>
+            </div>
+            <a href="${_esc(m.link)}" target="_blank" class="btn-meet" style="align-self:center;">Join Meet</a>
+          </div>`;
+        });
+        list.innerHTML = html || '<div style="padding:20px;">No upcoming meetings.</div>';
+      } catch(e) {
+        list.innerHTML = '<div style="padding:20px;color:red;">Error loading meetings</div>';
+      }
+    }
+
+    // Eval Modal logic
+    window.openEvalModal = async function(id) {
+      document.getElementById('eval-id').value = id;
+      document.getElementById('eval-marks').value = '';
+      document.getElementById('eval-feedback').value = '';
+      document.getElementById('eval-modal').style.display = 'flex';
+    };
+    window.closeEvalModal = function() {
+      document.getElementById('eval-modal').style.display = 'none';
+    };
+    window.saveEval = async function() {
+      const id = document.getElementById('eval-id').value;
+      const marks = document.getElementById('eval-marks').value;
+      const feedback = document.getElementById('eval-feedback').value;
+      try {
+        await updateDoc(doc(db, 'evaluations', id), {
+          marks: marks,
+          feedback: feedback,
+          status: 'Evaluated',
+          evaluatedAt: new Date().toISOString()
+        });
+        alert('Evaluation saved!');
+        closeEvalModal();
+        loadEvaluations();
+      } catch(e) {
+        alert('Failed to save evaluation');
+      }
+    };
+    
+    // Meet Modal logic
+    window.openMeetModal = function() {
+      document.getElementById('meet-modal').style.display = 'flex';
+    };
+    window.closeMeetModal = function() {
+      document.getElementById('meet-modal').style.display = 'none';
+    };
+    window.saveMeet = async function() {
+      const title = document.getElementById('meet-title').value;
+      const name = document.getElementById('meet-student').value;
+      const time = document.getElementById('meet-time').value;
+      const link = document.getElementById('meet-link').value;
+      if(!title || !name || !time || !link) { alert('All fields required'); return; }
+      try {
+        await setDoc(doc(db, 'meetings', Date.now().toString()), {
+          title, studentName: name, time, link, description: 'Scheduled by Mentor'
+        });
+        alert('Meeting scheduled!');
+        closeMeetModal();
+        loadSchedule();
+      } catch(e) {
+        alert('Failed to schedule meeting');
+      }
+    };
+
+    window.switchMentorSection('overview');
+
+  </script>
+</body>
+</html>
+"""
+
+# Let's replace the whole HTML with the new dynamic layout
+new_html = r"""<!DOCTYPE html>
+<html lang="hi-IN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1f5e">
+  <title>Mentor Dashboard - RONE MentorOS</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    body { background-color: #f8fafc; color: #0f172a; margin: 0; }
+    .dashboard-layout { display: flex; min-height: 100vh; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 280px; background-color: #0f172a; color: white;
+      display: flex; flex-direction: column; position: fixed;
+      height: 100vh; overflow-y: auto; z-index: 50;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-header { padding: 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .sidebar-logo-icon { background: linear-gradient(135deg, #10b981, #059669); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif; }
+    .sidebar-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.5px; }
+    
+    .sidebar-nav { padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .sidebar-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: rgba(255, 255, 255, 0.7); text-decoration: none; font-weight: 500; transition: all 0.2s ease; cursor:pointer;}
+    .sidebar-nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+    .sidebar-nav-item.active { background: rgba(255, 255, 255, 0.1); color: white; border-left: 3px solid #10b981; }
+    
+    /* Main Content */
+    .main-content { flex: 1; margin-left: 280px; display: flex; flex-direction: column; }
+    .topbar { height: 72px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .page-title { font-size: 1.25rem; font-weight: 600; color: #0f172a; margin: 0; }
+    
+    .dashboard-canvas { padding: 32px; flex: 1; }
+    .dash-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+    .welcome-text h1 { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0 0 8px 0; }
+    .welcome-text p { color: #64748b; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .mentor-badge { background: #dcfce7; color: #166534; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; border: 1px solid #bbf7d0; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+    .stat-card { background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .stat-info h3 { margin: 0 0 4px 0; font-size: 2rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+    .stat-info p { margin: 0; color: #64748b; font-size: 0.95rem; font-weight: 500; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .stat-card.blue .stat-info h3 { color: #2563eb; } .stat-card.blue .stat-icon { background: #eff6ff; }
+    .stat-card.red .stat-info h3 { color: #ef4444; } .stat-card.red .stat-icon { background: #fef2f2; }
+    .stat-card.amber .stat-info h3 { color: #f59e0b; } .stat-card.amber .stat-icon { background: #fffbeb; }
+    
+    .panel { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; }
+    .panel-title { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px 15px; text-align: left; background: #f8fafc; font-weight: 600; color: #475569; }
+    
+    .btn-meet { background: white; color: #3b82f6; border: 1px solid #3b82f6; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor:pointer;}
+    .btn-evaluate { background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor:pointer; }
+    
+    .meeting-item { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; margin-bottom:16px;}
+    .meeting-time { background: rgba(59, 130, 246, 0.1); color: #2563eb; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-align: center; min-width: 65px; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">R</div>
+        <div class="sidebar-logo-text">Mentor Workspace</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a onclick="window.switchMentorSection('overview')" class="sidebar-nav-item active"><span class="icon">🏠</span> Dashboard</a>
+        <a onclick="window.switchMentorSection('students')" class="sidebar-nav-item"><span class="icon">👥</span> My Students</a>
+        <a onclick="window.switchMentorSection('evaluations')" class="sidebar-nav-item"><span class="icon">✍️</span> Evaluations</a>
+        <a onclick="window.switchMentorSection('schedule')" class="sidebar-nav-item"><span class="icon">📅</span> Calendar & Calls</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 class="page-title">Mentor Dashboard</h2>
+        </div>
+        <div class="topbar-right" style="display: flex; gap: 15px; align-items: center;">
+          <button id="btnLogoutTop" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;">Sign Out</button>
+          <div class="user-avatar" id="topbar-avatar" style="width:36px; height:36px; background:#10b981; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600;">M</div>
+        </div>
+      </header>
+
+      <div class="dashboard-canvas">
+        
+        <!-- SECTION: OVERVIEW -->
+        <div id="section-overview" class="admin-section">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1 id="welcome-message">Welcome, Mentor! 👋</h1>
+              <p>📅 <span id="current-date">Loading date...</span></p>
+            </div>
+            <div class="mentor-badge">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Verified Mentor
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card blue">
+              <div class="stat-info"><h3 id="stat-students">0</h3><p>Active Students</p></div><div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-info"><h3 id="stat-evals">0</h3><p>Pending Copies</p></div><div class="stat-icon">✍️</div>
+            </div>
+            <div class="stat-card amber">
+              <div class="stat-info"><h3 id="stat-meetings">0</h3><p>Meetings Scheduled</p></div><div class="stat-icon">📅</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: STUDENTS -->
+        <div id="section-students" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text"><h1>My Students 👥</h1><p>Monitor progress and assign tasks.</p></div>
+            <button onclick="loadStudents()" style="background:#10b981;color:white;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;">Refresh List</button>
+          </div>
+          <div class="panel">
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Status</th><th style="text-align:right;">Action</th></tr></thead>
+              <tbody id="students-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION: EVALUATIONS -->
+        <div id="section-evaluations" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text"><h1>Evaluations ✍️</h1><p>Review submitted copies and provide feedback.</p></div>
+            <button onclick="loadEvaluations()" style="background:#10b981;color:white;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;">Refresh Copies</button>
+          </div>
+          <div class="panel">
+            <table>
+              <thead><tr><th>Student Name</th><th>Assignment</th><th>Status</th><th>Marks</th><th style="text-align:right;">Action</th></tr></thead>
+              <tbody id="evaluations-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION: SCHEDULE -->
+        <div id="section-schedule" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text"><h1>Calendar & Calls 📅</h1><p>Upcoming 1:1 sessions.</p></div>
+            <button onclick="openMeetModal()" style="background:#10b981;color:white;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;">+ Schedule Meeting</button>
+          </div>
+          <div class="panel" id="meeting-list-container">
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div id="eval-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999;">
+    <div style="background:white;padding:30px;border-radius:15px;width:90%;max-width:500px;">
+      <h2>Evaluate Copy</h2>
+      <input type="hidden" id="eval-id">
+      <div style="margin-bottom:15px;">
+        <label style="display:block;margin-bottom:5px;">Marks (out of 100)</label>
+        <input type="number" id="eval-marks" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;" box-sizing="border-box">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;margin-bottom:5px;">Feedback Comments</label>
+        <textarea id="eval-feedback" rows="4" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="closeEvalModal()" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:6px;background:white;cursor:pointer;">Cancel</button>
+        <button onclick="saveEval()" style="flex:2;padding:10px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Submit Evaluation</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="meet-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999;">
+    <div style="background:white;padding:30px;border-radius:15px;width:90%;max-width:500px;">
+      <h2>Schedule Meeting</h2>
+      <div style="margin-bottom:10px;">
+        <label>Topic</label>
+        <input type="text" id="meet-title" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+        <label>Student Name</label>
+        <input type="text" id="meet-student" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+        <label>Time</label>
+        <input type="text" id="meet-time" placeholder="e.g. 14:00" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;">
+        <label>Meeting Link (Google Meet / Zoom)</label>
+        <input type="text" id="meet-link" placeholder="https://meet.google.com/..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button onclick="closeMeetModal()" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:6px;background:white;cursor:pointer;">Cancel</button>
+        <button onclick="saveMeet()" style="flex:2;padding:10px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Schedule</button>
+      </div>
+    </div>
+  </div>
+"""
+
+with open(r'R:\RONE_Studio\RONE_MentorOS\Mentor\mentor-dashboard.html', 'w', encoding='utf-8') as f:
+    f.write(new_html + js_block)
+
+print('Mentor Dashboard structure replaced and JS logic injected successfully!')
