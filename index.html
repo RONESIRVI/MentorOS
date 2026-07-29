@@ -20,32 +20,9 @@
   <!-- ===== TOP MARQUEE ANNOUNCEMENT BAR ===== -->
   <aside class="announcement-bar" role="region" aria-label="Announcements">
     <div class="marquee-wrap">
-      <div class="marquee-track">
-        <a href="#courses" class="marquee-item">🔔 GS Foundation Course 2027 — Admissions Open</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Prelims Test Series 2026 — Enroll Now</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 RPSC RAS Foundation Batch — Starting Soon</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Mains Answer Writing Program — Limited Seats</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 AI-Powered Mentorship Program (LMP) 2026 — Join Now</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Essay & Ethics Special Batch — New Batch Forming</a>
-        <span class="marquee-dot">•</span>
-        <!-- Duplicate for seamless loop -->
-        <a href="#courses" class="marquee-item">🔔 GS Foundation Course 2027 — Admissions Open</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Prelims Test Series 2026 — Enroll Now</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 RPSC RAS Foundation Batch — Starting Soon</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Mains Answer Writing Program — Limited Seats</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 AI-Powered Mentorship Program (LMP) 2026 — Join Now</a>
-        <span class="marquee-dot">•</span>
-        <a href="#courses" class="marquee-item">🔔 Essay & Ethics Special Batch — New Batch Forming</a>
-        <span class="marquee-dot">•</span>
+      <div class="marquee-track" id="marqueeTrack">
+        <!-- Fetched from ticker.json dynamically -->
+        <span style="padding: 0 20px; color: #cbd5e1; font-size: 0.9rem;">Loading announcements...</span>
       </div>
     </div>
   </aside>
@@ -644,5 +621,41 @@
 
 
   <script type="module" src="script.js"></script>
+
+  <script>
+    // Fetch and render the ticker from ticker.json
+    async function loadTicker() {
+      const track = document.getElementById('marqueeTrack');
+      if (!track) return;
+      try {
+        // Cache buster to always get fresh ticker
+        const res = await fetch(`ticker.json?t=${new Date().getTime()}`);
+        if (!res.ok) throw new Error('Failed to load ticker.json');
+        
+        const data = await res.json();
+        if (data && data.length > 0) {
+          let html = '';
+          // We render the items twice to ensure a seamless CSS marquee loop
+          for (let i = 0; i < 2; i++) {
+            data.forEach(item => {
+              const icon = item.Icon || '🔔';
+              const msg = item.Message || '';
+              const link = item.Link || '#';
+              html += `<a href="${link}" class="marquee-item">${icon} ${msg}</a><span class="marquee-dot">•</span>`;
+            });
+          }
+          track.innerHTML = html;
+        } else {
+          track.innerHTML = '<span style="padding: 0 20px; color: #cbd5e1;">No new announcements.</span>';
+        }
+      } catch (err) {
+        console.error('Ticker Error:', err);
+        track.innerHTML = '<span style="padding: 0 20px; color: #cbd5e1;">Error loading announcements.</span>';
+      }
+    }
+    
+    // Call loadTicker when DOM is ready
+    document.addEventListener('DOMContentLoaded', loadTicker);
+  </script>
 </body>
 </html>
