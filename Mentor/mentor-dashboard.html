@@ -297,7 +297,7 @@
       }
     }
 
-    async function loadStudents() {
+    window.loadStudents = async function() {
       const tbody = document.getElementById('students-table-body');
       tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;">Loading...</td></tr>';
       try {
@@ -320,7 +320,7 @@
       }
     }
 
-    async function loadEvaluations() {
+    window.loadEvaluations = async function() {
       const tbody = document.getElementById('evaluations-table-body');
       tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;">Loading...</td></tr>';
       try {
@@ -346,7 +346,7 @@
       }
     }
 
-    async function loadSchedule() {
+    window.loadSchedule = async function() {
       const list = document.getElementById('meeting-list-container');
       list.innerHTML = '<div style="padding:20px;">Loading meetings...</div>';
       try {
@@ -370,6 +370,7 @@
     }
 
     // Eval Modal logic
+    window.viewEval = function(id) { alert('View Evaluation coming soon'); };
     window.openEvalModal = async function(id) {
       document.getElementById('eval-id').value = id;
       document.getElementById('eval-marks').value = '';
