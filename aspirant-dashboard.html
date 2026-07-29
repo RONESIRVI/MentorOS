@@ -803,14 +803,15 @@
             taskList.innerHTML += `
               <div class="task-item">
                 <div class="task-left">
-                  <div class="task-checkbox"></div>
+                  <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                   <div class="task-details">
-                    <h4>${item.subject || 'Task'}</h4>
+                    <h4><a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" style="color: inherit; text-decoration: none;" title="Click to open Google Sheet">${item.subject || 'Task'} 🔗</a></h4>
                     <p>${item.topic || ''}</p>
                   </div>
                 </div>
                 <div class="task-meta">
                   <span class="task-tag ${tagClass}">${item.task}</span>
+                  <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" title="Update in Google Sheet" style="margin-left: 12px; text-decoration: none; font-size: 1.2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">📝</a>
                 </div>
               </div>
             `;
@@ -823,14 +824,15 @@
               taskList.innerHTML += `
                 <div class="task-item">
                   <div class="task-left">
-                    <div class="task-checkbox"></div>
+                    <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                     <div class="task-details">
-                      <h4>${rev.subject}</h4>
+                      <h4><a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" style="color: inherit; text-decoration: none;" title="Click to open Google Sheet">${rev.subject} 🔗</a></h4>
                       <p>${rev.topic}</p>
                     </div>
                   </div>
                   <div class="task-meta">
                     <span class="task-tag tag-history">Revision</span>
+                    <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" title="Update in Google Sheet" style="margin-left: 12px; text-decoration: none; font-size: 1.2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">📝</a>
                   </div>
                 </div>
               `;
