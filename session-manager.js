@@ -200,7 +200,7 @@ function injectModal() {
   document.body.appendChild(overlay);
 
   // Button listeners
-  document.getElementById('session-btn-continue').addEventListener('click', resetSessionTimer);
+  document.getElementById('session-btn-continue').addEventListener('click', window.dismissSessionWarning);
   document.getElementById('session-btn-logout').addEventListener('click', performLogout);
 }
 
@@ -261,19 +261,43 @@ async function performLogout() {
 
 // ─── Reset Session Timer (called on any user activity) ────────────────────────
 function resetSessionTimer() {
-  // Hide modal if visible
   const overlay = document.getElementById('session-timeout-overlay');
+  
+  // If the warning modal is already showing, IGNORE mouse/keyboard activity.
+  // The user MUST click "Continue Session" to reset the timer.
+  if (overlay && overlay.classList.contains('active')) {
+    return;
+  }
+
+  // Hide modal if visible (failsafe)
   if (overlay) overlay.classList.remove('active');
 
   // Clear countdown
-  clearInterval(countdownTimer);
-  countdownTimer = null;
-  secondsLeft    = WARNING_DURATION_SEC;
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  secondsLeft = WARNING_DURATION_SEC;
 
   // Reset inactivity timer
-  clearTimeout(inactivityTimer);
+  if (inactivityTimer) clearTimeout(inactivityTimer);
   inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
 }
+
+// Global function for the Continue Session button
+window.dismissSessionWarning = function() {
+  const overlay = document.getElementById('session-timeout-overlay');
+  if (overlay) overlay.classList.remove('active');
+  
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  secondsLeft = WARNING_DURATION_SEC;
+  
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
+};
 
 // ─── Public Init Function ──────────────────────────────────────────────────────
 export function initSessionManager(authInstance, signOutFunction, redirectPath = '../index.html') {
