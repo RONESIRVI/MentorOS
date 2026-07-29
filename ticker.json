@@ -1,27 +1,15 @@
-[
-  {
-    "Icon": "🔔",
-    "Message": "GS Foundation Course 2027 — Admissions Open                                                                                                                                                   ",
-    "Link": "#courses"
-  },
-  {
-    "Icon": "🔔",
-    "Message": "                                                                                                                                             ",
-    "Link": "#"
-  },
-  {
-    "Icon": "🔔",
-    "Message": "RPSC RAS Foundation Batch — Starting Soon",
-    "Link": "#courses"
-  },
-  {
-    "Icon": "🔔",
-    "Message": "                                                                                                                                             ",
-    "Link": "#"
-  },
-  {
-    "Icon": "🔔",
-    "Message": "                                                                                                                                             ",
-    "Link": "#"
-  }
-]
+{
+  "speed": 45,
+  "messages": [
+    {
+      "Icon": "🔔",
+      "Message": "GS Foundation — Starting Soon   ",
+      "Link": "#courses"
+    },
+    {
+      "Icon": "🔔",
+      "Message": "RPSC RAS  Batch — Starting Soon",
+      "Link": "#courses"
+    }
+  ]
+}
