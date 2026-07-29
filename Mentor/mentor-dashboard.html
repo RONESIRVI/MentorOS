@@ -219,7 +219,7 @@
         try {
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
-          if (docSnap.exists() && docSnap.data().role === 'mentor') {
+          if (docSnap.exists() && (docSnap.data().role || '').toLowerCase() === 'mentor') {
             const data = docSnap.data();
             const namePart = (data.name || user.email).split('@')[0];
             const welcomeMessage = document.getElementById('welcome-message');
