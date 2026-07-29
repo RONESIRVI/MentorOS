@@ -410,8 +410,7 @@
           createdAt: new Date().toISOString()
         });
         
-        alert("✅ Payment Submitted!
-Your UTR has been sent for verification. You will get course access once the Admin approves it.");
+        alert("✅ Payment Submitted!\nYour UTR has been sent for verification. You will get course access once the Admin approves it.");
         window.closePaymentModal();
       } catch (err) {
         console.error(err);
@@ -422,6 +421,8 @@ Your UTR has been sent for verification. You will get course access once the Adm
       }
     };
 
+
+    window.switchAspirantSection('home');
 
     // Mobile menu toggle
     const mobileBtn = document.getElementById('mobileMenuBtn');
