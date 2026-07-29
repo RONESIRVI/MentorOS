@@ -679,6 +679,30 @@
       sidebar.classList.toggle('open');
     });
 
+    // --- SPA NAVIGATION LOGIC ---
+    window.switchAdminSection = function(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.admin-section').forEach(sec => {
+        sec.classList.remove('active');
+        sec.style.display = 'none';
+      });
+      // Show target section
+      const target = document.getElementById('section-' + sectionId);
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+      
+      // Update sidebar nav active state
+      document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + sectionId);
+      if (activeNav) activeNav.classList.add('active');
+
+      // Close mobile sidebar if open
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+
       // Fetch configuration for different sections
       const sectionsConfig = {
         'overview': { path: 'Overview/overview.html', js: null },
