@@ -1,15 +1,17 @@
 {
-  "speed": 45,
+  "speed": 25,
   "messages": [
     {
       "Icon": "🔔",
       "Message": "GS Foundation — Starting Soon   ",
-      "Link": "#courses"
+      "Link": "#courses",
+      "Speed ": 45
     },
     {
       "Icon": "🔔",
       "Message": "RPSC RAS  Batch — Starting Soon",
-      "Link": "#courses"
+      "Link": "#courses",
+      "Speed ": 45
     }
   ]
 }
