@@ -619,43 +619,61 @@
 
         <!-- SECTION: COURSES -->
         <div id="section-courses" class="admin-section" style="display:none;">
-          <div class="dash-header" style="margin-bottom:24px;">
-            <div class="welcome-text">
-              <h1>Courses &amp; Batches 📚</h1>
-              <p>Manage active courses, batches, and enrollment limits.</p>
+
+          <div id="course-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+            <div style="background:white;border-radius:20px;padding:36px;width:95%;max-width:560px;box-shadow:0 25px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto;">
+              <button onclick="closeCourseModal()" style="position:absolute;top:16px;right:16px;background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">X</button>
+              <h2 id="course-modal-title" style="margin:0 0 24px;font-size:1.25rem;font-weight:700;color:#0f172a;">Add New Course</h2>
+              <div style="display:grid;gap:14px;">
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Course Name *</label><input id="cf-name" type="text" placeholder="e.g. UPSC CSE Foundation 2026" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                  <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Max Seats *</label><input id="cf-seats" type="number" placeholder="500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                  <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Fee (Rs.)</label><input id="cf-fee" type="number" placeholder="12000" min="0" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                </div>
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Category</label><select id="cf-category" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background:white;cursor:pointer;"><option value="UPSC">UPSC CSE</option><option value="RAS">RAS / RPSC</option><option value="Foundation">Foundation</option><option value="Test Series">Test Series</option><option value="Other">Other</option></select></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Start Date</label><input id="cf-startdate" type="date" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Status</label><select id="cf-status" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background:white;cursor:pointer;"><option value="Active">Active</option><option value="Draft">Draft</option><option value="Inactive">Inactive</option></select></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Description</label><textarea id="cf-desc" rows="2" placeholder="Short description..." style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea></div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:24px;">
+                <button onclick="closeCourseModal()" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;background:white;cursor:pointer;font-weight:600;color:#64748b;">Cancel</button>
+                <button onclick="window.saveCourse()" style="flex:2;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;cursor:pointer;font-weight:700;font-size:0.95rem;">Save Course</button>
+              </div>
+              <input type="hidden" id="cf-edit-id">
             </div>
-            <button onclick="alert('Add Course - Firestore coming soon!')" style="background:#10b981;color:white;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:600;">+ Add New Course</button>
           </div>
+
+          <div class="dash-header" style="margin-bottom:24px;">
+            <div class="welcome-text"><h1>Courses &amp; Batches &#x1F4DA;</h1><p>Add, edit, and manage all courses from Firestore in real-time.</p></div>
+            <button onclick="openAddCourseModal()" style="background:linear-gradient(135deg,#10b981,#059669);color:white;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:0.95rem;box-shadow:0 4px 12px rgba(16,185,129,0.3);">+ Add New Course</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px;">
+            <div style="background:white;border-radius:12px;padding:20px;border:1px solid #e2e8f0;text-align:center;"><div style="font-size:1.8rem;font-weight:700;color:#6366f1;" id="cs-total">--</div><div style="color:#64748b;font-size:0.85rem;margin-top:4px;">Total Courses</div></div>
+            <div style="background:white;border-radius:12px;padding:20px;border:1px solid #e2e8f0;text-align:center;"><div style="font-size:1.8rem;font-weight:700;color:#10b981;" id="cs-active">--</div><div style="color:#64748b;font-size:0.85rem;margin-top:4px;">Active</div></div>
+            <div style="background:white;border-radius:12px;padding:20px;border:1px solid #e2e8f0;text-align:center;"><div style="font-size:1.8rem;font-weight:700;color:#f59e0b;" id="cs-enrolled">--</div><div style="color:#64748b;font-size:0.85rem;margin-top:4px;">Total Enrolled</div></div>
+            <div style="background:white;border-radius:12px;padding:20px;border:1px solid #e2e8f0;text-align:center;"><div style="font-size:1.8rem;font-weight:700;color:#3b82f6;" id="cs-seats">--</div><div style="color:#64748b;font-size:0.85rem;margin-top:4px;">Total Seats</div></div>
+          </div>
+
           <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h2 class="panel-title">All Courses</h2>
+              <button onclick="window.loadCoursesList()" style="background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;">Refresh</button>
+            </div>
             <div class="table-container">
-              <table style="width:100%;border-collapse:collapse;min-width:600px;">
+              <table style="width:100%;border-collapse:collapse;min-width:700px;">
                 <thead>
                   <tr style="text-align:left;border-bottom:2px solid #e2e8f0;">
                     <th style="padding:12px;font-weight:600;color:#64748b;">Course Name</th>
-                    <th style="padding:12px;font-weight:600;color:#64748b;">Enrolled</th>
+                    <th style="padding:12px;font-weight:600;color:#64748b;">Category</th>
+                    <th style="padding:12px;font-weight:600;color:#64748b;">Enrolled / Seats</th>
+                    <th style="padding:12px;font-weight:600;color:#64748b;">Fee</th>
                     <th style="padding:12px;font-weight:600;color:#64748b;">Status</th>
                     <th style="padding:12px;font-weight:600;color:#64748b;text-align:right;">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:12px;font-weight:600;">UPSC CSE Foundation 2026</td>
-                    <td style="padding:12px;">342 / 500</td>
-                    <td style="padding:12px;"><span class="status-badge status-active">Active</span></td>
-                    <td style="padding:12px;text-align:right;"><button style="padding:4px 8px;font-size:0.8rem;border-radius:4px;border:1px solid #e2e8f0;background:white;cursor:pointer;">Edit</button></td>
-                  </tr>
-                  <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:12px;font-weight:600;">RAS Mains Answer Writing</td>
-                    <td style="padding:12px;">128 / 200</td>
-                    <td style="padding:12px;"><span class="status-badge status-active">Active</span></td>
-                    <td style="padding:12px;text-align:right;"><button style="padding:4px 8px;font-size:0.8rem;border-radius:4px;border:1px solid #e2e8f0;background:white;cursor:pointer;">Edit</button></td>
-                  </tr>
-                  <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:12px;font-weight:600;">NCERT Base Camp</td>
-                    <td style="padding:12px;">850 / 1000</td>
-                    <td style="padding:12px;"><span class="status-badge status-active">Active</span></td>
-                    <td style="padding:12px;text-align:right;"><button style="padding:4px 8px;font-size:0.8rem;border-radius:4px;border:1px solid #e2e8f0;background:white;cursor:pointer;">Edit</button></td>
-                  </tr>
+                <tbody id="courses-table-body">
+                  <tr><td colspan="6" style="padding:30px;text-align:center;color:#64748b;">Loading courses...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -850,8 +868,130 @@
       }
     };
 
+
     // Show overview section on load
     window.switchAdminSection('overview');
+
+    // COURSES & BATCHES - FIRESTORE CRUD LOGIC
+
+    window.loadCoursesList = async function() {
+      const tbody = document.getElementById('courses-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#64748b;">Loading courses...</td></tr>';
+      try {
+        const snapshot = await getDocs(collection(db, 'courses'));
+        let html = '', totalCourses=0, activeCourses=0, totalEnrolled=0, totalSeats=0;
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data(), id = docSnap.id;
+          totalCourses++;
+          if ((d.status||'Active') === 'Active') activeCourses++;
+          totalEnrolled += parseInt(d.enrolled||0);
+          totalSeats    += parseInt(d.seats||0);
+          const status = d.status||'Active';
+          const bc = status==='Active'?'#dcfce7;color:#166534':status==='Draft'?'#dbeafe;color:#1d4ed8':'#fee2e2;color:#991b1b';
+          const epct = d.seats? Math.round((d.enrolled||0)/d.seats*100):0;
+          const pc = epct>=90?'#ef4444':epct>=70?'#f59e0b':'#10b981';
+          const safeName = (d.name||'').replace(/'/g, '&apos;');
+          html += '<tr style="border-bottom:1px solid #f1f5f9;">'
+            + '<td style="padding:12px;"><div style="font-weight:600;color:#0f172a;">'+(d.name||'&mdash;')+'</div>'
+            + (d.description?'<div style="font-size:0.8rem;color:#64748b;margin-top:2px;">'+d.description.substring(0,60)+'</div>':'')
+            + (d.startDate?'<div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Starts: '+d.startDate+'</div>':'')
+            + '</td>'
+            + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color:#475569;">'+(d.category||'General')+'</span></td>'
+            + '<td style="padding:12px;"><div style="font-weight:600;color:#0f172a;">'+(d.enrolled||0)+' / '+(d.seats||'&mdash;')+'</div>'
+            + '<div style="height:5px;background:#e2e8f0;border-radius:4px;margin-top:4px;width:80px;"><div style="height:100%;width:'+epct+'%;background:'+pc+';border-radius:4px;"></div></div></td>'
+            + '<td style="padding:12px;font-weight:600;color:#0f172a;">'+(d.fee?'&#8377;'+parseInt(d.fee).toLocaleString('en-IN'):'&mdash;')+'</td>'
+            + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+status+'</span></td>'
+            + '<td style="padding:12px;text-align:right;">'
+            + '<button onclick="window.openEditCourseModal(\''+id+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border:1px solid #e2e8f0;background:white;cursor:pointer;font-weight:600;margin-right:6px;color:#475569;">Edit</button>'
+            + '<button onclick="window.deleteCourse(\''+id+'\',\''+safeName+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Delete</button>'
+            + '</td></tr>';
+        });
+        tbody.innerHTML = html || '<tr><td colspan="6" style="padding:30px;text-align:center;color:#64748b;">No courses yet. Click "+ Add New Course" to get started!</td></tr>';
+        const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+        s('cs-total',totalCourses); s('cs-active',activeCourses);
+        s('cs-enrolled',totalEnrolled.toLocaleString('en-IN')); s('cs-seats',totalSeats.toLocaleString('en-IN'));
+      } catch (err) {
+        console.error('Courses load error:', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#ef4444;">Failed to load courses. Check Firestore permissions.</td></tr>';
+      }
+    };
+
+    window.openAddCourseModal = function() {
+      document.getElementById('course-modal-title').textContent = 'Add New Course';
+      ['cf-name','cf-seats','cf-fee','cf-startdate','cf-desc'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('cf-category').value = 'UPSC';
+      document.getElementById('cf-status').value = 'Active';
+      document.getElementById('cf-edit-id').value = '';
+      document.getElementById('course-modal').style.display = 'flex';
+    };
+
+    window.openEditCourseModal = async function(courseId) {
+      try {
+        const snap = await getDoc(doc(db, 'courses', courseId));
+        if (!snap.exists()) { alert('Course not found!'); return; }
+        const d = snap.data();
+        document.getElementById('course-modal-title').textContent = 'Edit Course';
+        document.getElementById('cf-name').value = d.name||'';
+        document.getElementById('cf-seats').value = d.seats||'';
+        document.getElementById('cf-fee').value = d.fee||'';
+        document.getElementById('cf-category').value = d.category||'UPSC';
+        document.getElementById('cf-startdate').value = d.startDate||'';
+        document.getElementById('cf-status').value = d.status||'Active';
+        document.getElementById('cf-desc').value = d.description||'';
+        document.getElementById('cf-edit-id').value = courseId;
+        document.getElementById('course-modal').style.display = 'flex';
+      } catch (err) { alert('Error loading course.'); }
+    };
+
+    window.closeCourseModal = function() {
+      document.getElementById('course-modal').style.display = 'none';
+    };
+
+    window.saveCourse = async function() {
+      const name = document.getElementById('cf-name').value.trim();
+      const seats = document.getElementById('cf-seats').value.trim();
+      if (!name || !seats) { alert('Course Name and Max Seats are required!'); return; }
+      const courseData = {
+        name, seats: parseInt(seats),
+        fee: parseInt(document.getElementById('cf-fee').value)||0,
+        category: document.getElementById('cf-category').value,
+        startDate: document.getElementById('cf-startdate').value,
+        status: document.getElementById('cf-status').value,
+        description: document.getElementById('cf-desc').value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      const editId = document.getElementById('cf-edit-id').value;
+      try {
+        if (editId) {
+          await setDoc(doc(db, 'courses', editId), courseData, { merge: true });
+          alert('Course updated!');
+        } else {
+          courseData.enrolled = 0;
+          courseData.createdAt = new Date().toISOString();
+          await setDoc(doc(db, 'courses', Date.now().toString()), courseData);
+          alert('Course added!');
+        }
+        window.closeCourseModal();
+        window.loadCoursesList();
+      } catch (err) { console.error(err); alert('Failed to save. Check Firestore permissions.'); }
+    };
+
+    window.deleteCourse = async function(courseId, courseName) {
+      if (!confirm('DELETE "' + courseName + '"? This cannot be undone!')) return;
+      try {
+        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await dd(doc(db, 'courses', courseId));
+        alert('Course deleted!');
+        window.loadCoursesList();
+      } catch (err) { console.error(err); alert('Failed to delete.'); }
+    };
+
+    const _origSwitch = window.switchAdminSection;
+    window.switchAdminSection = function(sectionId) {
+      _origSwitch(sectionId);
+      if (sectionId === 'courses') window.loadCoursesList();
+    };
   </script>
 </body>
 </html>
