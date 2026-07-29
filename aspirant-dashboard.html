@@ -768,7 +768,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // Same config as index.html
     const firebaseConfig = {
@@ -816,31 +816,30 @@
       });
     });
 
-    // Fetch Latest Planner from Firestore
-    async function fetchLatestPlanner() {
-      try {
-        const plannersRef = collection(db, "planners");
-        const q = query(plannersRef, orderBy("uploaded_at", "desc"), limit(1));
-        const querySnapshot = await getDocs(q);
+    // Fetch Latest Planner directly from GitHub Repository
+    function fetchLatestPlanner() {
+      const loadingText = document.getElementById('planner-loading');
+      const plannerImg = document.getElementById('daily-planner-img');
+      
+      // Use raw.githubusercontent.com to fetch the image directly
+      // Append a timestamp cache-buster so the browser always loads the newest image
+      const timestamp = new Date().getTime();
+      const githubImageUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/Pillar_Schedule.png?v=${timestamp}`;
+      
+      if (plannerImg) {
+        plannerImg.src = githubImageUrl;
         
-        const loadingText = document.getElementById('planner-loading');
-        const plannerImg = document.getElementById('daily-planner-img');
+        // When image loads successfully
+        plannerImg.onload = () => {
+          loadingText.style.display = 'none';
+          plannerImg.style.display = 'block';
+        };
         
-        if (!querySnapshot.empty) {
-          const latestDoc = querySnapshot.docs[0].data();
-          if (latestDoc.url && plannerImg) {
-            plannerImg.src = latestDoc.url;
-            plannerImg.onload = () => {
-              loadingText.style.display = 'none';
-              plannerImg.style.display = 'block';
-            };
-          }
-        } else {
+        // If image fails to load (e.g. not found)
+        plannerImg.onerror = () => {
+          console.error("Error loading planner image from GitHub.");
           loadingText.textContent = "No planner available for today.";
-        }
-      } catch (err) {
-        console.error("Error fetching planner:", err);
-        document.getElementById('planner-loading').textContent = "Failed to load planner.";
+        };
       }
     }
 
