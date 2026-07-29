@@ -724,6 +724,23 @@
     // Auth state listener
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // Enforce Mentor Role
+        let role = 'Aspirant';
+        const emailLower = user.email.toLowerCase();
+        if (emailLower === 'figuring.cse@gmail.com') {
+          role = 'admin';
+        } else {
+          try {
+            const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
+            if (roleDoc.exists()) role = roleDoc.data().role || 'Aspirant';
+          } catch (err) {}
+        }
+        
+        if (role.toLowerCase() !== 'mentor') {
+          window.location.href = 'index.html';
+          return;
+        }
+
         // User logged in
         const email = user.email;
         const namePart = email.split('@')[0];
