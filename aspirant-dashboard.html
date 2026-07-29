@@ -666,51 +666,8 @@
               <h2 class="panel-title">📅 Today's Action Plan</h2>
               <a href="#" class="panel-action">View Full Planner</a>
             </div>
-            <div class="task-list">
-              <!-- Task 1 -->
-              <div class="task-item completed">
-                <div class="task-left">
-                  <div class="task-checkbox">✓</div>
-                  <div class="task-details">
-                    <h4>Morning Current Affairs</h4>
-                    <p>Read daily digest & complete 10 MCQs</p>
-                  </div>
-                </div>
-                <div class="task-meta">
-                  <span class="task-tag tag-current">Current Affairs</span>
-                  <span style="font-size:0.8rem; color:#64748b;">9:00 AM</span>
-                </div>
-              </div>
-
-              <!-- Task 2 -->
-              <div class="task-item">
-                <div class="task-left">
-                  <div class="task-checkbox"></div>
-                  <div class="task-details">
-                    <h4>GS1 History Lecture - Modern India</h4>
-                    <p>Watch Lecture 12 & prepare short notes</p>
-                  </div>
-                </div>
-                <div class="task-meta">
-                  <span class="task-tag tag-history">History</span>
-                  <span style="font-size:0.8rem; color:#64748b;">11:30 AM</span>
-                </div>
-              </div>
-
-              <!-- Task 3 -->
-              <div class="task-item">
-                <div class="task-left">
-                  <div class="task-checkbox"></div>
-                  <div class="task-details">
-                    <h4>Daily Answer Writing Practice</h4>
-                    <p>Write answers for Q3 and Q4 from Polity</p>
-                  </div>
-                </div>
-                <div class="task-meta">
-                  <span class="task-tag tag-writing">Mains AW</span>
-                  <span style="font-size:0.8rem; color:#64748b;">4:00 PM</span>
-                </div>
-              </div>
+            <div class="task-list" id="action-plan-list">
+              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading today's tasks...</p>
             </div>
           </div>
 
@@ -803,6 +760,8 @@
 
         // Fetch Latest Planner
         fetchLatestPlanner();
+        // Fetch Today's Dynamic Tasks
+        fetchTodayTasks();
       } else {
         // Not logged in -> redirect to login
         window.location.href = 'index.html';
@@ -840,6 +799,85 @@
           console.error("Error loading planner image from GitHub.");
           loadingText.textContent = "No planner available for today.";
         };
+      }
+    }
+
+    // Fetch Dynamic Action Plan tasks from JSON
+    async function fetchTodayTasks() {
+      const taskList = document.getElementById('action-plan-list');
+      if (!taskList) return;
+      
+      const timestamp = new Date().getTime();
+      const jsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/todays_tasks.json?v=${timestamp}`;
+      
+      try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) throw new Error("Failed to fetch tasks JSON");
+        
+        const data = await response.json();
+        taskList.innerHTML = ''; // Clear loading text
+        
+        let hasTasks = false;
+        
+        data.forEach(item => {
+          // Handle regular classes and analysis
+          if (item.task.startsWith('CLASSES') || item.task === 'Analysis') {
+            hasTasks = true;
+            let tagClass = item.task === 'Analysis' ? 'tag-writing' : 'tag-current';
+            taskList.innerHTML += `
+              <div class="task-item">
+                <div class="task-left">
+                  <div class="task-checkbox"></div>
+                  <div class="task-details">
+                    <h4>${item.subject || 'Task'}</h4>
+                    <p>${item.topic || ''}</p>
+                  </div>
+                </div>
+                <div class="task-meta">
+                  <span class="task-tag ${tagClass}">${item.task}</span>
+                </div>
+              </div>
+            `;
+          }
+          
+          // Handle Spaced Repetition (array of revisions)
+          if (item.task === 'REVISION' && item.revisions && item.revisions.length > 0) {
+            item.revisions.forEach(rev => {
+              hasTasks = true;
+              taskList.innerHTML += `
+                <div class="task-item">
+                  <div class="task-left">
+                    <div class="task-checkbox"></div>
+                    <div class="task-details">
+                      <h4>${rev.subject}</h4>
+                      <p>${rev.topic}</p>
+                    </div>
+                  </div>
+                  <div class="task-meta">
+                    <span class="task-tag tag-history">Revision</span>
+                  </div>
+                </div>
+              `;
+            });
+          }
+        });
+        
+        if (!hasTasks) {
+          taskList.innerHTML = '<p style="color: #64748b; padding: 16px; text-align: center;">No tasks assigned for today. Take a rest!</p>';
+        }
+        
+        // Add click event for checkboxes
+        document.querySelectorAll('.task-item').forEach(el => {
+          el.addEventListener('click', function(e) {
+            this.classList.toggle('completed');
+            const checkbox = this.querySelector('.task-checkbox');
+            checkbox.innerHTML = this.classList.contains('completed') ? '✓' : '';
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        taskList.innerHTML = '<p style="color: #ef4444; padding: 16px; text-align: center;">Failed to load tasks. Please check the planner image.</p>';
       }
     }
 
