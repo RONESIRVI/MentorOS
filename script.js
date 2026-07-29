@@ -36,7 +36,9 @@ onAuthStateChanged(auth, async (user) => {
     // Strict Tab Checking during login
     if (expectedRoleLogin && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
        await signOut(auth);
-       showError(`❌ Access Denied! You are registered as '${role}', not '${expectedRoleLogin}'. Please use the correct tab.`);
+       const displayRole = role.charAt(0).toUpperCase() + role.slice(1);
+       const displayExpected = expectedRoleLogin.charAt(0).toUpperCase() + expectedRoleLogin.slice(1);
+       showError(`❌ Access Denied! You are registered as '${displayRole}', not '${displayExpected}'. Please use the correct tab.`);
        expectedRoleLogin = null;
        return;
     }
