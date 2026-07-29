@@ -549,22 +549,22 @@
         <a href="#" class="sidebar-nav-item" id="nav-courses" onclick="switchAspirantSection('courses')">
           <span class="icon">📚</span> Courses & Payments
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
           <span class="icon">📅</span> Daily Planner
         </a>
         <a href="#" class="sidebar-nav-item">
           <span class="icon">✍️</span> Answer Writing
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
           <span class="icon">📝</span> Test Series
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
           <span class="icon">📊</span> Report Card
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
           <span class="icon">📰</span> Current Affairs
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
           <span class="icon">🤖</span> AI Study Planner
         </a>
       </nav>
@@ -727,18 +727,60 @@
           </div>
         </div>
         <!-- END SECTION: COURSES -->
+
+        <!-- SECTION: ANSWER WRITING -->
+        <div id="section-answers" class="aspirant-section" style="display:none;">
+          <div class="dash-header"><div class="welcome-text"><h1>Answer Writing ✍️</h1><p>Submit your answers for Mentor evaluation.</p></div></div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+            <!-- Submit Form -->
+            <div class="stat-card" style="display:block;">
+              <h3 style="margin:0 0 16px; font-size:1.1rem;">Submit New Answer</h3>
+              <label style="display:block; margin-bottom:6px; font-weight:600; font-size:0.85rem; color:#475569;">Test/Subject Title</label>
+              <input type="text" id="ans-title" placeholder="e.g. GS 1 Full Length" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:16px;">
+              
+              <label style="display:block; margin-bottom:6px; font-weight:600; font-size:0.85rem; color:#475569;">Answer PDF Link (Google Drive)</label>
+              <input type="url" id="ans-link" placeholder="Paste link here" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:16px;">
+              
+              <button onclick="window.submitAnswer()" id="btn-submit-ans" style="width:100%; padding:12px; background:#3b82f6; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Submit for Evaluation</button>
+            </div>
+            
+            <!-- Past Submissions -->
+            <div class="stat-card" style="display:block;">
+              <h3 style="margin:0 0 16px; font-size:1.1rem;">My Submissions</h3>
+              <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; text-align:left;">
+                  <thead>
+                    <tr style="border-bottom:2px solid #e2e8f0; color:#64748b; font-size:0.85rem;">
+                      <th style="padding:12px;">Title</th>
+                      <th style="padding:12px;">Submitted On</th>
+                      <th style="padding:12px;">Status</th>
+                      <th style="padding:12px;">Marks</th>
+                      <th style="padding:12px;">Feedback</th>
+                    </tr>
+                  </thead>
+                  <tbody id="answers-table-body">
+                    <tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Loading submissions...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END SECTION: ANSWER WRITING -->
+
       </div>
     </main>
   </div>
 
   <!-- Firebase Auth & Firestore Logic -->
   <script type="module">
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { initSessionManager } from '../session-manager.js';
 
-    // Same config as index.html
     const firebaseConfig = {
       apiKey: "AIzaSyB0T0bh7b7WpaGYyBk81MrqfRn2AUkXjfg",
       authDomain: "mains-rone-cse-e5268.firebaseapp.com",
@@ -751,68 +793,235 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
+    
+    let _currentUserEmail = null;
+    let _currentUserName = null;
+    
     // Set Date
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', options);
 
-    // Auth state listener
+    // Global Functions (Attached to window)
+    window.switchAspirantSection = function(sectionId) {
+      document.querySelectorAll('.aspirant-section').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.sidebar-nav-item').forEach(el => el.classList.remove('active'));
+      const sec = document.getElementById('section-' + sectionId);
+      if(sec) sec.style.display = 'block';
+      const nav = document.getElementById('nav-' + sectionId);
+      if(nav) nav.classList.add('active');
+
+      if(sectionId === 'courses') window.loadCoursesList();
+      if(sectionId === 'answers') window.loadMyAnswers();
+    };
+
+    window.openPaymentModal = function(id, name, fee) {
+      document.getElementById('pay-course-id').value = id;
+      document.getElementById('pay-course-name').value = name;
+      document.getElementById('pay-course-fee').value = fee;
+      document.getElementById('pay-amount-display').textContent = 'Pay: ₹' + parseInt(fee).toLocaleString('en-IN');
+      document.getElementById('pay-utr').value = '';
+      document.getElementById('payment-modal').style.display = 'flex';
+    };
+
+    window.closePaymentModal = function() {
+      document.getElementById('payment-modal').style.display = 'none';
+    };
+
+    window.submitPayment = async function() {
+      const utr = document.getElementById('pay-utr').value.trim();
+      if (!utr) { alert("Please enter the UTR / Transaction ID"); return; }
+      if (utr.length < 8) { alert("UTR must be valid."); return; }
+      
+      const btn = document.getElementById('btn-submit-payment');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      const id = document.getElementById('pay-course-id').value;
+      const name = document.getElementById('pay-course-name').value;
+      const fee = document.getElementById('pay-course-fee').value;
+
+      try {
+        const txId = Date.now().toString();
+        await setDoc(doc(db, 'transactions', txId), {
+          student: _currentUserEmail || 'Unknown Aspirant',
+          course: name,
+          courseId: id,
+          amount: parseInt(fee),
+          date: new Date().toISOString().split('T')[0],
+          mode: 'UPI',
+          status: 'Pending',
+          notes: 'UTR: ' + utr,
+          createdAt: new Date().toISOString()
+        });
+        
+        alert("✅ Payment Submitted! Your UTR has been sent for verification. You will get course access once the Admin approves it.");
+        window.closePaymentModal();
+        window.loadCoursesList(); // Reload to show Pending status
+      } catch (err) {
+        console.error(err);
+        alert("❌ Failed to submit payment. Please try again.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Payment for Verification';
+      }
+    };
+
+    window.loadCoursesList = async function() {
+      const grid = document.getElementById('available-courses-grid');
+      if (!grid) return;
+      grid.innerHTML = '<p style="color:#64748b;">Loading...</p>';
+      
+      try {
+        // 1. Fetch user's transactions
+        const txSnap = await getDocs(query(collection(db, 'transactions'), where('student', '==', _currentUserEmail)));
+        const userEnrollments = {};
+        txSnap.forEach(t => {
+           const td = t.data();
+           // If Paid, it overrides Pending
+           if (td.status === 'Paid') userEnrollments[td.courseId] = 'Paid';
+           else if (td.status === 'Pending' && userEnrollments[td.courseId] !== 'Paid') userEnrollments[td.courseId] = 'Pending';
+        });
+
+        // 2. Fetch active courses
+        const cSnap = await getDocs(query(collection(db, 'courses'), where('status', '==', 'Active')));
+        let html = '';
+        
+        cSnap.forEach(d => {
+          const c = d.data();
+          const id = d.id;
+          const status = userEnrollments[id];
+          
+          let actionBtn = `<button onclick="window.openPaymentModal('${id}', '${c.name.replace(/'/g, "\'")}', '${c.fee}')" style="width:100%; padding:10px; background:#3b82f6; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">₹${parseInt(c.fee).toLocaleString('en-IN')} - Buy Now</button>`;
+          
+          if (status === 'Paid') {
+             actionBtn = `<button disabled style="width:100%; padding:10px; background:#dcfce7; color:#166534; border:1px solid #166534; border-radius:6px; font-weight:600; cursor:not-allowed;">✅ Enrolled</button>`;
+          } else if (status === 'Pending') {
+             actionBtn = `<button disabled style="width:100%; padding:10px; background:#fef9c3; color:#854d0e; border:1px solid #854d0e; border-radius:6px; font-weight:600; cursor:not-allowed;">⏳ Verification Pending</button>`;
+          }
+
+          html += `
+            <div class="stat-card" style="display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <span style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;">${c.category || 'Course'}</span>
+                <h3 style="margin:8px 0 4px; font-size:1.1rem; color:#0f172a;">${c.name}</h3>
+                <p style="margin:0; font-size:0.85rem; color:#64748b;">${c.description || 'No description available.'}</p>
+              </div>
+              <div style="font-size:0.85rem; color:#64748b;">
+                <strong>Seats:</strong> ${c.enrolled || 0}/${c.seats} <br>
+                <strong>Starts:</strong> ${c.startDate || 'N/A'}
+              </div>
+              <div style="margin-top:auto; padding-top:12px; border-top:1px solid #e2e8f0;">
+                ${actionBtn}
+              </div>
+            </div>
+          `;
+        });
+        
+        grid.innerHTML = html || '<p style="color:#64748b;">No active courses found.</p>';
+      } catch(err) {
+        console.error(err);
+        grid.innerHTML = '<p style="color:#ef4444;">Failed to load courses.</p>';
+      }
+    };
+    
+    window.submitAnswer = async function() {
+      const title = document.getElementById('ans-title').value.trim();
+      const link = document.getElementById('ans-link').value.trim();
+      if(!title || !link) { alert('All fields are required'); return; }
+      
+      const btn = document.getElementById('btn-submit-ans');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      
+      try {
+        const docId = Date.now().toString();
+        await setDoc(doc(db, 'evaluations', docId), {
+          studentName: _currentUserName || _currentUserEmail.split('@')[0],
+          studentId: _currentUserEmail,
+          title: title,
+          link: link,
+          status: 'Pending',
+          timestamp: new Date().toISOString()
+        });
+        alert('Answer submitted for evaluation!');
+        document.getElementById('ans-title').value = '';
+        document.getElementById('ans-link').value = '';
+        window.loadMyAnswers();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to submit answer.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Submit for Evaluation';
+      }
+    };
+    
+    window.loadMyAnswers = async function() {
+      const tbody = document.getElementById('answers-table-body');
+      if(!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Loading...</td></tr>';
+      
+      try {
+        const snap = await getDocs(query(collection(db, 'evaluations'), where('studentId', '==', _currentUserEmail)));
+        let html = '';
+        snap.forEach(d => {
+          const ev = d.data();
+          const dStr = new Date(ev.timestamp).toLocaleDateString();
+          const bc = ev.status==='Pending'?'#fef9c3;color:#854d0e':'#dcfce7;color:#166534';
+          html += `<tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:12px;"><a href="${ev.link}" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:500;">${ev.title}</a></td>
+            <td style="padding:12px; font-size:0.85rem; color:#64748b;">${dStr}</td>
+            <td style="padding:12px;"><span style="padding:4px 8px; border-radius:12px; font-size:0.75rem; font-weight:600; background:${bc};">${ev.status}</span></td>
+            <td style="padding:12px; font-weight:600; color:#0f172a;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:12px; font-size:0.85rem; color:#64748b;">${ev.feedback || '-'}</td>
+          </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">No submissions yet.</td></tr>';
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">Failed to load.</td></tr>';
+      }
+    };
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         // Enforce Aspirant Role
         let role = 'Aspirant';
         const emailLower = user.email.toLowerCase();
-        if (emailLower === 'figuring.cse@gmail.com') {
-          role = 'admin';
-        } else {
-          try {
-            const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
-            if (roleDoc.exists()) role = roleDoc.data().role || 'Aspirant';
-          } catch (err) {}
-        }
+        
+        try {
+          const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
+          if (roleDoc.exists()) role = roleDoc.data().role || 'Aspirant';
+        } catch (err) {}
         
         if (role.toLowerCase() !== 'aspirant') {
           window.location.href = '../index.html';
           return;
         }
 
-        // User logged in
-        const email = user.email;
-        const namePart = email.split('@')[0];
-        const initial = namePart.charAt(0).toUpperCase();
+        // Setup Globals
+        _currentUserEmail = emailLower;
+        const namePart = user.email.split('@')[0];
+        _currentUserName = namePart;
 
         document.getElementById('welcome-message').textContent = `Welcome back, ${namePart}! 👋`;
         const topbarAvatar = document.getElementById('topbar-avatar');
-        if (topbarAvatar) topbarAvatar.textContent = initial;
+        if (topbarAvatar) topbarAvatar.textContent = namePart.charAt(0).toUpperCase();
 
-        // Start session inactivity timer (7 min idle → 3 min warning → logout)
         initSessionManager(auth, signOut, '../index.html');
+        
+        // Setup Logout
+        const btnLogoutTop = document.getElementById('btnLogoutTop');
+        if (btnLogoutTop) btnLogoutTop.addEventListener('click', () => signOut(auth).then(() => window.location.href = '../index.html'));
 
-        // Fetch Latest Planner
-        fetchLatestPlanner();
-        // Fetch Today's Dynamic Tasks
-        fetchTodayTasks();
-        // Fetch Syllabus Progress
-        fetchProgress();
+        if (typeof fetchLatestPlanner === 'function') fetchLatestPlanner();
+        if (typeof fetchTodayTasks === 'function') fetchTodayTasks();
+        if (typeof fetchProgress === 'function') fetchProgress();
       } else {
-        // Not logged in -> redirect to login
         window.location.href = '../index.html';
       }
     });
 
 
-
-    const btnLogoutTop = document.getElementById('btnLogoutTop');
-    if (btnLogoutTop) {
-      btnLogoutTop.addEventListener('click', () => {
-        signOut(auth).then(() => {
-          window.location.href = '../index.html';
-        });
-      });
-    }
-
-    // Fetch Latest Planner directly from GitHub Repository
-    function fetchLatestPlanner() {
+function fetchLatestPlanner() {
       const loadingText = document.getElementById('planner-loading');
       const plannerImg = document.getElementById('daily-planner-img');
       
@@ -1144,7 +1353,8 @@
           createdAt: new Date().toISOString()
         });
         
-        alert("✅ Payment Submitted!\nYour UTR has been sent for verification. You will get course access once the Admin approves it.");
+        alert("✅ Payment Submitted!
+Your UTR has been sent for verification. You will get course access once the Admin approves it.");
         window.closePaymentModal();
       } catch (err) {
         console.error(err);
@@ -1182,7 +1392,9 @@
         let token = localStorage.getItem('github_pat');
         
         if (!token) {
-          token = prompt("Please enter your GitHub Personal Access Token (PAT) with 'repo' scope to sync data directly from GitHub Actions:\n\nIf you don't have one, generate it at https://github.com/settings/tokens");
+          token = prompt("Please enter your GitHub Personal Access Token (PAT) with 'repo' scope to sync data directly from GitHub Actions:
+
+If you don't have one, generate it at https://github.com/settings/tokens");
           if (!token) return; // User cancelled
           localStorage.setItem('github_pat', token.trim());
         }
@@ -1215,10 +1427,16 @@
           });
 
           if (response.ok || response.status === 204) {
-            alert("✅ Sync started successfully!\n\nThe backend script is now pulling data from your Excel sheet.\nPlease wait about 1-2 minutes and then refresh this page to see the updated Planner and Progress.");
+            alert("✅ Sync started successfully!
+
+The backend script is now pulling data from your Excel sheet.
+Please wait about 1-2 minutes and then refresh this page to see the updated Planner and Progress.");
           } else {
             const errData = await response.json();
-            alert(`❌ Failed to start sync.\nError: ${errData.message || response.statusText}\n\nYour Token might be invalid or expired. I've cleared it, please try clicking Sync again with a valid token.`);
+            alert(`❌ Failed to start sync.
+Error: ${errData.message || response.statusText}
+
+Your Token might be invalid or expired. I've cleared it, please try clicking Sync again with a valid token.`);
             localStorage.removeItem('github_pat'); // Clear invalid token
           }
         } catch (err) {
@@ -1231,6 +1449,7 @@
         }
       });
     }
-  </script>
+  
+</script>
 </body>
 </html>
