@@ -72,7 +72,8 @@ async function redirectByRole(user, role) {
   
   // Prevent infinite redirect loops if already on the dashboard
   if (!window.location.pathname.includes(redirectUrl)) {
-    window.location.href = redirectUrl;
+    // Add cache buster so the user always sees the latest secured dashboard version
+    window.location.href = redirectUrl + '?t=' + new Date().getTime();
   }
 }
 
