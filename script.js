@@ -20,9 +20,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const ROLE_REDIRECTS = {
-  admin:    'admin-dashboard.html',
-  mentor:   'mentor-dashboard.html',
-  Aspirant: 'aspirant-dashboard.html'
+  admin:    'Admin/admin-dashboard.html',
+  mentor:   'Mentor/mentor-dashboard.html',
+  Aspirant: 'Aspirant/aspirant-dashboard.html'
 };
 
 const SUPER_ADMIN_EMAIL = 'figuring.cse@gmail.com';
