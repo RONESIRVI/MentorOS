@@ -21,7 +21,10 @@ const db = getFirestore(app);
 
 const ROLE_REDIRECTS = {
   admin:    'Admin/admin-dashboard.html',
+  Admin:    'Admin/admin-dashboard.html',
   mentor:   'Mentor/mentor-dashboard.html',
+  Mentor:   'Mentor/mentor-dashboard.html',
+  aspirant: 'Aspirant/aspirant-dashboard.html',
   Aspirant: 'Aspirant/aspirant-dashboard.html'
 };
 
@@ -86,10 +89,17 @@ async function redirectByRole(user, role) {
   if (!role) {
     role = await getUserRole(user.email);
   }
-  const redirectUrl = ROLE_REDIRECTS[role] || ROLE_REDIRECTS.Aspirant;
+  // Normalize role to lookup (handle both 'Mentor' and 'mentor' etc.)
+  const roleKey = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+  const redirectUrl = ROLE_REDIRECTS[roleKey] || ROLE_REDIRECTS[role] || ROLE_REDIRECTS.Aspirant;
   
   // Prevent infinite redirect loops if already on the dashboard
-  if (!window.location.pathname.includes(redirectUrl)) {
+  const currentPath = window.location.pathname;
+  const alreadyThere = currentPath.includes('admin-dashboard') || 
+                       currentPath.includes('mentor-dashboard') || 
+                       currentPath.includes('aspirant-dashboard');
+  
+  if (!alreadyThere) {
     // Add cache buster so the user always sees the latest secured dashboard version
     window.location.href = redirectUrl + '?t=' + new Date().getTime();
   }

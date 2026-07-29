@@ -738,6 +738,7 @@
         }
         
         if (role.toLowerCase() !== 'mentor') {
+          // Not a mentor, redirect to login (admin goes to admin panel via script.js)
           window.location.href = '../index.html';
           return;
         }
