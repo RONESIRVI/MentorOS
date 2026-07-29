@@ -1014,9 +1014,9 @@
           + '<td style="padding:12px;color:#475569;font-size:0.9rem;">'+(t.date||'&mdash;')+'</td>'
           + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+st+'</span></td>'
           + '<td style="padding:12px;text-align:right;">'
-          + (st==='Pending' ? '<button onclick="window.approveTxn(\\''+t.id+'\\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:none;background:#10b981;cursor:pointer;font-weight:600;margin-right:5px;color:white;">Approve</button>' : '')
-          + '<button onclick="window.openEditTxnModal(\\''+t.id+'\\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #e2e8f0;background:white;cursor:pointer;font-weight:600;margin-right:5px;color:#475569;">Edit</button>'
-          + '<button onclick="window.deleteTxn(\\''+t.id+'\\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Del</button>'
+          + (st==='Pending' ? '<button onclick="window.approveTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:none;background:#10b981;cursor:pointer;font-weight:600;margin-right:5px;color:white;">Approve</button>' : '')
+          + '<button onclick="window.openEditTxnModal(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #e2e8f0;background:white;cursor:pointer;font-weight:600;margin-right:5px;color:#475569;">Edit</button>'
+          + '<button onclick="window.deleteTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Del</button>'
           + '</td></tr>';
       });
       tbody.innerHTML = html;
