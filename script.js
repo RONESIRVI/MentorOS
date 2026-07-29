@@ -40,6 +40,20 @@ onAuthStateChanged(auth, async (user) => {
        const displayExpected = expectedRoleLogin.charAt(0).toUpperCase() + expectedRoleLogin.slice(1);
        showError(`❌ Access Denied! You are registered as '${displayRole}', not '${displayExpected}'. Please use the correct tab.`);
        expectedRoleLogin = null;
+       
+       // Reset all login buttons if they were stuck on "Signing in..."
+       document.querySelectorAll('.btn-login').forEach(btn => {
+         if (btn.textContent.includes('Signing in')) {
+           btn.disabled = false;
+           if (btn.classList.contains('mentor-btn')) btn.textContent = 'Login as Mentor →';
+           else if (btn.classList.contains('admin-btn')) btn.textContent = 'Login to Admin ERP →';
+           else {
+             btn.innerHTML = '<span>Login to Dashboard</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+             btn.style.opacity = '1';
+           }
+         }
+       });
+       
        return;
     }
     
