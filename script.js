@@ -4,7 +4,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0T0bh7b7WpaGYyBk81MrqfRn2AUkXjfg",
@@ -71,6 +71,10 @@ async function getUserRole(email) {
     const roleDoc = await getDoc(roleDocRef);
     if (roleDoc.exists()) {
       return roleDoc.data().role || 'Aspirant';
+    } else {
+      // Auto-register new user as Aspirant
+      await setDoc(roleDocRef, { role: 'Aspirant' });
+      return 'Aspirant';
     }
   } catch (err) {
     console.error('Role fetch error:', err);

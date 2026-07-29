@@ -493,22 +493,22 @@
       </div>
       
       <nav class="sidebar-nav">
-        <a href="#" class="sidebar-nav-item active">
+        <a href="#" class="sidebar-nav-item active" id="nav-overview" onclick="switchAdminSection('overview')">
           <span class="icon">📊</span> Overview
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-users" onclick="switchAdminSection('users')">
           <span class="icon">👥</span> User Management
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-courses" onclick="switchAdminSection('courses')">
           <span class="icon">📚</span> Courses & Batches
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-revenue" onclick="switchAdminSection('revenue')">
           <span class="icon">💳</span> Revenue & Sales
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-content" onclick="switchAdminSection('content')">
           <span class="icon">📝</span> Content CMS
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-settings" onclick="switchAdminSection('settings')">
           <span class="icon">⚙️</span> Settings
         </a>
       </nav>
@@ -541,147 +541,172 @@
       <!-- Dashboard Canvas -->
       <div class="dashboard-canvas">
         
-        <!-- Header Section -->
-        <div class="dash-header">
-          <div class="welcome-text">
-            <h1 id="welcome-message">System Overview 🚀</h1>
-            <p>📅 <span id="current-date">Loading date...</span> • All systems operational</p>
+        <!-- SECTION: OVERVIEW -->
+        <div id="section-overview" class="admin-section active">
+          <!-- Header Section -->
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1 id="welcome-message">System Overview 🚀</h1>
+              <p>📅 <span id="current-date">Loading date...</span> • All systems operational</p>
+            </div>
+            <div class="admin-badge">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              System Admin
+            </div>
           </div>
-          <div class="admin-badge">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            System Admin
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card green">
+              <div class="stat-info">
+                <h3>₹4.2L</h3>
+                <p>Revenue (This Month)</p>
+              </div>
+              <div class="stat-icon">💰</div>
+            </div>
+            <div class="stat-card blue">
+              <div class="stat-info">
+                <h3 id="stat-total-users">--</h3>
+                <p>Total Registered Users</p>
+              </div>
+              <div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-card purple">
+              <div class="stat-info">
+                <h3>342</h3>
+                <p>Active Course Enrollments</p>
+              </div>
+              <div class="stat-icon">📚</div>
+            </div>
+            <div class="stat-card slate">
+              <div class="stat-info">
+                <h3>99.9%</h3>
+                <p>Server Uptime</p>
+              </div>
+              <div class="stat-icon">⚡</div>
+            </div>
+          </div>
+
+          <!-- Content Grid -->
+          <div class="content-grid">
+            <!-- Recent Registrations Placeholder -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">👥 Quick Overview</h2>
+                <a href="#" class="panel-action" onclick="switchAdminSection('users')">Manage Users →</a>
+              </div>
+              <p style="color:var(--mute); font-size:0.9rem;">To view and manage all users, go to the User Management section.</p>
+            </div>
+            
+            <!-- Server Status -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">⚡ Server Status</h2>
+              </div>
+              <div class="server-status">
+                <div class="server-card">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                      <h4>Main Database (Firestore)</h4>
+                      <p>Running optimally</p>
+                    </div>
+                    <span class="pulse-dot"></span>
+                  </div>
+                </div>
+                <div class="server-card">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                      <h4>Authentication Service</h4>
+                      <p>0 login failures in 24h</p>
+                    </div>
+                    <span class="pulse-dot"></span>
+                  </div>
+                </div>
+                <div class="server-card">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                      <h4>Storage (AWS S3 / Firebase)</h4>
+                      <p>12GB / 50GB used</p>
+                    </div>
+                    <span class="pulse-dot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <!-- END SECTION: OVERVIEW -->
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-          <div class="stat-card green">
-            <div class="stat-info">
-              <h3>₹4.2L</h3>
-              <p>Revenue (This Month)</p>
+        <!-- SECTION: USER MANAGEMENT -->
+        <div id="section-users" class="admin-section" style="display:none;">
+          <div class="dash-header" style="margin-bottom: 24px;">
+            <div class="welcome-text">
+              <h1>User Management 👥</h1>
+              <p>View all registered users and assign roles (Aspirant, Mentor, Admin)</p>
             </div>
-            <div class="stat-icon">💰</div>
+            <button class="panel-action" onclick="loadUsersList()" style="background:var(--navy); color:white; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">↻ Refresh List</button>
           </div>
-          <div class="stat-card blue">
-            <div class="stat-info">
-              <h3>1,248</h3>
-              <p>Total Students</p>
-            </div>
-            <div class="stat-icon">👥</div>
-          </div>
-          <div class="stat-card purple">
-            <div class="stat-info">
-              <h3>342</h3>
-              <p>Active Course Enrollments</p>
-            </div>
-            <div class="stat-icon">📚</div>
-          </div>
-          <div class="stat-card slate">
-            <div class="stat-info">
-              <h3>99.9%</h3>
-              <p>Server Uptime</p>
-            </div>
-            <div class="stat-icon">⚡</div>
-          </div>
-        </div>
 
-        <!-- Content Grid -->
-        <div class="content-grid">
-          
-          <!-- Recent Registrations -->
           <div class="panel">
-            <div class="panel-header">
-              <h2 class="panel-title">👥 Recent Registrations</h2>
-              <a href="#" class="panel-action">View All Users</a>
-            </div>
             <div class="table-container">
-              <table>
+              <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
                 <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Course</th>
-                    <th>Date</th>
-                    <th>Status</th>
+                  <tr style="text-align: left; border-bottom: 2px solid var(--border); color: var(--mute);">
+                    <th style="padding: 12px; font-weight:600;">Email ID</th>
+                    <th style="padding: 12px; font-weight:600;">Current Role</th>
+                    <th style="padding: 12px; font-weight:600; text-align:right;">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="admin-users-table-body">
                   <tr>
-                    <td>
-                      <div class="user-cell">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="avatar">
-                        <div>
-                          <div style="font-weight:600; color:#0f172a;">Aman Sharma</div>
-                          <div style="font-size:0.8rem; color:#64748b;">aman@example.com</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>GS Foundation 2027</td>
-                    <td>Today, 10:42 AM</td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="user-cell">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="avatar">
-                        <div>
-                          <div style="font-weight:600; color:#0f172a;">Sneha Patel</div>
-                          <div style="font-size:0.8rem; color:#64748b;">sneha@example.com</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Mains Answer Writing</td>
-                    <td>Yesterday</td>
-                    <td><span class="status-badge status-pending">Pending Auth</span></td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="user-cell">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="avatar">
-                        <div>
-                          <div style="font-weight:600; color:#0f172a;">Ravi Kumar</div>
-                          <div style="font-size:0.8rem; color:#64748b;">ravi.k@example.com</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>RPSC RAS Batch</td>
-                    <td>Oct 24, 2026</td>
-                    <td><span class="status-badge status-active">Active</span></td>
+                    <td colspan="3" style="padding: 20px; text-align: center; color: var(--mute);">Loading users...</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
+        </div>
+        <!-- END SECTION: USER MANAGEMENT -->
 
-          <!-- System Status Panel -->
-          <div class="panel">
-            <div class="panel-header">
-              <h2 class="panel-title">⚙️ System Status</h2>
-            </div>
-            <div class="status-list">
-              <div class="status-item">
-                <span class="status-label">Database Connection</span>
-                <span class="status-value value-ok">Healthy</span>
-              </div>
-              <div class="status-item">
-                <span class="status-label">Firebase Auth</span>
-                <span class="status-value value-ok">Active</span>
-              </div>
-              <div class="status-item">
-                <span class="status-label">Storage Capacity</span>
-                <span class="status-value value-warn">82% Full</span>
-              </div>
-              <div class="status-item">
-                <span class="status-label">Payment Gateway</span>
-                <span class="status-value value-ok">Operational</span>
-              </div>
-            </div>
-
-            <div class="server-card">
-              <h4><span class="pulse-dot"></span>Production Server</h4>
-              <p>App Engine instance running smoothly. Response time: ~45ms. CPU Usage: 12%.</p>
+        <!-- SECTION: COURSES -->
+        <div id="section-courses" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1>Courses & Batches 📚</h1>
+              <p>Module coming soon.</p>
             </div>
           </div>
+        </div>
+        <!-- END SECTION: COURSES -->
 
+        <!-- SECTION: REVENUE -->
+        <div id="section-revenue" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1>Revenue & Sales 💳</h1>
+              <p>Module coming soon.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: CONTENT CMS -->
+        <div id="section-content" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1>Content CMS 📝</h1>
+              <p>Module coming soon.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: SETTINGS -->
+        <div id="section-settings" class="admin-section" style="display:none;">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1>Settings ⚙️</h1>
+              <p>Module coming soon.</p>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -692,7 +717,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // Same config as index.html
     const firebaseConfig = {
@@ -764,6 +789,112 @@
     mobileBtn.addEventListener('click', () => {
       sidebar.classList.toggle('open');
     });
+
+    // --- SPA NAVIGATION LOGIC ---
+    window.switchAdminSection = function(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.admin-section').forEach(sec => {
+        sec.classList.remove('active');
+        sec.style.display = 'none';
+      });
+      // Show target section
+      const target = document.getElementById('section-' + sectionId);
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+      }
+      
+      // Update sidebar nav active state
+      document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + sectionId);
+      if (activeNav) activeNav.classList.add('active');
+
+      // Close mobile sidebar if open
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+
+      // Auto-load data based on section
+      if (sectionId === 'users') {
+        window.loadUsersList();
+      }
+    };
+
+    // --- USER MANAGEMENT LOGIC ---
+
+    window.loadUsersList = async function() {
+      const tbody = document.getElementById('admin-users-table-body');
+      tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--mute);">Fetching latest users...</td></tr>';
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "userRoles"));
+        let html = '';
+        let totalUsers = 0;
+
+        querySnapshot.forEach((docSnap) => {
+          totalUsers++;
+          const email = docSnap.id;
+          const data = docSnap.data();
+          const role = data.role || 'Aspirant';
+          
+          let roleBadgeClass = 'status-pending';
+          if (role.toLowerCase() === 'admin') roleBadgeClass = 'status-active';
+          if (role.toLowerCase() === 'mentor') roleBadgeClass = 'status-active'; // Or another style
+
+          // Avatar initial
+          const initial = email.charAt(0).toUpperCase();
+
+          html += `
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 12px;">
+                <div class="user-cell" style="display:flex; align-items:center; gap:12px;">
+                  <div class="user-avatar" style="width:36px; height:36px; background:#e2e8f0; color:#475569; display:flex; align-items:center; justify-content:center; border-radius:50%; font-weight:bold;">${initial}</div>
+                  <div>
+                    <div style="font-weight:600; color:#0f172a;">${email}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="padding: 12px;">
+                <span class="status-badge ${roleBadgeClass}">${role.charAt(0).toUpperCase() + role.slice(1)}</span>
+              </td>
+              <td style="padding: 12px; text-align:right;">
+                <select onchange="changeUserRole('${email}', this.value)" style="padding:6px; border:1px solid var(--border); border-radius:6px; background:white; color:var(--text); cursor:pointer;">
+                  <option value="" disabled selected>Change Role...</option>
+                  <option value="Aspirant">Aspirant</option>
+                  <option value="Mentor">Mentor</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </td>
+            </tr>
+          `;
+        });
+
+        if (html === '') {
+          html = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: var(--mute);">No registered users found.</td></tr>';
+        }
+
+        tbody.innerHTML = html;
+        const totalUsersEl = document.getElementById('stat-total-users');
+        if (totalUsersEl) totalUsersEl.textContent = totalUsers;
+
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #ef4444;">Failed to load users. See console.</td></tr>';
+      }
+    };
+
+    window.changeUserRole = async function(email, newRole) {
+      if (!confirm(`Are you sure you want to make ${email} a ${newRole}?`)) return;
+      
+      try {
+        await setDoc(doc(db, "userRoles", email), { role: newRole }, { merge: true });
+        alert(`Successfully updated ${email} to ${newRole}!`);
+        window.loadUsersList(); // Refresh
+      } catch (error) {
+        console.error("Error updating role:", error);
+        alert("Failed to update role. Check console.");
+      }
+    };
   </script>
 </body>
 </html>
