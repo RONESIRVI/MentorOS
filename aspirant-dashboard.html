@@ -770,38 +770,40 @@
       const loadingText = document.getElementById('planner-loading');
       const plannerImg = document.getElementById('daily-planner-img');
       
-      // Use raw.githubusercontent.com to fetch the image directly
-      // Append a timestamp cache-buster so the browser always loads the newest image
-      const timestamp = new Date().getTime();
-      const githubImageUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/Pillar_Schedule.png?v=${timestamp}`;
+      const todayStr = getISTDateStr();
+      const specificImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.png?t=${Date.now()}`;
+      const defaultImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/Pillar_Schedule.png?t=${Date.now()}`;
       
-      if (plannerImg) {
-        plannerImg.src = githubImageUrl;
-        
-        // When image loads successfully
-        plannerImg.onload = () => {
-          loadingText.style.display = 'none';
-          plannerImg.style.display = 'block';
-        };
-        
-        // If image fails to load (e.g. not found)
-        plannerImg.onerror = () => {
-          console.error("Error loading planner image from GitHub.");
-          loadingText.textContent = "No planner available for today.";
-        };
-      }
+      const tempImg = new Image();
+      tempImg.onload = () => {
+         plannerImg.src = specificImgUrl;
+         loadingText.style.display = 'none';
+         plannerImg.style.display = 'block';
+      };
+      tempImg.onerror = () => {
+         // Fallback if today's image is not found
+         plannerImg.src = defaultImgUrl;
+         loadingText.style.display = 'none';
+         plannerImg.style.display = 'block';
+      };
+      tempImg.src = specificImgUrl;
     }
 
-    // Fetch Dynamic Action Plan tasks from JSON
+    // Fetch Today's Dynamic Tasks from JSON
     async function fetchTodayTasks() {
       const taskList = document.getElementById('action-plan-list');
       if (!taskList) return;
       
-      const timestamp = new Date().getTime();
-      const jsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/todays_tasks.json?v=${timestamp}`;
-      
+      const todayStr = getISTDateStr();
+      const specificJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.json?t=${Date.now()}`;
+      const defaultJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/todays_tasks.json?t=${Date.now()}`;
+
       try {
-        const response = await fetch(jsonUrl);
+        let response = await fetch(specificJsonUrl);
+        if (!response.ok) {
+           console.log("Specific date plan not found, falling back to todays_tasks.json");
+           response = await fetch(defaultJsonUrl);
+        }
         if (!response.ok) throw new Error("Failed to fetch tasks JSON");
         
         const data = await response.json();
@@ -810,7 +812,6 @@
         let hasTasks = false;
         
         data.forEach(item => {
-          // Handle Spaced Repetition (array of revisions)
           if (item.task === 'REVISION') {
             if (item.revisions && item.revisions.length > 0) {
               item.revisions.forEach(rev => {
