@@ -632,8 +632,14 @@
         const res = await fetch(`ticker.json?t=${new Date().getTime()}`);
         if (!res.ok) throw new Error('Failed to load ticker.json');
         
-        const data = await res.json();
+        const payload = await res.json();
+        
+        // Handle both new {speed, messages} format and old [...] format
+        const data = Array.isArray(payload) ? payload : payload.messages || [];
+        const speed = payload.speed || 25; // Default speed if not specified
+        
         if (data && data.length > 0) {
+          track.style.animationDuration = `${speed}s`;
           let html = '';
           // We render the items twice to ensure a seamless CSS marquee loop
           for (let i = 0; i < 2; i++) {
