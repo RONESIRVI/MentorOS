@@ -569,16 +569,6 @@
         </a>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-profile-sm">
-          <div class="user-avatar" id="user-avatar-initial">A</div>
-          <div class="user-info-sm">
-            <h4 id="sidebar-user-email">Loading...</h4>
-            <p>Aspirant</p>
-          </div>
-        </div>
-        <button class="logout-btn" id="btnLogout">Sign Out</button>
-      </div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -733,9 +723,8 @@
         const initial = namePart.charAt(0).toUpperCase();
 
         document.getElementById('welcome-message').textContent = `Welcome back, ${namePart}! 👋`;
-        document.getElementById('sidebar-user-email').textContent = email;
-        document.getElementById('user-avatar-initial').textContent = initial;
-        document.getElementById('topbar-avatar').textContent = initial;
+        const topbarAvatar = document.getElementById('topbar-avatar');
+        if (topbarAvatar) topbarAvatar.textContent = initial;
 
         // Fetch Latest Planner
         fetchLatestPlanner();
@@ -749,12 +738,7 @@
       }
     });
 
-    // Logout
-    document.getElementById('btnLogout').addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = 'index.html';
-      });
-    });
+
 
     const btnLogoutTop = document.getElementById('btnLogoutTop');
     if (btnLogoutTop) {

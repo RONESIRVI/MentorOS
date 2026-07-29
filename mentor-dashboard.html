@@ -532,16 +532,6 @@
         </a>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-profile-sm">
-          <div class="user-avatar" id="user-avatar-initial">M</div>
-          <div class="user-info-sm">
-            <h4 id="sidebar-user-email">Loading...</h4>
-            <p>Senior Mentor</p>
-          </div>
-        </div>
-        <button class="logout-btn" id="btnLogout">Sign Out</button>
-      </div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
@@ -553,11 +543,16 @@
           <button class="mobile-menu-toggle" id="mobileMenuBtn">☰</button>
           <h2 class="page-title">Mentor Dashboard</h2>
         </div>
-        <div class="topbar-right">
+        <div class="topbar-right" style="display: flex; gap: 15px; align-items: center;">
           <button class="notification-btn">
             🔔
             <span class="notification-badge">5</span>
           </button>
+          
+          <button id="btnLogoutTop" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; transition: all 0.3s;" title="Sign Out" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+            Sign Out
+          </button>
+          
           <div class="user-avatar" style="width:36px; height:36px; cursor:pointer;" id="topbar-avatar">M</div>
         </div>
       </header>
@@ -735,9 +730,8 @@
         const initial = namePart.charAt(0).toUpperCase();
 
         document.getElementById('welcome-message').textContent = `Welcome, ${namePart}! 👋`;
-        document.getElementById('sidebar-user-email').textContent = email;
-        document.getElementById('user-avatar-initial').textContent = initial;
-        document.getElementById('topbar-avatar').textContent = initial;
+        const topbarAvatar = document.getElementById('topbar-avatar');
+        if (topbarAvatar) topbarAvatar.textContent = initial;
 
       } else {
         // Not logged in -> redirect to login
@@ -746,11 +740,14 @@
     });
 
     // Logout
-    document.getElementById('btnLogout').addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = 'index.html';
+    const btnLogoutTop = document.getElementById('btnLogoutTop');
+    if (btnLogoutTop) {
+      btnLogoutTop.addEventListener('click', () => {
+        signOut(auth).then(() => {
+          window.location.href = 'index.html';
+        });
       });
-    });
+    }
 
     // Mobile menu toggle
     const mobileBtn = document.getElementById('mobileMenuBtn');
