@@ -543,96 +543,8 @@
         
         <!-- SECTION: OVERVIEW -->
         <div id="section-overview" class="admin-section active">
-          <!-- Header Section -->
-          <div class="dash-header">
-            <div class="welcome-text">
-              <h1 id="welcome-message">System Overview 🚀</h1>
-              <p>📅 <span id="current-date">Loading date...</span> • All systems operational</p>
-            </div>
-            <div class="admin-badge">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              System Admin
-            </div>
-          </div>
-
-          <!-- Stats Grid -->
-          <div class="stats-grid">
-            <div class="stat-card green">
-              <div class="stat-info">
-                <h3>₹4.2L</h3>
-                <p>Revenue (This Month)</p>
-              </div>
-              <div class="stat-icon">💰</div>
-            </div>
-            <div class="stat-card blue">
-              <div class="stat-info">
-                <h3 id="stat-total-users">--</h3>
-                <p>Total Registered Users</p>
-              </div>
-              <div class="stat-icon">👥</div>
-            </div>
-            <div class="stat-card purple">
-              <div class="stat-info">
-                <h3>342</h3>
-                <p>Active Course Enrollments</p>
-              </div>
-              <div class="stat-icon">📚</div>
-            </div>
-            <div class="stat-card slate">
-              <div class="stat-info">
-                <h3>99.9%</h3>
-                <p>Server Uptime</p>
-              </div>
-              <div class="stat-icon">⚡</div>
-            </div>
-          </div>
-
-          <!-- Content Grid -->
-          <div class="content-grid">
-            <!-- Recent Registrations Placeholder -->
-            <div class="panel">
-              <div class="panel-header">
-                <h2 class="panel-title">👥 Quick Overview</h2>
-                <a href="#" class="panel-action" onclick="switchAdminSection('users')">Manage Users →</a>
-              </div>
-              <p style="color:var(--mute); font-size:0.9rem;">To view and manage all users, go to the User Management section.</p>
-            </div>
-            
-            <!-- Server Status -->
-            <div class="panel">
-              <div class="panel-header">
-                <h2 class="panel-title">⚡ Server Status</h2>
-              </div>
-              <div class="server-status">
-                <div class="server-card">
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                      <h4>Main Database (Firestore)</h4>
-                      <p>Running optimally</p>
-                    </div>
-                    <span class="pulse-dot"></span>
-                  </div>
-                </div>
-                <div class="server-card">
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                      <h4>Authentication Service</h4>
-                      <p>0 login failures in 24h</p>
-                    </div>
-                    <span class="pulse-dot"></span>
-                  </div>
-                </div>
-                <div class="server-card">
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div>
-                      <h4>Storage (AWS S3 / Firebase)</h4>
-                      <p>12GB / 50GB used</p>
-                    </div>
-                    <span class="pulse-dot"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div style="padding: 40px; text-align: center; color: var(--mute);">
+            Loading System Overview...
           </div>
         </div>
         <!-- END SECTION: OVERVIEW -->
@@ -647,78 +559,27 @@
 
         <!-- SECTION: COURSES -->
         <div id="section-courses" class="admin-section" style="display:none;">
-          <div class="dash-header" style="margin-bottom: 24px;">
-            <div class="welcome-text">
-              <h1>Courses & Batches 📚</h1>
-              <p>Manage active courses, batches, and enrollment limits.</p>
-            </div>
-            <button class="panel-action" onclick="alert('Add Course functionality will be connected to Firestore soon!')" style="background:#10b981; color:white; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">+ Add New Course</button>
-          </div>
-
-          <div class="content-grid" style="grid-template-columns: 1fr;">
-            <div class="panel">
-              <div class="table-container">
-                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-                  <thead>
-                    <tr style="text-align: left; border-bottom: 2px solid var(--border); color: var(--mute);">
-                      <th style="padding: 12px; font-weight:600;">Course Name</th>
-                      <th style="padding: 12px; font-weight:600;">Enrolled</th>
-                      <th style="padding: 12px; font-weight:600;">Status</th>
-                      <th style="padding: 12px; font-weight:600; text-align:right;">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                      <td style="padding: 12px; font-weight:600;">UPSC CSE Foundation 2026</td>
-                      <td style="padding: 12px;">342 / 500</td>
-                      <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
-                      <td style="padding: 12px; text-align:right;">
-                        <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background:white; cursor:pointer;">Edit</button>
-                      </td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                      <td style="padding: 12px; font-weight:600;">RAS Mains Answer Writing</td>
-                      <td style="padding: 12px;">128 / 200</td>
-                      <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
-                      <td style="padding: 12px; text-align:right;">
-                        <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background:white; cursor:pointer;">Edit</button>
-                      </td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                      <td style="padding: 12px; font-weight:600;">NCERT Base Camp</td>
-                      <td style="padding: 12px;">850 / 1000</td>
-                      <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
-                      <td style="padding: 12px; text-align:right;">
-                        <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background:white; cursor:pointer;">Edit</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <div style="padding: 40px; text-align: center; color: var(--mute);">
+            Loading Courses module...
           </div>
         </div>
         <!-- END SECTION: COURSES -->
 
         <!-- SECTION: REVENUE -->
         <div id="section-revenue" class="admin-section" style="display:none;">
-          <div class="dash-header">
-            <div class="welcome-text">
-              <h1>Revenue & Sales 💳</h1>
-              <p>Module coming soon.</p>
-            </div>
+          <div style="padding: 40px; text-align: center; color: var(--mute);">
+            Loading Revenue module...
           </div>
         </div>
+        <!-- END SECTION: REVENUE -->
 
         <!-- SECTION: CONTENT CMS -->
         <div id="section-content" class="admin-section" style="display:none;">
-          <div class="dash-header">
-            <div class="welcome-text">
-              <h1>Content CMS 📝</h1>
-              <p>Module coming soon.</p>
-            </div>
+          <div style="padding: 40px; text-align: center; color: var(--mute);">
+            Loading Content CMS module...
           </div>
         </div>
+        <!-- END SECTION: CONTENT CMS -->
 
         <!-- SECTION: SETTINGS -->
         <div id="section-settings" class="admin-section" style="display:none;">
@@ -781,11 +642,18 @@
         // User logged in
         const email = user.email;
         const namePart = email.split('@')[0];
+        window.cachedUserName = namePart;
         const initial = namePart.charAt(0).toUpperCase();
 
-        document.getElementById('welcome-message').textContent = `System Overview, ${namePart} 🚀`;
+        // Update topbar avatar immediately
         const topbarAvatar = document.getElementById('topbar-avatar');
         if (topbarAvatar) topbarAvatar.textContent = initial;
+
+        // If overview is already loaded, update it
+        const welcomeMessage = document.getElementById('welcome-message');
+        if (welcomeMessage) {
+          welcomeMessage.textContent = `System Overview, ${namePart} 🚀`;
+        }
 
       } else {
         // Not logged in -> redirect to login
@@ -811,51 +679,56 @@
       sidebar.classList.toggle('open');
     });
 
-    // --- SPA NAVIGATION LOGIC ---
-    window.switchAdminSection = function(sectionId) {
-      // Hide all sections
-      document.querySelectorAll('.admin-section').forEach(sec => {
-        sec.classList.remove('active');
-        sec.style.display = 'none';
-      });
-      // Show target section
-      const target = document.getElementById('section-' + sectionId);
-      if (target) {
-        target.classList.add('active');
-        target.style.display = 'block';
-      }
+      // Fetch configuration for different sections
+      const sectionsConfig = {
+        'overview': { path: 'Overview/overview.html', js: null },
+        'users': { path: 'User_Management/users.html', js: './User_Management/users.js' },
+        'courses': { path: 'Courses_Batches/courses.html', js: null },
+        'revenue': { path: 'Revenue_Sales/revenue.html', js: null },
+        'content': { path: 'Content_CMS/content.html', js: null }
+      };
+
+      const sectionDiv = document.getElementById('section-' + sectionId);
+      const config = sectionsConfig[sectionId];
       
-      // Update sidebar nav active state
-      document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
-      const activeNav = document.getElementById('nav-' + sectionId);
-      if (activeNav) activeNav.classList.add('active');
-
-      // Close mobile sidebar if open
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('open');
-      }
-
-      // Auto-load data based on section
-      if (sectionId === 'users') {
-        const sectionDiv = document.getElementById('section-users');
+      if (sectionDiv && config) {
         if (!sectionDiv.dataset.loaded) {
-          fetch('User_Management/users.html')
+          fetch(config.path)
             .then(res => res.text())
             .then(html => {
               sectionDiv.innerHTML = html;
               sectionDiv.dataset.loaded = 'true';
-              import('./User_Management/users.js').then(module => {
-                // Attach functions globally so the HTML onclick handlers work
-                window.loadUsersList = module.loadUsersList;
-                window.changeUserRole = module.changeUserRole;
-                window.loadUsersList();
-              }).catch(err => console.error("Error loading users.js module", err));
-            }).catch(err => console.error("Error loading users.html", err));
-        } else if (window.loadUsersList) {
-          window.loadUsersList();
+              
+              if (sectionId === 'overview') {
+                // Set the current date after overview loads
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', options);
+                if (window.cachedUserName) {
+                  document.getElementById('welcome-message').textContent = `System Overview, ${window.cachedUserName} 🚀`;
+                }
+              }
+
+              if (config.js) {
+                import(config.js).then(module => {
+                  if (sectionId === 'users') {
+                    window.loadUsersList = module.loadUsersList;
+                    window.changeUserRole = module.changeUserRole;
+                    window.loadUsersList();
+                  }
+                }).catch(err => console.error(`Error loading ${config.js}`, err));
+              }
+            }).catch(err => console.error(`Error loading ${config.path}`, err));
+        } else {
+          // If already loaded and it has a JS module with an initialization function
+          if (sectionId === 'users' && window.loadUsersList) {
+            window.loadUsersList();
+          }
         }
       }
     };
+
+    // Load initial section (Overview) on startup
+    window.switchAdminSection('overview');
   </script>
 </body>
 </html>
