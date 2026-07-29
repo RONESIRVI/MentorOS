@@ -639,10 +639,18 @@
         const speed = payload.speed || 25; // Default speed if not specified
         
         if (data && data.length > 0) {
-          track.style.animationDuration = `${speed}s`;
+          // Calculate a proportional duration based on the number of items
+          // So speed remains visually consistent regardless of how many items exist.
+          // Formula: user_speed * (data.length / 5) * 5 (since we scroll 5 sets)
+          // Actually, if we repeat 10 times, 50% is 5 sets.
+          // Base speed is for 5 items. If there are fewer, it should take less total time to cover 50%.
+          const setsToScroll = 5; 
+          const calculatedDuration = speed * (data.length / 5) * setsToScroll;
+          track.style.animationDuration = `${calculatedDuration}s`;
+          
           let html = '';
-          // We render the items twice to ensure a seamless CSS marquee loop
-          for (let i = 0; i < 2; i++) {
+          // Render items 10 times to ensure the track is wider than any screen for a seamless loop
+          for (let i = 0; i < 10; i++) {
             data.forEach(item => {
               const icon = item.Icon || '🔔';
               const msg = item.Message || '';
