@@ -224,7 +224,7 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const docRef = doc(db, 'users', user.uid);
+          const docRef = doc(db, 'userRoles', user.email.toLowerCase());
           const docSnap = await getDoc(docRef);
           if (docSnap.exists() && (docSnap.data().role || '').toLowerCase() === 'mentor') {
             const data = docSnap.data();
