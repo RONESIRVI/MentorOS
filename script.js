@@ -27,9 +27,23 @@ const ROLE_REDIRECTS = {
 
 const SUPER_ADMIN_EMAIL = 'figuring.cse@gmail.com';
 
+let expectedRoleLogin = null;
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    await redirectByRole(user);
+    const role = await getUserRole(user.email);
+    
+    // Strict Tab Checking during login
+    if (expectedRoleLogin && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
+       await signOut(auth);
+       showError(`❌ Access Denied! You are registered as '${role}', not '${expectedRoleLogin}'. Please use the correct tab.`);
+       expectedRoleLogin = null;
+       return;
+    }
+    
+    // Clear it so auto-login on refresh doesn't fail
+    expectedRoleLogin = null;
+    await redirectByRole(user, role);
   }
 });
 
@@ -48,10 +62,16 @@ async function getUserRole(email) {
   return 'Aspirant';
 }
 
-async function redirectByRole(user) {
-  const role = await getUserRole(user.email);
+async function redirectByRole(user, role) {
+  if (!role) {
+    role = await getUserRole(user.email);
+  }
   const redirectUrl = ROLE_REDIRECTS[role] || ROLE_REDIRECTS.Aspirant;
-  window.location.href = redirectUrl;
+  
+  // Prevent infinite redirect loops if already on the dashboard
+  if (!window.location.pathname.includes(redirectUrl)) {
+    window.location.href = redirectUrl;
+  }
 }
 
 function showError(msg) {
@@ -120,6 +140,7 @@ const studentBtn  = document.getElementById('studentLoginBtn');
 
 studentForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  expectedRoleLogin = 'Aspirant';
   const email    = document.getElementById('student-email').value.trim();
   const password = document.getElementById('student-password').value;
 
@@ -141,6 +162,7 @@ studentForm?.addEventListener('submit', async (e) => {
 const mentorForm = document.querySelector('#tab-mentor-content form');
 mentorForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  expectedRoleLogin = 'mentor';
   const email    = document.getElementById('mentor-email').value.trim();
   const password = document.getElementById('mentor-password').value;
   const btn      = mentorForm.querySelector('button[type="submit"]');
@@ -158,6 +180,7 @@ mentorForm?.addEventListener('submit', async (e) => {
 const adminForm = document.querySelector('#tab-admin-content form');
 adminForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
+  expectedRoleLogin = 'admin';
   const email    = document.getElementById('admin-email').value.trim();
   const password = document.getElementById('admin-password').value;
   const btn      = adminForm.querySelector('button[type="submit"]');
