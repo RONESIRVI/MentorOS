@@ -1476,9 +1476,9 @@
       const fileInput = document.getElementById('ans-file');
       
       if(!subject) { alert('Please select a Subject.'); return; }
-      if(!topic) { alert('Please enter a Topic.'); return; }
       if(!title) { alert('Please enter a Submission Title.'); return; }
       if(!fileInput.files.length) { alert('Please select a PDF file to upload.'); return; }
+      const topicFinal = topic || 'General';
       
       const file = fileInput.files[0];
       if(file.type !== 'application/pdf') { alert('Only PDF files are allowed.'); return; }
@@ -1513,7 +1513,7 @@
           formData.append('fileName', file.name);
           formData.append('studentName', _currentUserName || _currentUserEmail.split('@')[0]);
           formData.append('subject', subject);
-          formData.append('topic', topic);
+          formData.append('topic', topicFinal);
           formData.append('courseName', subject); // for backward compat
 
           try {
@@ -1535,7 +1535,7 @@
                 studentId: _currentUserEmail,
                 title: title,
                 subject: subject,
-                topic: topic,
+                topic: topicFinal,
                 link: result.url,
                 fileName: file.name,
                 status: 'Pending',
