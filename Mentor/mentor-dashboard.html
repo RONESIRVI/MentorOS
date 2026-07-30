@@ -141,7 +141,18 @@
           </div>
           <div class="panel">
             <table>
-              <thead><tr><th>Student Name</th><th>Assignment</th><th>Status</th><th>Marks</th><th style="text-align:right;">Action</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>👤 Student</th>
+                  <th>📚 Subject</th>
+                  <th>🏷️ Topic</th>
+                  <th>✏️ Title & PDF</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Marks</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
               <tbody id="evaluations-table-body"></tbody>
             </table>
           </div>
@@ -163,9 +174,10 @@
 
   <!-- Modals -->
   <div id="eval-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999;">
-    <div style="background:white;padding:30px;border-radius:15px;width:90%;max-width:500px;">
-      <h2>Evaluate Copy</h2>
+    <div style="background:white;padding:30px;border-radius:15px;width:90%;max-width:520px;">
+      <h2 style="margin:0 0 16px; color:#0f172a;">✍️ Evaluate Copy</h2>
       <input type="hidden" id="eval-id">
+      <div id="eval-context"></div>
       <div style="margin-bottom:15px;">
         <label style="display:block;margin-bottom:5px;">Marks (out of 100)</label>
         <input type="number" id="eval-marks" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;" box-sizing="border-box">
@@ -293,7 +305,7 @@
         // Evaluations
         const evSnap = await getDocs(collection(db, 'evaluations'));
         let pending = 0;
-        evSnap.forEach(d => { if(d.data().status === 'Pending') pending++; });
+        evSnap.forEach(d => { if(d.data().status === 'Submitted') pending++; });
         document.getElementById('stat-evals').textContent = pending;
 
         // Schedule
@@ -329,27 +341,40 @@
 
     window.loadEvaluations = async function() {
       const tbody = document.getElementById('evaluations-table-body');
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;">Loading...</td></tr>';
       try {
         const snap = await getDocs(collection(db, 'evaluations'));
         let html = '';
         snap.forEach(d => {
           const ev = d.data();
-          const isPending = ev.status === 'Pending';
-          const badge = isPending ? '<span style="background:#fef3c7;color:#d97706;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Pending</span>' : '<span style="background:#dcfce7;color:#166534;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Evaluated</span>';
+          // Only show Submitted or Evaluated entries to Mentor
+          if(ev.status === 'Draft') return;
+          
+          const isSubmitted = ev.status === 'Submitted';
+          const isEvaluated = ev.status === 'Evaluated' || ev.status === 'Completed' || ev.status === 'Graded';
+          
+          let badge = '';
+          if(isSubmitted) badge = '<span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:4px;font-size:0.8rem;font-weight:700;">Submitted</span>';
+          else if(isEvaluated) badge = '<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:4px;font-size:0.8rem;font-weight:700;">Evaluated</span>';
+          
+          const dStr = new Date(ev.submittedAt || ev.timestamp).toLocaleDateString('en-IN');
+          
           html += `<tr style="border-bottom:1px solid #e2e8f0;">
-            <td style="padding:15px; font-weight:600;">${_esc(ev.studentName)}</td>
-            <td style="padding:15px;">${_esc(ev.assignmentTitle)}</td>
-            <td style="padding:15px;">${badge}</td>
-            <td style="padding:15px;">${ev.marks ? ev.marks+'/100' : '-'}</td>
-            <td style="padding:15px; text-align:right;">
-              ${isPending ? `<button onclick="window.openEvalModal('${d.id}')" class="btn-evaluate">Evaluate</button>` : `<button onclick="window.viewEval('${d.id}')" class="btn-meet">View</button>`}
+            <td style="padding:12px; font-weight:700;">${_esc(ev.studentName)}</td>
+            <td style="padding:12px; font-size:0.85rem;">${_esc(ev.subject || '-')}</td>
+            <td style="padding:12px; font-size:0.85rem; color:#64748b;">${_esc(ev.topic || '-')}</td>
+            <td style="padding:12px;"><a href="${ev.link}" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:500;display:flex;align-items:center;gap:4px;">📄 ${_esc(ev.title)}</a></td>
+            <td style="padding:12px; font-size:0.82rem; color:#64748b;">${dStr}</td>
+            <td style="padding:12px;">${badge}</td>
+            <td style="padding:12px; font-weight:700;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:12px; text-align:right;">
+              ${isSubmitted ? `<button onclick="window.openEvalModal('${d.id}', '${_esc(ev.studentName)}', '${_esc(ev.subject||'')}', '${_esc(ev.topic||'')}', '${_esc(ev.title)}', '${ev.link}')" class="btn-evaluate" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;">✍️ Evaluate</button>` : `<button onclick="window.viewEval('${d.id}')" class="btn-meet" style="padding:8px 16px;">📊 View</button>`}
             </td>
           </tr>`;
         });
-        tbody.innerHTML = html || '<tr><td colspan="5" style="padding:20px;text-align:center;">No evaluations found</td></tr>';
+        tbody.innerHTML = html || '<tr><td colspan="8" style="padding:30px;text-align:center;color:#64748b;">No submitted answers yet. Students will appear here after they click "Final Submit to Mentor".</td></tr>';
       } catch(e) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:red;">Error loading evaluations</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">Error loading evaluations</td></tr>';
       }
     }
 
@@ -377,11 +402,21 @@
     }
 
     // Eval Modal logic
-    window.viewEval = function(id) { alert('View Evaluation coming soon'); };
-    window.openEvalModal = async function(id) {
+    window.viewEval = function(id) { alert('Evaluation already completed for this submission.'); };
+    window.openEvalModal = async function(id, studentName, subject, topic, title, pdfLink) {
       document.getElementById('eval-id').value = id;
       document.getElementById('eval-marks').value = '';
       document.getElementById('eval-feedback').value = '';
+      // Show context in modal
+      const ctx = document.getElementById('eval-context');
+      if(ctx) ctx.innerHTML = `
+        <div style="background:#f8fafc; border-radius:10px; padding:14px; margin-bottom:16px; border-left:4px solid #3b82f6;">
+          <p style="margin:0 0 4px; font-size:0.85rem; color:#64748b;">👤 <strong>${studentName}</strong> &nbsp;|
+          📚 ${subject} &nbsp;|
+          🏷️ ${topic||'General'}</p>
+          <p style="margin:0; font-size:0.85rem;"><strong>✏️ ${title}</strong> &nbsp;
+          <a href="${pdfLink}" target="_blank" style="color:#3b82f6; font-weight:600;">📄 Open PDF</a></p>
+        </div>`;
       document.getElementById('eval-modal').style.display = 'flex';
     };
     window.closeEvalModal = function() {
