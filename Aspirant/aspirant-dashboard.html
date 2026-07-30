@@ -549,22 +549,22 @@
         <a href="#" class="sidebar-nav-item" id="nav-courses" onclick="switchAspirantSection('courses')">
           <span class="icon">📚</span> Courses & Payments
         </a>
-        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
+        <a onclick="alert('Coming Soon')" class="sidebar-nav-item">
           <span class="icon">📅</span> Daily Planner
         </a>
-        <a href="#" class="sidebar-nav-item">
+        <a href="#" class="sidebar-nav-item" id="nav-answers" onclick="window.switchAspirantSection('answers')">
           <span class="icon">✍️</span> Answer Writing
         </a>
-        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
+        <a onclick="alert('Coming Soon')" class="sidebar-nav-item">
           <span class="icon">📝</span> Test Series
         </a>
-        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
+        <a onclick="alert('Coming Soon')" class="sidebar-nav-item">
           <span class="icon">📊</span> Report Card
         </a>
-        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
+        <a onclick="alert('Coming Soon')" class="sidebar-nav-item">
           <span class="icon">📰</span> Current Affairs
         </a>
-        <a onclick="alert(\'Coming Soon\')" class="sidebar-nav-item">
+        <a onclick="alert('Coming Soon')" class="sidebar-nav-item">
           <span class="icon">🤖</span> AI Study Planner
         </a>
       </nav>
@@ -1257,9 +1257,7 @@ async function fetchProgress() {
         let token = localStorage.getItem('github_pat');
         
         if (!token) {
-          token = prompt("Please enter your GitHub Personal Access Token (PAT) with 'repo' scope to sync data directly from GitHub Actions:
-
-If you don't have one, generate it at https://github.com/settings/tokens");
+          token = prompt("Please enter your GitHub Personal Access Token (PAT) with 'repo' scope to sync data directly from GitHub Actions:\\n\\nIf you don't have one, generate it at https://github.com/settings/tokens");
           if (!token) return; // User cancelled
           localStorage.setItem('github_pat', token.trim());
         }
