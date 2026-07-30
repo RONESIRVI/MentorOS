@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "jsdom": "^30.0.1",
+    "puppeteer": "^25.4.0",
+    "serve-handler": "^6.1.7"
+  },
+  "scripts": {
+    "test": "node tests/run_all_tests.js"
+  }
+}
