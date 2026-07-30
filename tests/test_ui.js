@@ -4,7 +4,7 @@ const path = require('path');
 const http = require('http');
 const handler = require('serve-handler');
 
-const port = 8085;
+const port = 0; // Use random available port
 const server = http.createServer((request, response) => {
   return handler(request, response, { public: path.join(__dirname, '..') });
 });
@@ -15,7 +15,9 @@ const server = http.createServer((request, response) => {
 
   const args = process.argv.slice(2);
   const fileToTest = args[0] || 'index.html'; // Default to index.html if not provided
-  const testUrl = `http://localhost:${port}/${fileToTest}`;
+  
+  const actualPort = server.address().port;
+  const testUrl = `http://localhost:${actualPort}/${fileToTest}`;
 
   console.log(`🔍 Testing UI page: ${testUrl}`);
 
