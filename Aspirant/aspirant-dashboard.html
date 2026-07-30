@@ -529,6 +529,109 @@
       .dash-header { flex-direction: column; align-items: flex-start; gap: 16px; }
       .dashboard-canvas { padding: 20px; }
     }
+  
+    /* Premium Dashboard Overhaul */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .premium-btn {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      text-decoration: none;
+    }
+    .premium-btn:hover {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-live { background: #dcfce7; color: #166534; }
+    .badge-upcoming { background: #fef9c3; color: #854d0e; }
+    
+    .animated-progress {
+      width: 100%;
+      background: #f1f5f9;
+      border-radius: 10px;
+      height: 12px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .animated-progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      transition: width 1.5s ease-out;
+      position: relative;
+    }
+    .animated-progress-bar::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .magazine-card {
+      display: flex;
+      gap: 20px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      transition: all 0.3s ease;
+    }
+    .magazine-card:hover {
+      border-color: #e2e8f0;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+    .mag-icon {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #ef4444;
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -552,9 +655,7 @@
         <a href="#" class="sidebar-nav-item" id="nav-planner" onclick="window.switchAspirantSection('planner')">
           <span class="icon">📅</span> Daily Planner
         </a>
-        <a href="#" class="sidebar-nav-item" id="nav-answers" onclick="window.switchAspirantSection('answers')">
-          <span class="icon">✍️</span> Answer Writing
-        </a>
+        
         <a href="#" class="sidebar-nav-item" id="nav-tests" onclick="window.switchAspirantSection('tests')">
           <span class="icon">📝</span> Test Series
         </a>
@@ -728,46 +829,7 @@
         </div>
         <!-- END SECTION: COURSES -->
 
-        <!-- SECTION: ANSWER WRITING -->
-        <div id="section-answers" class="aspirant-section" style="display:none;">
-          <div class="dash-header"><div class="welcome-text"><h1>Answer Writing ✍️</h1><p>Submit your answers for Mentor evaluation.</p></div></div>
-          
-          <div style="display:grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-            <!-- Submit Form -->
-            <div class="stat-card" style="display:block;">
-              <h3 style="margin:0 0 16px; font-size:1.1rem;">Submit New Answer</h3>
-              <label style="display:block; margin-bottom:6px; font-weight:600; font-size:0.85rem; color:#475569;">Test/Subject Title</label>
-              <input type="text" id="ans-title" placeholder="e.g. GS 1 Full Length" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:16px;">
-              
-              <label style="display:block; margin-bottom:6px; font-weight:600; font-size:0.85rem; color:#475569;">Answer PDF Link (Google Drive)</label>
-              <input type="url" id="ans-link" placeholder="Paste link here" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:16px;">
-              
-              <button onclick="window.submitAnswer()" id="btn-submit-ans" style="width:100%; padding:12px; background:#3b82f6; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Submit for Evaluation</button>
-            </div>
-            
-            <!-- Past Submissions -->
-            <div class="stat-card" style="display:block;">
-              <h3 style="margin:0 0 16px; font-size:1.1rem;">My Submissions</h3>
-              <div style="overflow-x:auto;">
-                <table style="width:100%; border-collapse:collapse; text-align:left;">
-                  <thead>
-                    <tr style="border-bottom:2px solid #e2e8f0; color:#64748b; font-size:0.85rem;">
-                      <th style="padding:12px;">Title</th>
-                      <th style="padding:12px;">Submitted On</th>
-                      <th style="padding:12px;">Status</th>
-                      <th style="padding:12px;">Marks</th>
-                      <th style="padding:12px;">Feedback</th>
-                    </tr>
-                  </thead>
-                  <tbody id="answers-table-body">
-                    <tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Loading submissions...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- END SECTION: ANSWER WRITING -->
+        
 
         <!-- SECTION: DAILY PLANNER -->
         <div id="section-planner" class="aspirant-section" style="display:none;">
@@ -803,78 +865,118 @@
         </div>
         <!-- END SECTION: DAILY PLANNER -->
 
+        
         <!-- SECTION: TEST SERIES -->
         <div id="section-tests" class="aspirant-section" style="display:none;">
-          <div class="dash-header">
+          <div class="dash-header" style="margin-bottom: 30px;">
             <div class="page-title">
-              <h2 style="margin: 0;">Test Series</h2>
-              <p style="color: #64748b;">Take mock tests to evaluate your preparation.</p>
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Test Series</h2>
+              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Evaluate your preparation with our premium mock tests.</p>
             </div>
           </div>
-          <div class="content-grid" id="testSeriesContainer">
-            <div class="card">
-              <h3 style="margin-top: 0;">Mains GS Paper 1 - Full Length Test</h3>
-              <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Duration: 3 Hours • Max Marks: 200</p>
-              <div style="display: flex; gap: 10px;">
-                <a href="#" onclick="alert('Test will open in Google Forms/Portal')" class="btn-join">Take Test</a>
-                <a href="#" class="btn-join" style="background: #e2e8f0; color: #334155;">View Syllabus</a>
+          <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            
+            <div class="glass-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <span class="badge badge-live">Live Now</span>
+                <span style="font-size: 1.5rem;">🎯</span>
+              </div>
+              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">Mains GS Paper 1 - Full Length Test</h3>
+              <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>⏱️ Duration:</span> <strong>3 Hours</strong></p>
+                <div style="height: 1px; background: #e2e8f0; margin: 8px 0;"></div>
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>💯 Max Marks:</span> <strong>200</strong></p>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <a href="#" onclick="alert('Test portal opening...')" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px;">Take Test</a>
+                <a href="#" class="premium-btn" style="background: #f1f5f9; color: #334155; box-shadow: none; justify-content: center; font-size: 0.9rem; padding: 10px;">Syllabus</a>
               </div>
             </div>
-            <div class="card">
-              <h3 style="margin-top: 0;">Mains GS Paper 2 - Part Test 1</h3>
-              <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Duration: 1.5 Hours • Max Marks: 100</p>
-              <div style="display: flex; gap: 10px;">
-                <a href="#" onclick="alert('Test will open in Google Forms/Portal')" class="btn-join">Take Test</a>
-                <a href="#" class="btn-join" style="background: #e2e8f0; color: #334155;">View Syllabus</a>
+
+            <div class="glass-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <span class="badge badge-upcoming">Upcoming</span>
+                <span style="font-size: 1.5rem;">📅</span>
+              </div>
+              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">Mains GS Paper 2 - Part Test 1</h3>
+              <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>⏱️ Duration:</span> <strong>1.5 Hours</strong></p>
+                <div style="height: 1px; background: #e2e8f0; margin: 8px 0;"></div>
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>💯 Max Marks:</span> <strong>100</strong></p>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <a href="#" class="premium-btn" style="background: #f1f5f9; color: #94a3b8; box-shadow: none; justify-content: center; cursor: not-allowed;">Opens on 12 Aug</a>
               </div>
             </div>
+
           </div>
         </div>
         <!-- END SECTION: TEST SERIES -->
 
         <!-- SECTION: REPORT CARD -->
         <div id="section-report" class="aspirant-section" style="display:none;">
-          <div class="dash-header">
+          <div class="dash-header" style="margin-bottom: 30px;">
             <div class="page-title">
-              <h2 style="margin: 0;">Report Card</h2>
-              <p style="color: #64748b;">Track your performance in Answer Writing and Tests.</p>
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Performance Analytics</h2>
+              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Track your growth and identify weak areas.</p>
             </div>
           </div>
           <div class="content-grid">
-            <div class="card">
-              <h3 style="margin-top: 0;">Answer Writing Performance</h3>
-              <div style="margin-top: 15px;">
-                <p style="font-size: 0.9rem; margin-bottom: 5px; display: flex; justify-content: space-between;">
-                  <span>Average Score</span>
-                  <span style="font-weight: bold; color: #3b82f6;">5.5 / 10</span>
+            <div class="glass-card" style="background: linear-gradient(135deg, #ffffff, #f8fafc);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✍️</div>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">Answer Writing</h3>
+              </div>
+              
+              <div style="margin-bottom: 24px;">
+                <p style="font-size: 0.95rem; margin: 0 0 8px 0; display: flex; justify-content: space-between; color: #475569;">
+                  <span>Average Quality Score</span>
+                  <span style="font-weight: 700; color: #3b82f6;">5.5 / 10</span>
                 </p>
-                <div style="width: 100%; background: #e2e8f0; border-radius: 4px; height: 8px; overflow: hidden;">
-                  <div style="width: 55%; background: #3b82f6; height: 100%;"></div>
+                <div class="animated-progress">
+                  <div class="animated-progress-bar" style="width: 55%; background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
                 </div>
               </div>
-              <div style="margin-top: 15px;">
-                <p style="font-size: 0.9rem; margin-bottom: 5px; display: flex; justify-content: space-between;">
-                  <span>Answers Evaluated</span>
-                  <span style="font-weight: bold; color: #10b981;">12</span>
-                </p>
+              
+              <div style="display: flex; justify-content: space-between; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                <div style="text-align: center;">
+                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #10b981;">12</p>
+                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Evaluated</p>
+                </div>
+                <div style="width: 1px; background: #e2e8f0;"></div>
+                <div style="text-align: center;">
+                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #f59e0b;">3</p>
+                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Pending</p>
+                </div>
               </div>
             </div>
-            <div class="card">
-              <h3 style="margin-top: 0;">Test Series Performance</h3>
-              <div style="margin-top: 15px;">
-                <p style="font-size: 0.9rem; margin-bottom: 5px; display: flex; justify-content: space-between;">
+
+            <div class="glass-card" style="background: linear-gradient(135deg, #ffffff, #f8fafc);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: #f3e8ff; color: #a855f7; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📝</div>
+                <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">Mock Tests</h3>
+              </div>
+              
+              <div style="margin-bottom: 24px;">
+                <p style="font-size: 0.95rem; margin: 0 0 8px 0; display: flex; justify-content: space-between; color: #475569;">
                   <span>Average Marks</span>
-                  <span style="font-weight: bold; color: #8b5cf6;">85 / 200</span>
+                  <span style="font-weight: 700; color: #a855f7;">42.5%</span>
                 </p>
-                <div style="width: 100%; background: #e2e8f0; border-radius: 4px; height: 8px; overflow: hidden;">
-                  <div style="width: 42.5%; background: #8b5cf6; height: 100%;"></div>
+                <div class="animated-progress">
+                  <div class="animated-progress-bar" style="width: 42.5%; background: linear-gradient(90deg, #c084fc, #a855f7);"></div>
                 </div>
               </div>
-              <div style="margin-top: 15px;">
-                <p style="font-size: 0.9rem; margin-bottom: 5px; display: flex; justify-content: space-between;">
-                  <span>Tests Attempted</span>
-                  <span style="font-weight: bold; color: #f59e0b;">2</span>
-                </p>
+              
+              <div style="display: flex; justify-content: space-between; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                <div style="text-align: center;">
+                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #3b82f6;">2</p>
+                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Attempted</p>
+                </div>
+                <div style="width: 1px; background: #e2e8f0;"></div>
+                <div style="text-align: center;">
+                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #10b981;">Top 30%</p>
+                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Percentile</p>
+                </div>
               </div>
             </div>
           </div>
@@ -883,76 +985,90 @@
 
         <!-- SECTION: CURRENT AFFAIRS -->
         <div id="section-current-affairs" class="aspirant-section" style="display:none;">
-          <div class="dash-header">
+          <div class="dash-header" style="margin-bottom: 30px;">
             <div class="page-title">
-              <h2 style="margin: 0;">Current Affairs</h2>
-              <p style="color: #64748b;">Daily PDFs and Monthly Compilations.</p>
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Current Affairs Hub</h2>
+              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Daily and monthly compilations curated by experts.</p>
             </div>
           </div>
-          <div class="content-grid">
-            <div class="card">
-              <div style="display: flex; align-items: flex-start; gap: 15px;">
-                <div style="background: #fee2e2; color: #ef4444; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                  📄
-                </div>
-                <div>
-                  <h3 style="margin: 0 0 5px 0;">July 2026 Monthly Compilation</h3>
-                  <p style="color: #64748b; font-size: 0.85rem; margin: 0 0 10px 0;">Uploaded: July 1, 2026</p>
-                  <a href="#" onclick="alert('PDF Download will start')" style="color: #3b82f6; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Download PDF ↓</a>
-                </div>
-              </div>
-            </div>
-            <div class="card">
-              <div style="display: flex; align-items: flex-start; gap: 15px;">
-                <div style="background: #fee2e2; color: #ef4444; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                  📄
-                </div>
-                <div>
-                  <h3 style="margin: 0 0 5px 0;">July 25 Daily News</h3>
-                  <p style="color: #64748b; font-size: 0.85rem; margin: 0 0 10px 0;">Uploaded: July 25, 2026</p>
-                  <a href="#" onclick="alert('PDF Download will start')" style="color: #3b82f6; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Download PDF ↓</a>
+          <div class="content-grid" style="grid-template-columns: 1fr;">
+            
+            <div class="magazine-card">
+              <div class="mag-icon">📰</div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-bottom: 8px;">Monthly Compilation</span>
+                    <h3 style="margin: 0 0 5px 0; font-size: 1.2rem; color: #1e293b;">July 2026 Complete Edition</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin: 0 0 15px 0;">Covers all major national, international, and economic events.</p>
+                  </div>
+                  <a href="#" onclick="alert('Downloading high-res PDF...')" class="premium-btn" style="padding: 8px 16px; border-radius: 20px;"><span style="font-size: 1.2rem;">⬇️</span> Download</a>
                 </div>
               </div>
             </div>
+
+            <div class="magazine-card">
+              <div class="mag-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #3b82f6;">🗞️</div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div>
+                    <span class="badge" style="background: #e0e7ff; color: #4338ca; margin-bottom: 8px;">Daily Digest</span>
+                    <h3 style="margin: 0 0 5px 0; font-size: 1.2rem; color: #1e293b;">July 25, 2026 - Daily News</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin: 0 0 15px 0;">Key highlights from The Hindu and Indian Express.</p>
+                  </div>
+                  <a href="#" onclick="alert('Downloading high-res PDF...')" class="premium-btn" style="padding: 8px 16px; border-radius: 20px; background: linear-gradient(135deg, #64748b, #475569); box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);"><span style="font-size: 1.2rem;">⬇️</span> Download</a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
         <!-- END SECTION: CURRENT AFFAIRS -->
 
         <!-- SECTION: AI STUDY PLANNER -->
         <div id="section-ai-planner" class="aspirant-section" style="display:none;">
-          <div class="dash-header">
+          <div class="dash-header" style="margin-bottom: 30px;">
             <div class="page-title">
-              <h2 style="margin: 0;">AI Study Planner</h2>
-              <p style="color: #64748b;">Generate a personalized weekly timetable based on your goals.</p>
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Study Planner</h2>
+              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Let our algorithm build the perfect schedule for you.</p>
             </div>
           </div>
-          <div class="card">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
+          
+          <div class="glass-card" style="max-width: 700px; margin: 0 auto; background: linear-gradient(to bottom right, #1e293b, #0f172a); color: white; border: 1px solid #334155; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="font-size: 3rem; margin-bottom: 10px;">🤖✨</div>
+              <h3 style="margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 700;">Configure Your AI Assistant</h3>
+              <p style="color: #94a3b8; font-size: 0.95rem; margin: 0;">Provide inputs to generate a highly personalized timetable.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
               <div>
-                <label style="display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; color: #334155;">Target Exam</label>
-                <select style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit;">
+                <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #cbd5e1;">Target Exam</label>
+                <select style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: white; font-family: inherit; font-size: 1rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#475569'">
                   <option>RAS Mains</option>
                   <option>UPSC Mains</option>
                   <option>RAS Prelims</option>
                 </select>
               </div>
               <div>
-                <label style="display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; color: #334155;">Daily Available Hours</label>
-                <input type="number" value="6" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; box-sizing: border-box;">
+                <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #cbd5e1;">Daily Available Hours</label>
+                <input type="number" value="6" min="1" max="16" style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: white; font-family: inherit; font-size: 1rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#475569'">
               </div>
               <div style="grid-column: 1 / -1;">
-                <label style="display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; color: #334155;">Weak Subjects (Focus Areas)</label>
-                <input type="text" placeholder="e.g., Public Administration, Ethics" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit; box-sizing: border-box;">
+                <label style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: #cbd5e1;">Weak Subjects (Focus Areas)</label>
+                <input type="text" placeholder="e.g., Public Administration, World History" style="width: 100%; padding: 12px; background: #1e293b; border: 1px solid #475569; border-radius: 8px; color: white; font-family: inherit; font-size: 1rem; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#475569'">
               </div>
             </div>
-            <div style="margin-top: 20px;">
-              <button onclick="alert('AI Planner logic will generate timetable here based on your inputs.')" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-                ✨ Generate AI Plan
+            
+            <div style="margin-top: 30px; text-align: center;">
+              <button onclick="alert('AI is analyzing your profile... Timetable generation will be available soon!')" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; border: none; padding: 14px 32px; border-radius: 30px; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 15px 35px rgba(139, 92, 246, 0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 10px 25px rgba(139, 92, 246, 0.4)'">
+                Generate Magic Plan ✨
               </button>
             </div>
           </div>
         </div>
         <!-- END SECTION: AI STUDY PLANNER -->
+
 
 
       </div>
@@ -1052,7 +1168,37 @@
       }
     };
 
-    window.loadCoursesList = async function() {
+    
+      window.submitAnswerPremium = async function(courseId, courseName) {
+        const title = document.getElementById('ans-title-' + courseId).value.trim();
+        const link = document.getElementById('ans-link-' + courseId).value.trim();
+        if(!title || !link) {
+          alert('Please provide both the Title and the Google Drive Link.');
+          return;
+        }
+        
+        try {
+          await addDoc(collection(db, 'evaluations'), {
+            student: _currentUserEmail,
+            title: title,
+            link: link,
+            courseId: courseId,
+            courseName: courseName,
+            status: 'Pending',
+            score: null,
+            feedback: '',
+            submittedAt: new Date().toISOString()
+          });
+          alert('✅ Your answer PDF has been successfully submitted for evaluation!');
+          document.getElementById('ans-title-' + courseId).value = '';
+          document.getElementById('ans-link-' + courseId).value = '';
+        } catch (e) {
+          console.error(e);
+          alert('❌ Error submitting answer. Please try again.');
+        }
+      };
+
+      window.loadCoursesList = async function() {
       const grid = document.getElementById('available-courses-grid');
       if (!grid) return;
       grid.innerHTML = '<p style="color:#64748b;">Loading...</p>';
@@ -1080,7 +1226,16 @@
           let actionBtn = `<button onclick="window.openPaymentModal('${id}', '${c.name.replace(/'/g, "\'")}', '${c.fee}')" style="width:100%; padding:10px; background:#3b82f6; color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">₹${parseInt(c.fee).toLocaleString('en-IN')} - Buy Now</button>`;
           
           if (status === 'Paid') {
-             actionBtn = `<button disabled style="width:100%; padding:10px; background:#dcfce7; color:#166534; border:1px solid #166534; border-radius:6px; font-weight:600; cursor:not-allowed;">✅ Enrolled</button>`;
+             actionBtn = `
+<button disabled style="width:100%; padding:10px; background:#dcfce7; color:#166534; border:1px solid #166534; border-radius:6px; font-weight:600; cursor:not-allowed; margin-bottom: 12px;">✅ Enrolled</button>
+<!-- Premium Answer Upload Form -->
+<div style="background: rgba(255,255,255,0.9); padding: 16px; border-radius: 12px; border: 1px dashed #cbd5e1; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+  <h4 style="margin: 0 0 12px 0; font-size: 0.95rem; color: #1e293b; display: flex; align-items: center; gap: 6px;"><span>✍️</span> Submit Answer PDF</h4>
+  <input type="text" id="ans-title-${id}" placeholder="e.g. GS 1 Full Length" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:10px; font-size:0.85rem; font-family: inherit; box-sizing: border-box;" autocomplete="off">
+  <input type="url" id="ans-link-${id}" placeholder="Google Drive PDF Link" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; margin-bottom:12px; font-size:0.85rem; font-family: inherit; box-sizing: border-box;" autocomplete="off">
+  <button onclick="window.submitAnswerPremium('${id}', '${c.name.replace(/'/g, "\'")}')" style="width:100%; padding:10px; background: linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer; font-size:0.9rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">Submit for Evaluation</button>
+</div>
+`;
           } else if (status === 'Pending') {
              actionBtn = `<button disabled style="width:100%; padding:10px; background:#fef9c3; color:#854d0e; border:1px solid #854d0e; border-radius:6px; font-weight:600; cursor:not-allowed;">⏳ Verification Pending</button>`;
           }
