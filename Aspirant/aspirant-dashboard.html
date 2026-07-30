@@ -897,8 +897,17 @@
                   <input type="text" id="ans-title" placeholder="e.g. GS Paper 1 - Part A" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;" autocomplete="off">
                 </div>
                 <div>
-                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">Google Drive PDF Link *</label>
-                  <input type="url" id="ans-link" placeholder="Paste viewable GDrive link here..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;" autocomplete="off">
+                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">Upload PDF File *</label>
+                  <input type="file" id="ans-file" accept="application/pdf" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: #f8fafc;">
+                  <div id="upload-progress-container" style="display:none; margin-top: 10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:#64748b; margin-bottom:4px;">
+                      <span>Uploading...</span>
+                      <span id="upload-percent">0%</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                      <div id="upload-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.2s;"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -1250,6 +1259,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, collection, getDocs, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
     import { initSessionManager } from '../session-manager.js';
 
     const firebaseConfig = {
@@ -1264,6 +1274,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
     
     let _currentUserEmail = null;
     let _currentUserName = null;
@@ -1436,31 +1447,81 @@
     
     window.submitAnswer = async function() {
       const title = document.getElementById('ans-title').value.trim();
-      const link = document.getElementById('ans-link').value.trim();
-      if(!title || !link) { alert('All fields are required'); return; }
+      const fileInput = document.getElementById('ans-file');
       
+      if(!title || !fileInput.files.length) { alert('Please provide a title and select a PDF file.'); return; }
+      
+      const file = fileInput.files[0];
+      if(file.type !== 'application/pdf') { alert('Only PDF files are allowed.'); return; }
+      if(file.size > 15 * 1024 * 1024) { alert('File size must be less than 15MB.'); return; }
+
       const btn = document.getElementById('btn-submit-ans');
-      btn.disabled = true; btn.textContent = 'Submitting...';
+      const progressContainer = document.getElementById('upload-progress-container');
+      const progressBar = document.getElementById('upload-bar');
+      const progressPercent = document.getElementById('upload-percent');
+
+      btn.disabled = true; 
+      btn.textContent = 'Uploading...';
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
       
       try {
-        const docId = Date.now().toString();
-        await setDoc(doc(db, 'evaluations', docId), {
-          studentName: _currentUserName || _currentUserEmail.split('@')[0],
-          studentId: _currentUserEmail,
-          title: title,
-          link: link,
-          status: 'Pending',
-          timestamp: new Date().toISOString()
-        });
-        alert('Answer submitted for evaluation!');
-        document.getElementById('ans-title').value = '';
-        document.getElementById('ans-link').value = '';
-        window.loadMyAnswers();
+        const timestamp = Date.now().toString();
+        const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        const storageRef = ref(storage, `answers/${_currentUserEmail}/${timestamp}_${safeName}`);
+        
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed', 
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+          }, 
+          (error) => {
+            console.error(error);
+            alert('Upload failed: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'Submit for Evaluation';
+            progressContainer.style.display = 'none';
+          }, 
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              
+              const docId = Date.now().toString();
+              await setDoc(doc(db, 'evaluations', docId), {
+                studentName: _currentUserName || _currentUserEmail.split('@')[0],
+                studentId: _currentUserEmail,
+                title: title,
+                link: downloadURL,
+                fileName: file.name,
+                status: 'Pending',
+                timestamp: new Date().toISOString()
+              });
+              
+              alert('✅ Answer successfully uploaded and submitted for evaluation!');
+              document.getElementById('ans-title').value = '';
+              fileInput.value = '';
+              progressContainer.style.display = 'none';
+              window.loadMyAnswers();
+            } catch(e) {
+              console.error(e);
+              alert('Error saving record to database.');
+            } finally {
+              btn.disabled = false;
+              btn.textContent = 'Submit for Evaluation';
+            }
+          }
+        );
+
       } catch (err) {
         console.error(err);
-        alert('Failed to submit answer.');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Submit for Evaluation';
+        alert('Failed to initialize upload.');
+        btn.disabled = false; 
+        btn.textContent = 'Submit for Evaluation';
+        progressContainer.style.display = 'none';
       }
     };
     
