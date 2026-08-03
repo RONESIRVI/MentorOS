@@ -28,18 +28,18 @@ const RoneRender = (() => {
             <div class="avatar avatar-student">${s.initials}</div>
             <div class="card-meta">
               <div class="card-name" title="${s.name}">${s.name}</div>
-              <div class="card-role">Student · Class ${s.class} ${s.stream}</div>
+              <div class="card-role">Aspirant · Target ${s.class} ${s.stream}</div>
               <div class="card-id">${s.id}</div>
             </div>
-            <span class="card-badge badge-student">Student</span>
+            <span class="card-badge badge-student">Aspirant</span>
           </div>
           <div class="card-details">
             <div>
-              <div class="detail-label">विषय</div>
+              <div class="detail-label">Optional Subject</div>
               <div class="detail-value">${s.subject || '—'}</div>
             </div>
             <div>
-              <div class="detail-label">लक्ष्य</div>
+              <div class="detail-label">Target Exam</div>
               <div class="detail-value">${s.goal || '—'}</div>
             </div>
             <div>
@@ -85,12 +85,12 @@ const RoneRender = (() => {
           </div>
           <div class="card-details">
             <div>
-              <div class="detail-label">Specialisation</div>
+              <div class="detail-label">Expertise</div>
               <div class="detail-value">${m.specialisation}</div>
             </div>
             <div>
               <div class="detail-label">Capacity</div>
-              <div class="detail-value">${m.capacity} स्टुडेंट</div>
+              <div class="detail-value">${m.capacity} एस्पिरेंट</div>
             </div>
             <div>
               <div class="detail-label">Assigned</div>

@@ -113,17 +113,17 @@ const RoneCsv = (() => {
     let content;
     if (type === 'students') {
       content = [
-        'name,class,stream,subject,goal,city,email,phone',
-        'Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur,aarav@email.com,9876543210',
-        'Riya Patel,XII,Commerce,"Accounts, Economics",CA Foundation,Ahmedabad,riya@email.com,',
-        'Karan Verma,XI,Science,"Biology, Chemistry",NEET UG,Jodhpur,,',
+        'name,target_year,medium,optional_subject,exam_goal,city,email,phone',
+        'Aarav Sharma,2025,Hindi,History,UPSC CSE,Jaipur,aarav@email.com,9876543210',
+        'Riya Patel,2026,English,Geography,RPSC RAS,Ahmedabad,riya@email.com,',
+        'Karan Verma,2025,English,PSIR,UPSC CSE,Jodhpur,,',
       ].join('\n');
     } else {
       content = [
-        'name,specialisation,capacity,institution,rating,email',
-        'Dr. Priya Menon,JEE / Maths,8,IIT Bombay Alumni,4.9,priya@email.com',
-        'Prof. Rakesh Joshi,NEET / Biology,10,AIIMS Delhi Alumni,4.7,rakesh@email.com',
-        'Ms. Anjali Singh,CA / Commerce,6,,4.8,anjali@email.com',
+        'name,expertise,capacity,experience,rating,email',
+        'Dr. Priya Menon,History Optional,8,Ex-IAS,4.9,priya@email.com',
+        'Prof. Rakesh Joshi,GS Paper 2,10,Interview Appeared,4.7,rakesh@email.com',
+        'Ms. Anjali Singh,Essay,6,,4.8,anjali@email.com',
       ].join('\n');
     }
 

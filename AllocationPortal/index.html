@@ -170,17 +170,17 @@
     <div class="format-guide">
       <div class="fg-title"><i class="ti ti-info-circle"></i> CSV Format Guide</div>
       <div class="fg-section">
-        <strong>स्टुडेंट CSV columns:</strong>
-        <code>name, class, stream, subject, goal, city, email (optional), phone (optional), mentor_id (optional)</code>
+        <strong>एस्पिरेंट CSV columns:</strong>
+        <code>name, target_year, medium, optional_subject, exam_goal, city, email (optional), phone (optional), mentor_id (optional)</code>
       </div>
       <div class="fg-section">
         <strong>मेंटर CSV columns:</strong>
-        <code>name, specialisation, capacity, institution, rating (optional), email (optional)</code>
+        <code>name, expertise, capacity, experience, rating (optional), email (optional)</code>
       </div>
       <div class="fg-section">
-        <strong>Example (Student):</strong>
-        <code>name,class,stream,subject,goal,city<br/>
-Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
+        <strong>Example (Aspirant):</strong>
+        <code>name,target_year,medium,optional_subject,exam_goal,city<br/>
+Aarav Sharma,2025,Hindi,History,UPSC CSE,Jaipur</code>
       </div>
     </div>
   </section>
@@ -195,7 +195,7 @@ Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
         <button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button>
       </div>
       <div class="modal-tabs">
-        <button class="modal-tab active" data-modal-tab="student">स्टुडेंट</button>
+        <button class="modal-tab active" data-modal-tab="student">एस्पिरेंट</button>
         <button class="modal-tab" data-modal-tab="mentor">मेंटर</button>
       </div>
 
@@ -207,34 +207,34 @@ Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
         </div>
         <div class="form-row two-col">
           <div>
-            <label>कक्षा *</label>
+            <label>टारगेट वर्ष *</label>
             <select id="s-class">
-              <option value="XI">XI</option>
-              <option value="XII">XII</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
             </select>
           </div>
           <div>
-            <label>Stream *</label>
+            <label>माध्यम *</label>
             <select id="s-stream">
-              <option value="Science">Science</option>
-              <option value="Commerce">Commerce</option>
-              <option value="Arts">Arts</option>
+              <option value="Hindi">Hindi</option>
+              <option value="English">English</option>
             </select>
           </div>
         </div>
         <div class="form-row">
-          <label>विषय *</label>
-          <input type="text" id="s-subject" placeholder="Physics, Maths" />
+            <label>वैकल्पिक विषय (Optional) *</label>
+          <input type="text" id="s-subject" placeholder="History, PSIR..." />
         </div>
         <div class="form-row">
-          <label>लक्ष्य *</label>
+          <label>लक्ष्य परीक्षा *</label>
           <select id="s-goal">
-            <option value="JEE Advanced">JEE Advanced</option>
-            <option value="JEE Mains">JEE Mains</option>
-            <option value="NEET UG">NEET UG</option>
-            <option value="CA Foundation">CA Foundation</option>
-            <option value="CUET">CUET</option>
-            <option value="Other">Other</option>
+            <option value="UPSC CSE">UPSC CSE</option>
+            <option value="RPSC RAS">RPSC RAS</option>
+            <option value="UPPSC PCS">UPPSC PCS</option>
+            <option value="BPSC">BPSC</option>
+            <option value="MPPSC">MPPSC</option>
+            <option value="Other PCS">Other PCS</option>
           </select>
         </div>
         <div class="form-row">
@@ -245,7 +245,7 @@ Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
           <label>Email</label>
           <input type="email" id="s-email" placeholder="student@email.com" />
         </div>
-        <button class="btn btn-primary full-width" id="save-student">स्टुडेंट जोड़ें</button>
+        <button class="btn btn-primary full-width" id="save-student">एस्पिरेंट जोड़ें</button>
       </div>
 
       <!-- Mentor Form -->
@@ -255,23 +255,26 @@ Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
           <input type="text" id="m-name" placeholder="Dr. Priya Menon" />
         </div>
         <div class="form-row">
-          <label>Specialisation *</label>
+          <label>Expertise (विशेषज्ञता) *</label>
           <select id="m-spec">
-            <option value="JEE / Maths">JEE / Maths</option>
-            <option value="JEE / Physics">JEE / Physics</option>
-            <option value="NEET / Biology">NEET / Biology</option>
-            <option value="NEET / Chemistry">NEET / Chemistry</option>
-            <option value="CA / Commerce">CA / Commerce</option>
-            <option value="CUET / Arts">CUET / Arts</option>
-            <option value="General">General</option>
+            <option value="GS Paper 1">GS Paper 1</option>
+            <option value="GS Paper 2">GS Paper 2</option>
+            <option value="GS Paper 3">GS Paper 3</option>
+            <option value="GS Paper 4">GS Paper 4</option>
+            <option value="Essay">Essay</option>
+            <option value="History Optional">History Optional</option>
+            <option value="Geography Optional">Geography Optional</option>
+            <option value="PSIR Optional">PSIR Optional</option>
+            <option value="Hindi Lit Optional">Hindi Lit Optional</option>
+            <option value="General Guidance">General Guidance</option>
           </select>
         </div>
         <div class="form-row">
-          <label>Institution</label>
-          <input type="text" id="m-inst" placeholder="IIT Bombay Alumni" />
+          <label>Experience (अनुभव)</label>
+          <input type="text" id="m-inst" placeholder="Ex-IAS, UPSC Interview..." />
         </div>
         <div class="form-row">
-          <label>Capacity (max स्टुडेंट)</label>
+          <label>Capacity (max एस्पिरेंट)</label>
           <input type="number" id="m-cap" value="8" min="1" max="20" />
         </div>
         <div class="form-row">
