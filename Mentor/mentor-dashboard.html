@@ -181,6 +181,8 @@
           <div style="padding:24px 20px; text-align:center;">
             <div id="id-card-avatar" style="width:64px; height:64px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#10b981; margin:0 auto 16px auto; border:3px solid #d1fae5; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">M</div>
             <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color:#0f172a; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+            <button onclick="window.editProfileName()" style="background:none; border:none; color:#10b981; cursor:pointer; font-size:0.8rem; font-weight:600; margin-bottom:12px; text-decoration:underline;">✏️ Edit Name</button>
+            <br>
             <div style="display:inline-block; padding:4px 12px; background:#d1fae5; color:#047857; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Mentor</div>
             <div style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0;">
               <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
@@ -291,6 +293,20 @@
               m.style.display = 'flex';
             };
 
+            window.editProfileName = async function() {
+              const newName = prompt("Enter your new Display Name:", namePart);
+              if (newName && newName.trim() !== "") {
+                try {
+                  await setDoc(doc(db, 'userRoles', user.email.toLowerCase()), { name: newName.trim() }, { merge: true });
+                  alert('Name updated successfully!');
+                  window.location.reload();
+                } catch(e) {
+                  console.error(e);
+                  alert('Failed to update name.');
+                }
+              }
+            };
+
             // Format date
             const dateStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const dateEl = document.getElementById('current-date');
@@ -364,18 +380,24 @@
       const tbody = document.getElementById('students-table-body');
       tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;">Loading...</td></tr>';
       try {
-        const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'aspirant')));
+        const snap = await getDocs(collection(db, 'userRoles'));
         let html = '';
         snap.forEach(d => {
-          const user = d.data();
-          html += `<tr style="border-bottom:1px solid #e2e8f0;">
-            <td style="padding:15px; font-weight:600;">${_esc(user.name||'Student')}</td>
-            <td style="padding:15px; color:#64748b;">${_esc(user.email)}</td>
-            <td style="padding:15px;">Active</td>
-            <td style="padding:15px; text-align:right;">
-              <button onclick="alert('View progress coming soon')" class="btn-meet" style="border-color:#10b981; color:#10b981;">Progress</button>
-            </td>
-          </tr>`;
+          const email = d.id;
+          const userRoleData = d.data();
+          const role = (userRoleData.role || 'Aspirant').toLowerCase();
+          
+          if (role === 'aspirant') {
+            const nameToDisplay = userRoleData.name || email.split('@')[0];
+            html += `<tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:15px; font-weight:600;">${_esc(nameToDisplay)}</td>
+              <td style="padding:15px; color:#64748b;">${_esc(email)}</td>
+              <td style="padding:15px;">Active</td>
+              <td style="padding:15px; text-align:right;">
+                <button onclick="alert('View progress coming soon')" class="btn-meet" style="border-color:#10b981; color:#10b981;">Progress</button>
+              </td>
+            </tr>`;
+          }
         });
         tbody.innerHTML = html || '<tr><td colspan="4" style="padding:20px;text-align:center;">No students found</td></tr>';
       } catch(e) {
