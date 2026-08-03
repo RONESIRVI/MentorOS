@@ -1295,6 +1295,28 @@
               <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
               <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
             </div>
+            
+            <div id="id-card-details" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0; margin-top:10px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <div>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Target</p>
+                  <p id="id-card-target" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                </div>
+                <div style="text-align:right;">
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Medium</p>
+                  <p id="id-card-medium" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                </div>
+              </div>
+              <div style="margin-bottom:12px;">
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Optional Subject</p>
+                <p id="id-card-optional" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+              </div>
+              <div>
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Target Exam</p>
+                <p id="id-card-exam" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -1710,19 +1732,35 @@
         
         const namePart = displayName || user.email.split('@')[0];
         _currentUserName = namePart;
+        const initial = namePart.charAt(0).toUpperCase();
 
         document.getElementById('welcome-message').textContent = `Welcome back, ${namePart}! 👋`;
         const topbarAvatar = document.getElementById('topbar-avatar');
-        if (topbarAvatar) topbarAvatar.textContent = namePart.charAt(0).toUpperCase();
+        if (topbarAvatar) topbarAvatar.textContent = initial;
 
         // Attach ID Card logic
         window.showIdCardModal = function() {
           const m = document.getElementById('id-card-modal');
           if(!m) return;
-          document.getElementById('id-card-avatar').textContent = namePart.charAt(0).toUpperCase();
+          document.getElementById('id-card-avatar').textContent = initial;
           document.getElementById('id-card-name').textContent = namePart;
           document.getElementById('id-card-role').textContent = 'Aspirant';
           document.getElementById('id-card-email').textContent = emailLower;
+          
+          // Check Allocation Portal LocalStorage for detailed info
+          const stus = JSON.parse(localStorage.getItem('rone_students') || '[]');
+          const myData = stus.find(s => s.email.toLowerCase() === emailLower);
+          const detailsBox = document.getElementById('id-card-details');
+          if (myData && detailsBox) {
+            detailsBox.style.display = 'block';
+            document.getElementById('id-card-target').textContent = myData.class || '-';
+            document.getElementById('id-card-medium').textContent = myData.stream || '-';
+            document.getElementById('id-card-optional').textContent = myData.subject || '-';
+            document.getElementById('id-card-exam').textContent = myData.goal || '-';
+          } else if (detailsBox) {
+             detailsBox.style.display = 'none';
+          }
+          
           m.style.display = 'flex';
         };
 

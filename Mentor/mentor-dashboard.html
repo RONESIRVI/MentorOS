@@ -188,6 +188,28 @@
               <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
               <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
             </div>
+            
+            <div id="id-card-details" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0; margin-top:10px;">
+              <div style="margin-bottom:12px;">
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Expertise (विशेषज्ञता)</p>
+                <p id="id-card-expertise" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Experience (अनुभव)</p>
+                <p id="id-card-experience" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+              </div>
+              <div style="display:flex; justify-content:space-between;">
+                <div>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Capacity</p>
+                  <p id="id-card-capacity" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                </div>
+                <div style="text-align:right;">
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Assigned</p>
+                  <p id="id-card-assigned" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -290,6 +312,21 @@
               document.getElementById('id-card-name').textContent = namePart;
               document.getElementById('id-card-role').textContent = 'Mentor';
               document.getElementById('id-card-email').textContent = user.email.toLowerCase();
+              
+              // Check Allocation Portal LocalStorage for detailed info
+              const mnts = JSON.parse(localStorage.getItem('rone_mentors') || '[]');
+              const myData = mnts.find(s => s.email.toLowerCase() === user.email.toLowerCase());
+              const detailsBox = document.getElementById('id-card-details');
+              if (myData && detailsBox) {
+                detailsBox.style.display = 'block';
+                document.getElementById('id-card-expertise').textContent = myData.specialisation || '-';
+                document.getElementById('id-card-experience').textContent = myData.institution || '-';
+                document.getElementById('id-card-capacity').textContent = myData.capacity + ' एस्पिरेंट' || '-';
+                document.getElementById('id-card-assigned').textContent = myData.assigned + ' / ' + myData.capacity || '-';
+              } else if (detailsBox) {
+                 detailsBox.style.display = 'none';
+              }
+              
               m.style.display = 'flex';
             };
 
