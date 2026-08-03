@@ -319,6 +319,16 @@
               const detailsBox = document.getElementById('id-card-details');
               if (myData && detailsBox) {
                 detailsBox.style.display = 'block';
+                if (myData.name) {
+                  document.getElementById('id-card-name').textContent = myData.name;
+                  document.getElementById('id-card-avatar').textContent = myData.name.charAt(0).toUpperCase();
+                  
+                  // Also update dashboard welcome message
+                  const welcomeMessage = document.getElementById('welcome-message');
+                  if (welcomeMessage) welcomeMessage.textContent = `Welcome, ${myData.name}! 👋`;
+                  const topbarAvatar = document.getElementById('topbar-avatar');
+                  if (topbarAvatar) topbarAvatar.textContent = myData.name.charAt(0).toUpperCase();
+                }
                 document.getElementById('id-card-expertise').textContent = myData.specialisation || '-';
                 document.getElementById('id-card-experience').textContent = myData.institution || '-';
                 document.getElementById('id-card-capacity').textContent = myData.capacity + ' एस्पिरेंट' || '-';
