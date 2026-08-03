@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RONE MentorOS — Allocation Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Tabler Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════ -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark"><span>RO</span></div>
+      <div class="logo-text-wrap">
+        <span class="logo-title">RONE MentorOS</span>
+        <span class="logo-sub">Allocation Portal · Batch 2025–26</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" id="btn-upload-csv">
+        <i class="ti ti-upload"></i> CSV अपलोड करें
+      </button>
+      <button class="btn btn-primary" id="btn-add-new">
+        <i class="ti ti-plus"></i> नया जोड़ें
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════
+       STATS ROW
+  ═══════════════════════════════════════ -->
+  <section class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">कुल स्टुडेंट</div>
+      <div class="stat-value" id="stat-students">0</div>
+      <span class="stat-tag tag-blue">Batch 2025–26</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">कुल मेंटर</div>
+      <div class="stat-value" id="stat-mentors">0</div>
+      <span class="stat-tag tag-green">Active</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">एलोकेशन हुई</div>
+      <div class="stat-value" id="stat-allocated">0</div>
+      <span class="stat-tag tag-amber" id="stat-pct">0%</span>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" id="stat-pending">0</div>
+      <span class="stat-tag tag-purple">बाकी है</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       TABS
+  ═══════════════════════════════════════ -->
+  <div class="tabs-bar">
+    <button class="tab active" data-tab="students">स्टुडेंट ID कार्ड</button>
+    <button class="tab" data-tab="mentors">मेंटर ID कार्ड</button>
+    <button class="tab" data-tab="allocation">एलोकेशन</button>
+    <button class="tab" data-tab="upload">अपलोड</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL: STUDENTS
+  ═══════════════════════════════════════ -->
+  <section class="panel active" id="panel-students">
+    <div class="section-header">
+      <span class="section-title">स्टुडेंट ID कार्ड</span>
+      <span class="section-count" id="count-students">0 स्टुडेंट</span>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search"></i>
+      <input type="text" id="search-students" placeholder="नाम, ID, लक्ष्य से खोजें…" />
+    </div>
+    <div class="cards-grid" id="grid-students">
+      <!-- JS से populate होगा -->
+      <div class="empty-state">
+        <i class="ti ti-users"></i>
+        <p>अभी कोई स्टुडेंट नहीं है।<br/>CSV अपलोड करें या नया जोड़ें।</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PANEL: MENTORS
+  ═══════════════════════════════════════ -->
+  <section class="panel" id="panel-mentors">
+    <div class="section-header">
+      <span class="section-title">मेंटर ID कार्ड</span>
+      <span class="section-count" id="count-mentors">0 मेंटर</span>
+    </div>
+    <div class="search-bar">
+      <i class="ti ti-search"></i>
+      <input type="text" id="search-mentors" placeholder="नाम, ID, Specialisation से खोजें…" />
+    </div>
+    <div class="cards-grid" id="grid-mentors">
+      <div class="empty-state">
+        <i class="ti ti-school"></i>
+        <p>अभी कोई मेंटर नहीं है।<br/>CSV अपलोड करें या नया जोड़ें।</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PANEL: ALLOCATION
+  ═══════════════════════════════════════ -->
+  <section class="panel" id="panel-allocation">
+    <div class="section-header">
+      <span class="section-title">स्टुडेंट–मेंटर एलोकेशन</span>
+      <button class="btn btn-outline btn-sm" id="btn-auto-assign">
+        <i class="ti ti-wand"></i> Auto-assign करें
+      </button>
+    </div>
+
+    <div class="alloc-box">
+      <div class="alloc-box-title"><i class="ti ti-link"></i> Confirmed एलोकेशन</div>
+      <div id="list-confirmed">
+        <div class="empty-state small">कोई confirmed एलोकेशन नहीं।</div>
+      </div>
+    </div>
+
+    <div class="alloc-box" style="margin-top: 12px;">
+      <div class="alloc-box-title"><i class="ti ti-clock"></i> Pending एलोकेशन</div>
+      <div id="list-pending">
+        <div class="empty-state small">कोई pending स्टुडेंट नहीं।</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PANEL: UPLOAD
+  ═══════════════════════════════════════ -->
+  <section class="panel" id="panel-upload">
+    <div class="section-header">
+      <span class="section-title">डेटा अपलोड करें</span>
+    </div>
+
+    <!-- Student Upload -->
+    <div class="upload-zone" id="drop-students">
+      <input type="file" id="file-students" accept=".csv" hidden />
+      <i class="ti ti-users upload-icon"></i>
+      <div class="upload-title">स्टुडेंट CSV अपलोड करें</div>
+      <div class="upload-sub">फ़ाइल drop करें या क्लिक करें</div>
+      <div class="upload-formats">
+        <span class="fmt-tag">.csv</span>
+        <span class="fmt-tag">.xlsx (जल्द)</span>
+      </div>
+    </div>
+
+    <!-- Mentor Upload -->
+    <div class="upload-zone" id="drop-mentors" style="margin-top: 14px;">
+      <input type="file" id="file-mentors" accept=".csv" hidden />
+      <i class="ti ti-school upload-icon"></i>
+      <div class="upload-title">मेंटर CSV अपलोड करें</div>
+      <div class="upload-sub">फ़ाइल drop करें या क्लिक करें</div>
+      <div class="upload-formats">
+        <span class="fmt-tag">.csv</span>
+        <span class="fmt-tag">.xlsx (जल्द)</span>
+      </div>
+    </div>
+
+    <!-- Format guide -->
+    <div class="format-guide">
+      <div class="fg-title"><i class="ti ti-info-circle"></i> CSV Format Guide</div>
+      <div class="fg-section">
+        <strong>स्टुडेंट CSV columns:</strong>
+        <code>name, class, stream, subject, goal, city, email (optional), phone (optional), mentor_id (optional)</code>
+      </div>
+      <div class="fg-section">
+        <strong>मेंटर CSV columns:</strong>
+        <code>name, specialisation, capacity, institution, rating (optional), email (optional)</code>
+      </div>
+      <div class="fg-section">
+        <strong>Example (Student):</strong>
+        <code>name,class,stream,subject,goal,city<br/>
+Aarav Sharma,XI,Science,"Physics, Maths",JEE Advanced,Jaipur</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       MODAL: Add New
+  ═══════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-add" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">नया जोड़ें</span>
+        <button class="modal-close" id="modal-close"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-modal-tab="student">स्टुडेंट</button>
+        <button class="modal-tab" data-modal-tab="mentor">मेंटर</button>
+      </div>
+
+      <!-- Student Form -->
+      <div class="modal-form active" id="form-student">
+        <div class="form-row">
+          <label>नाम *</label>
+          <input type="text" id="s-name" placeholder="Aarav Sharma" />
+        </div>
+        <div class="form-row two-col">
+          <div>
+            <label>कक्षा *</label>
+            <select id="s-class">
+              <option value="XI">XI</option>
+              <option value="XII">XII</option>
+            </select>
+          </div>
+          <div>
+            <label>Stream *</label>
+            <select id="s-stream">
+              <option value="Science">Science</option>
+              <option value="Commerce">Commerce</option>
+              <option value="Arts">Arts</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>विषय *</label>
+          <input type="text" id="s-subject" placeholder="Physics, Maths" />
+        </div>
+        <div class="form-row">
+          <label>लक्ष्य *</label>
+          <select id="s-goal">
+            <option value="JEE Advanced">JEE Advanced</option>
+            <option value="JEE Mains">JEE Mains</option>
+            <option value="NEET UG">NEET UG</option>
+            <option value="CA Foundation">CA Foundation</option>
+            <option value="CUET">CUET</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>शहर *</label>
+          <input type="text" id="s-city" placeholder="Jaipur" />
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input type="email" id="s-email" placeholder="student@email.com" />
+        </div>
+        <button class="btn btn-primary full-width" id="save-student">स्टुडेंट जोड़ें</button>
+      </div>
+
+      <!-- Mentor Form -->
+      <div class="modal-form" id="form-mentor">
+        <div class="form-row">
+          <label>नाम *</label>
+          <input type="text" id="m-name" placeholder="Dr. Priya Menon" />
+        </div>
+        <div class="form-row">
+          <label>Specialisation *</label>
+          <select id="m-spec">
+            <option value="JEE / Maths">JEE / Maths</option>
+            <option value="JEE / Physics">JEE / Physics</option>
+            <option value="NEET / Biology">NEET / Biology</option>
+            <option value="NEET / Chemistry">NEET / Chemistry</option>
+            <option value="CA / Commerce">CA / Commerce</option>
+            <option value="CUET / Arts">CUET / Arts</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Institution</label>
+          <input type="text" id="m-inst" placeholder="IIT Bombay Alumni" />
+        </div>
+        <div class="form-row">
+          <label>Capacity (max स्टुडेंट)</label>
+          <input type="number" id="m-cap" value="8" min="1" max="20" />
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input type="email" id="m-email" placeholder="mentor@email.com" />
+        </div>
+        <button class="btn btn-primary full-width" id="save-mentor">मेंटर जोड़ें</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       TOAST NOTIFICATION
+  ═══════════════════════════════════════ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/csv.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

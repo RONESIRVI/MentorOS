@@ -689,6 +689,9 @@
         <a href="#" class="sidebar-nav-item" id="nav-ai-planner" onclick="window.switchAspirantSection('ai-planner')">
           <span class="icon">🤖</span> AI Study Planner
         </a>
+        <a href="../AllocationPortal/index.html" class="sidebar-nav-item" id="nav-allocation-portal">
+          <span class="icon">🔗</span> Allocation Portal
+        </a>
       </nav>
 
     </aside>
@@ -711,7 +714,7 @@
             Sign Out
           </button>
 
-          <div class="user-avatar" style="width:36px; height:36px; cursor:pointer; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #334155; font-weight: bold;" id="topbar-avatar">A</div>
+          <div class="user-avatar" style="width:36px; height:36px; cursor:pointer; background: #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #334155; font-weight: bold;" id="topbar-avatar" onclick="window.showIdCardModal()">A</div>
         </div>
       </header>
 
@@ -1279,6 +1282,29 @@
 
       </div>
       <!-- END dashboard-canvas -->
+      <!-- ID Card Modal -->
+      <div id="id-card-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(2px);">
+        <div style="background:white; border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
+          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color:#475569;">✕</button>
+          <div style="height:6px; width:100%; background:linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
+          <div style="padding:24px 20px; text-align:center;">
+            <div id="id-card-avatar" style="width:64px; height:64px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#3b82f6; margin:0 auto 16px auto; border:3px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">A</div>
+            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color:#0f172a; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+            <div style="display:inline-block; padding:4px 12px; background:#dbeafe; color:#1d4ed8; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Aspirant</div>
+            <div style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0;">
+              <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
+              <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        @keyframes popIn {
+          0% { transform: scale(0.9); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      </style>
+
     </main>
   </div>
 
@@ -1665,12 +1691,40 @@
 
         // Setup Globals
         _currentUserEmail = emailLower;
-        const namePart = user.email.split('@')[0];
+        
+        let displayName = user.displayName;
+        if (!displayName) {
+          try {
+            // Try fetching from users collection
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists() && userDoc.data().name) {
+              displayName = userDoc.data().name;
+            } else {
+              // Try userRoles as fallback
+              if (roleDoc.exists() && roleDoc.data().name) {
+                displayName = roleDoc.data().name;
+              }
+            }
+          } catch(e) {}
+        }
+        
+        const namePart = displayName || user.email.split('@')[0];
         _currentUserName = namePart;
 
         document.getElementById('welcome-message').textContent = `Welcome back, ${namePart}! 👋`;
         const topbarAvatar = document.getElementById('topbar-avatar');
         if (topbarAvatar) topbarAvatar.textContent = namePart.charAt(0).toUpperCase();
+
+        // Attach ID Card logic
+        window.showIdCardModal = function() {
+          const m = document.getElementById('id-card-modal');
+          if(!m) return;
+          document.getElementById('id-card-avatar').textContent = namePart.charAt(0).toUpperCase();
+          document.getElementById('id-card-name').textContent = namePart;
+          document.getElementById('id-card-role').textContent = 'Aspirant';
+          document.getElementById('id-card-email').textContent = emailLower;
+          m.style.display = 'flex';
+        };
 
         initSessionManager(auth, signOut, '../index.html');
         
