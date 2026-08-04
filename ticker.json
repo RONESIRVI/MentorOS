@@ -3,72 +3,7 @@
   "messages": [
     {
       "Icon": "🔔",
-      "Message": 0,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 1,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 2,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 3,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 4,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 5,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 6,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 7,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 8,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 9,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 10,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 11,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 12,
-      "Link": "#courses"
-    },
-    {
-      "Icon": "🔔",
-      "Message": 13,
+      "Message": "पोर्टल पर अभी टेस्ट सिस्टम जोड़ा जा रहा है ",
       "Link": "#courses"
     }
   ]
