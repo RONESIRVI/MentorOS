@@ -900,13 +900,26 @@
         if (topbarAvatar) topbarAvatar.textContent = initial;
 
         // Attach ID Card logic
-        window.showIdCardModal = function() {
+        window.showIdCardModal = async function() {
           const m = document.getElementById('id-card-modal');
           if(!m) return;
           document.getElementById('id-card-avatar').textContent = initial;
           document.getElementById('id-card-name').textContent = namePart;
           document.getElementById('id-card-role').textContent = 'System Admin';
           document.getElementById('id-card-email').textContent = emailLower;
+          
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if(userDoc.exists()) {
+              const data = userDoc.data();
+              if(data.name) {
+                document.getElementById('id-card-name').textContent = data.name;
+                document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
+              }
+            }
+          } catch (e) {
+            console.error('Error fetching ID card details:', e);
+          }
           m.style.display = 'flex';
         };
 

@@ -88,7 +88,7 @@
         </div>
         <div class="topbar-right" style="display: flex; gap: 15px; align-items: center;">
           <button id="btnLogoutTop" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500;">Sign Out</button>
-          <div class="user-avatar" id="topbar-avatar" style="width:36px; height:36px; background:#10b981; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600;">M</div>
+          <div class="user-avatar" id="topbar-avatar" style="width:36px; height:36px; background:#10b981; color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; cursor:pointer;" onclick="window.showIdCardModal()">M</div>
         </div>
       </header>
 
@@ -215,6 +215,28 @@
     </div>
   </div>
 
+  <div id="id-card-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(2px);">
+    <div style="background:white; border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
+      <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color:#475569;">✕</button>
+      <div style="height:6px; width:100%; background:linear-gradient(90deg, #10b981, #34d399);"></div>
+      <div style="padding:24px 20px; text-align:center;">
+        <div id="id-card-avatar" style="width:64px; height:64px; background:#ecfdf5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#10b981; margin:0 auto 16px auto; border:3px solid #d1fae5; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">M</div>
+        <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color:#0f172a; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+        <div style="display:inline-block; padding:4px 12px; background:#d1fae5; color:#047857; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Mentor</div>
+        <div style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0;">
+          <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
+          <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -253,6 +275,33 @@
             
             // Load initial data
             loadMentorData();
+
+            window.showIdCardModal = async function() {
+              const m = document.getElementById('id-card-modal');
+              if(!m) return;
+              const emailLower = user ? user.email.toLowerCase() : 'mentor@test.com';
+              document.getElementById('id-card-avatar').textContent = namePart.charAt(0).toUpperCase();
+              document.getElementById('id-card-name').textContent = namePart;
+              document.getElementById('id-card-role').textContent = 'Mentor';
+              document.getElementById('id-card-email').textContent = emailLower;
+              
+              try {
+                if(user) {
+                  const userDoc = await getDoc(doc(db, 'users', user.uid));
+                  if(userDoc.exists()) {
+                    const data = userDoc.data();
+                    if(data.name) {
+                      document.getElementById('id-card-name').textContent = data.name;
+                      document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
+                    }
+                  }
+                }
+              } catch (e) {
+                console.error('Error fetching ID card details:', e);
+              }
+              m.style.display = 'flex';
+            };
+
           } else {
             alert('Access Denied. Mentor role required.');
             await signOut(auth);
