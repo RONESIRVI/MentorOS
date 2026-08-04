@@ -1433,8 +1433,11 @@
         }
         
         try {
+          const resolvedStudentName = _currentUserName || _currentUserEmail.split('@')[0];
           await addDoc(collection(db, 'evaluations'), {
             student: _currentUserEmail,
+            studentName: resolvedStudentName,
+            studentId: _currentUserEmail,
             title: title,
             link: link,
             courseId: courseId,
@@ -1561,8 +1564,9 @@
           const formData = new URLSearchParams();
           formData.append('fileData', base64Data);
           formData.append('mimeType', file.type);
-          formData.append('fileName', file.name);
-          formData.append('studentName', _currentUserName || _currentUserEmail.split('@')[0]);
+          const resolvedStudentName = _currentUserName || _currentUserEmail.split('@')[0];
+          formData.append('fileName', `${resolvedStudentName} - ${file.name}`);
+          formData.append('studentName', resolvedStudentName);
           formData.append('subject', subject);
           formData.append('topic', topicFinal);
           formData.append('courseName', subject); // for backward compat
@@ -1730,6 +1734,14 @@
           } catch(e) {}
         }
         
+        try {
+          const stus = JSON.parse(localStorage.getItem('rone_students') || '[]');
+          const myData = stus.find(s => s.email.toLowerCase() === emailLower);
+          if (myData && myData.name) {
+            displayName = myData.name;
+          }
+        } catch(e) {}
+
         const namePart = displayName || user.email.split('@')[0];
         _currentUserName = namePart;
         const initial = namePart.charAt(0).toUpperCase();
