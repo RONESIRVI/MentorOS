@@ -227,6 +227,22 @@
           <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
           <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
         </div>
+        <div id="id-card-details" style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0; margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <div>
+              <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Expertise</p>
+              <p id="id-card-expertise" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+            </div>
+            <div style="text-align:right;">
+              <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Capacity</p>
+              <p id="id-card-capacity" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+            </div>
+          </div>
+          <div>
+            <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Subjects</p>
+            <p id="id-card-subjects" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -314,6 +330,13 @@
                     document.getElementById('id-card-name').textContent = data.name;
                     document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
                   }
+                  document.getElementById('id-card-expertise').textContent = data.expertise || data.specialisation || '-';
+                  document.getElementById('id-card-capacity').textContent = data.capacity || '-';
+                  document.getElementById('id-card-subjects').textContent = data.subjects || '-';
+                } else {
+                  document.getElementById('id-card-expertise').textContent = '-';
+                  document.getElementById('id-card-capacity').textContent = '-';
+                  document.getElementById('id-card-subjects').textContent = '-';
                 }
               } catch (e) {
                 console.error('Error fetching ID card details:', e);
