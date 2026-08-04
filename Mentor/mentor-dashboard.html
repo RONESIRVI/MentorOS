@@ -258,15 +258,37 @@
 
     // Authentication Guard
     onAuthStateChanged(auth, async (user) => {
-      if (true) {
+      if (user) {
         try {
-          if (true) {
-            const namePart = 'TestMentor';
+          const emailLower = user.email.toLowerCase();
+          let role = 'Mentor';
+          
+          const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
+          if (roleDoc.exists()) {
+            role = roleDoc.data().role || 'Mentor';
+          }
+          
+          if (role.toLowerCase() === 'mentor') {
+            let displayName = user.displayName;
+            if (!displayName) {
+              try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists() && userDoc.data().name) {
+                  displayName = userDoc.data().name;
+                } else if (roleDoc.exists() && roleDoc.data().name) {
+                  displayName = roleDoc.data().name;
+                }
+              } catch (e) {}
+            }
+            
+            const namePart = displayName || emailLower.split('@')[0];
+            const initial = namePart.charAt(0).toUpperCase();
+            
             const welcomeMessage = document.getElementById('welcome-message');
             if (welcomeMessage) welcomeMessage.textContent = `Welcome, ${namePart}! 👋`;
             
             const avatar = document.getElementById('topbar-avatar');
-            if (avatar) avatar.textContent = namePart.charAt(0).toUpperCase();
+            if (avatar) avatar.textContent = initial;
 
             // Format date
             const dateStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -279,21 +301,18 @@
             window.showIdCardModal = async function() {
               const m = document.getElementById('id-card-modal');
               if(!m) return;
-              const emailLower = user ? user.email.toLowerCase() : 'mentor@test.com';
-              document.getElementById('id-card-avatar').textContent = namePart.charAt(0).toUpperCase();
+              document.getElementById('id-card-avatar').textContent = initial;
               document.getElementById('id-card-name').textContent = namePart;
               document.getElementById('id-card-role').textContent = 'Mentor';
               document.getElementById('id-card-email').textContent = emailLower;
               
               try {
-                if(user) {
-                  const userDoc = await getDoc(doc(db, 'users', user.uid));
-                  if(userDoc.exists()) {
-                    const data = userDoc.data();
-                    if(data.name) {
-                      document.getElementById('id-card-name').textContent = data.name;
-                      document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
-                    }
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if(userDoc.exists()) {
+                  const data = userDoc.data();
+                  if(data.name) {
+                    document.getElementById('id-card-name').textContent = data.name;
+                    document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
                   }
                 }
               } catch (e) {
