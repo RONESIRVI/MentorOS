@@ -323,6 +323,7 @@
               document.getElementById('id-card-email').textContent = emailLower;
               
               try {
+                let foundData = false;
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if(userDoc.exists()) {
                   const data = userDoc.data();
@@ -330,13 +331,30 @@
                     document.getElementById('id-card-name').textContent = data.name;
                     document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
                   }
-                  document.getElementById('id-card-expertise').textContent = data.expertise || data.specialisation || '-';
-                  document.getElementById('id-card-capacity').textContent = data.capacity || '-';
-                  document.getElementById('id-card-subjects').textContent = data.subjects || '-';
-                } else {
-                  document.getElementById('id-card-expertise').textContent = '-';
-                  document.getElementById('id-card-capacity').textContent = '-';
-                  document.getElementById('id-card-subjects').textContent = '-';
+                  if(data.expertise || data.specialisation || data.capacity || data.subjects) {
+                    document.getElementById('id-card-expertise').textContent = data.expertise || data.specialisation || '-';
+                    document.getElementById('id-card-capacity').textContent = data.capacity || '-';
+                    document.getElementById('id-card-subjects').textContent = data.subjects || '-';
+                    foundData = true;
+                  }
+                }
+                
+                if (!foundData) {
+                  const localMentors = JSON.parse(localStorage.getItem('rone_mentors') || '[]');
+                  const myMentor = localMentors.find(m => m.email.toLowerCase() === emailLower);
+                  if (myMentor) {
+                    if (myMentor.name) {
+                      document.getElementById('id-card-name').textContent = myMentor.name;
+                      document.getElementById('id-card-avatar').textContent = myMentor.name.charAt(0).toUpperCase();
+                    }
+                    document.getElementById('id-card-expertise').textContent = myMentor.specialisation || myMentor.expertise || 'General Guidance';
+                    document.getElementById('id-card-capacity').textContent = myMentor.capacity || '10';
+                    document.getElementById('id-card-subjects').textContent = myMentor.subjects ? myMentor.subjects.join(', ') : '-';
+                  } else {
+                    document.getElementById('id-card-expertise').textContent = '-';
+                    document.getElementById('id-card-capacity').textContent = '-';
+                    document.getElementById('id-card-subjects').textContent = '-';
+                  }
                 }
               } catch (e) {
                 console.error('Error fetching ID card details:', e);

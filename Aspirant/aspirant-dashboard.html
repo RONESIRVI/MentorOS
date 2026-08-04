@@ -1731,6 +1731,7 @@
           if (detailsBox) detailsBox.style.display = 'block';
           
           try {
+            let foundData = false;
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if(userDoc.exists()) {
               const data = userDoc.data();
@@ -1738,15 +1739,34 @@
                 document.getElementById('id-card-name').textContent = data.name;
                 document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
               }
-              document.getElementById('id-card-target').textContent = data.target || data.class || '-';
-              document.getElementById('id-card-medium').textContent = data.medium || data.stream || '-';
-              document.getElementById('id-card-optional').textContent = data.optional || data.subject || '-';
-              document.getElementById('id-card-exam').textContent = data.exam || data.goal || '-';
-            } else {
-              document.getElementById('id-card-target').textContent = '-';
-              document.getElementById('id-card-medium').textContent = '-';
-              document.getElementById('id-card-optional').textContent = '-';
-              document.getElementById('id-card-exam').textContent = '-';
+              // Only mark found if fields exist
+              if (data.target || data.class || data.medium || data.stream) {
+                document.getElementById('id-card-target').textContent = data.target || data.class || '-';
+                document.getElementById('id-card-medium').textContent = data.medium || data.stream || '-';
+                document.getElementById('id-card-optional').textContent = data.optional || data.subject || '-';
+                document.getElementById('id-card-exam').textContent = data.exam || data.goal || '-';
+                foundData = true;
+              }
+            }
+            
+            if (!foundData) {
+              const stus = JSON.parse(localStorage.getItem('rone_students') || '[]');
+              const myData = stus.find(s => s.email.toLowerCase() === emailLower);
+              if (myData) {
+                if(myData.name) {
+                  document.getElementById('id-card-name').textContent = myData.name;
+                  document.getElementById('id-card-avatar').textContent = myData.name.charAt(0).toUpperCase();
+                }
+                document.getElementById('id-card-target').textContent = myData.class || '-';
+                document.getElementById('id-card-medium').textContent = myData.stream || '-';
+                document.getElementById('id-card-optional').textContent = myData.subject || '-';
+                document.getElementById('id-card-exam').textContent = myData.goal || '-';
+              } else {
+                document.getElementById('id-card-target').textContent = '-';
+                document.getElementById('id-card-medium').textContent = '-';
+                document.getElementById('id-card-optional').textContent = '-';
+                document.getElementById('id-card-exam').textContent = '-';
+              }
             }
           } catch (e) {
             console.error('Error fetching ID card details:', e);
