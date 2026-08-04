@@ -1545,14 +1545,15 @@
                 <span class="badge badge-live">Live</span>
                 <span style="font-size: 1.5rem;">🎯</span>
               </div>
-              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">${test.title || 'Mains Test'}</h3>
+              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">${test.topic || test.title || 'Mains Test'}</h3>
               <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>⏱️ Duration:</span> <strong>${test.duration || '3 Hours'}</strong></p>
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>⏱️ Duration:</span> <strong>${test.duration || '2 Hours'}</strong></p>
                 <div style="height: 1px; background: #e2e8f0; margin: 8px 0;"></div>
-                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>💯 Max Marks:</span> <strong>${test.maxMarks || '250'}</strong></p>
+                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>💯 Max Marks:</span> <strong>${test.maxMarks || '200'}</strong></p>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
-                <a href="#" onclick="alert('Test portal coming soon!')" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px;">Take Test</a>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <a href="${test.pdfLink || '#'}" target="_blank" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #10b981, #059669);">Print Test</a>
+                <a href="#" onclick="window.triggerOMRUpload(event, '${d.id}', '${_esc(test.topic || test.title || 'Test')}')" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px;">Upload OMR</a>
               </div>
             </div>`;
         });
@@ -1561,6 +1562,69 @@
         console.error(e);
         container.innerHTML = '<div style="text-align: center; padding: 40px; color: #ef4444; font-size: 1.1rem; grid-column: 1 / -1;">Failed to load tests.</div>';
       }
+    };
+
+    window.triggerOMRUpload = function(e_obj, testId, testTopic) {
+      const btn = e_obj.currentTarget || e_obj.target;
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/pdf,image/*';
+      fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        if(file.size > 15 * 1024 * 1024) { alert('File size must be less than 15MB.'); return; }
+        
+        const oldText = btn.textContent;
+        btn.textContent = 'Uploading...';
+        btn.style.pointerEvents = 'none';
+        
+        try {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = async function() {
+            const base64Data = reader.result.split(',')[1];
+            const scriptURL = "https://script.google.com/macros/s/AKfycbwIV4Nt5t9ZMsJgyvcCa-V4UfhMNToZ5fQZe-AJutNLUaAUvAVnMMQA4XrOR1FdoeI_bw/exec";
+            
+            const formData = new URLSearchParams();
+            formData.append('fileData', base64Data);
+            formData.append('mimeType', file.type);
+            formData.append('fileName', `OMR_${_currentUserEmail.split('@')[0]}_${testTopic}_${Date.now()}`);
+            formData.append('studentName', _currentUserEmail);
+            formData.append('courseName', 'Test_OMR');
+
+            const response = await fetch(scriptURL, {
+              method: 'POST',
+              body: formData
+            });
+            const result = await response.json();
+            
+            if(result.status === "success") {
+               await addDoc(collection(db, 'evaluations'), {
+                   studentEmail: _currentUserEmail,
+                   studentName: _currentUserEmail.split('@')[0],
+                   subject: "Test OMR",
+                   topic: testTopic,
+                   title: "OMR: " + testTopic,
+                   pdfLink: result.url,
+                   status: "Pending",
+                   submittedAt: new Date().toISOString()
+               });
+               alert('✅ OMR Uploaded successfully! Mentor will evaluate it.');
+            } else {
+               throw new Error(result.message);
+            }
+            btn.textContent = oldText;
+            btn.style.pointerEvents = 'auto';
+          };
+          reader.onerror = () => { throw new Error('File reading failed'); };
+        } catch(err) {
+           console.error(err);
+           alert('❌ Upload failed: ' + err.message);
+           btn.textContent = oldText;
+           btn.style.pointerEvents = 'auto';
+        }
+      };
+      fileInput.click();
     };
 
     window.deleteSubmission = async function(docId) {
