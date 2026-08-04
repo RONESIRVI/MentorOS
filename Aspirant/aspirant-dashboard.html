@@ -1613,8 +1613,12 @@
             actionBtn = `<span style="font-size:0.8rem; color:#166534; font-weight:600;">✔️ Reviewed</span>`;
           }
 
-          let deleteBtn = `<button onclick="window.deleteSubmission('${docId}')" style="margin-top:4px; padding:4px 8px; background:#ef4444; color:white; border:none; border-radius:4px; font-size:0.7rem; cursor:pointer;" title="Delete Submission">🗑️ Delete</button>`;
-          actionBtn = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center;">${actionBtn}${deleteBtn}</div>`;
+          if (ev.status !== 'Evaluated' && ev.status !== 'Completed' && ev.status !== 'Graded') {
+            let deleteBtn = `<button onclick="window.deleteSubmission('${docId}')" style="margin-top:4px; padding:4px 8px; background:#ef4444; color:white; border:none; border-radius:4px; font-size:0.7rem; cursor:pointer;" title="Delete Submission">🗑️ Delete</button>`;
+            actionBtn = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center;">${actionBtn}${deleteBtn}</div>`;
+          } else {
+            actionBtn = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center;">${actionBtn}</div>`;
+          }
 
           html += `<tr style="border-bottom:1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
             <td style="padding:12px; font-size:0.85rem; font-weight:600; color:#1e293b;">${ev.subject || '-'}</td>
