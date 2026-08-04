@@ -5,14 +5,14 @@
 
 /* --- CSS Variables (Design Tokens) --- */
 :root {
-  --navy: #1a1f5e;
-  --navy-dark: #0f133d;
-  --navy-light: #2a3080;
-  --navy-50: #eef0ff;
-  --amber: #f59e0b;
-  --amber-dark: #d97706;
-  --amber-light: #fde68a;
-  --gold: #ffb700;
+  --navy: #1E40AF;
+  --navy-dark: #1E3A8A;
+  --navy-light: #3B82F6;
+  --navy-50: #EFF6FF;
+  --amber: #D97706;
+  --amber-dark: #B45309;
+  --amber-light: #FBBF24;
+  --gold: #F59E0B;
   --white: #ffffff;
   --ink: #0f172a;
   --ink-soft: #334155;
@@ -1807,4 +1807,29 @@ img { max-width: 100%; display: block; }
   .automations-grid { grid-template-columns: 1fr; }
   .tech-grid { grid-template-columns: 1fr; }
   .footer-bottom { flex-direction: column; text-align: center; }
+}
+
+/* ============================================
+   UI/UX Pro Max Global Enhancements
+   ============================================ */
+
+/* Hover lift animations for cards */
+[class*="card"] {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[class*="card"]:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Soft glow hover effect for buttons */
+button, .btn, [class*="btn"], a[class*="btn"] {
+  transition: all 0.2s ease;
+}
+
+button:hover, .btn:hover, [class*="btn"]:hover, a[class*="btn"]:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25) !important;
+  transform: translateY(-1px);
 }
