@@ -1077,7 +1077,13 @@
 
             <div style="display:flex; gap:20px; flex-wrap: wrap;">
               <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
-                <h3 style="margin-top:0;">Fetched Files <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem; color:#0f172a;">0</span></h3>
+                <h3 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
+                  Fetched Files 
+                  <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem; color:#0f172a;">0</span>
+                </h3>
+                <div id="cms-breadcrumb" style="display:flex; gap:6px; align-items:center; margin-bottom:12px; font-size:0.85rem; overflow-x:auto; white-space:nowrap; padding-bottom:4px;">
+                  <!-- JS will populate -->
+                </div>
                 <div id="fetched-files-list" style="display:flex; flex-direction:column; gap:8px;">
                   <p style="color:#64748b; font-size:0.9rem;">No files fetched yet.</p>
                 </div>
@@ -2919,6 +2925,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
   };
 
+  let cmsBreadcrumbs = [];
+
   const syncBtnDrive = document.getElementById('btn-sync-drive');
   if(syncBtnDrive) {
     syncBtnDrive.addEventListener('click', async () => {
@@ -2930,69 +2938,133 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       }
       localStorage.setItem('driveApiKey', apiKey);
       localStorage.setItem('driveFolderId', folderId);
-      syncBtnDrive.textContent = 'Syncing...';
-      syncBtnDrive.disabled = true;
       
-      try {
-        const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType='application/pdf'&fields=files(id,name,webViewLink)&key=${apiKey}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if(data.error) throw new Error(data.error.message);
-        
-        fetchedDriveFiles = data.files || [];
-        document.getElementById('fetched-count').textContent = fetchedDriveFiles.length;
-        renderFetchedFiles();
-      } catch(err) {
-        console.error(err);
-        alert('Failed to fetch from Drive: ' + err.message);
-      } finally {
-        syncBtnDrive.textContent = '🔄 Sync Files';
-        syncBtnDrive.disabled = false;
+      cmsBreadcrumbs = [{ id: folderId, name: "🏠 Root" }];
+      await window.fetchCmsFolder(folderId, apiKey);
+    });
+  }
+
+  window.fetchCmsFolder = async function(folderId, apiKey) {
+    const syncBtn = document.getElementById('btn-sync-drive');
+    if(syncBtn) {
+      syncBtn.textContent = 'Syncing...';
+      syncBtn.disabled = true;
+    }
+    
+    try {
+      const query = `'${folderId}' in parents and (mimeType='application/pdf' or mimeType='application/vnd.google-apps.folder') and trashed=false`;
+      const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,webViewLink)&key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if(data.error) throw new Error(data.error.message);
+      
+      fetchedDriveFiles = (data.files || []).sort((a, b) => {
+        const aFolder = a.mimeType === 'application/vnd.google-apps.folder';
+        const bFolder = b.mimeType === 'application/vnd.google-apps.folder';
+        if (aFolder && !bFolder) return -1;
+        if (!aFolder && bFolder) return 1;
+        return a.name.localeCompare(b.name);
+      });
+      document.getElementById('fetched-count').textContent = fetchedDriveFiles.length;
+      
+      renderCmsBreadcrumbs(apiKey);
+      renderFetchedFiles(apiKey);
+    } catch(err) {
+      console.error(err);
+      alert('Failed to fetch from Drive: ' + err.message);
+    } finally {
+      if(syncBtn) {
+        syncBtn.textContent = '🔄 Sync Files';
+        syncBtn.disabled = false;
+      }
+    }
+  };
+
+  function renderCmsBreadcrumbs(apiKey) {
+    const bcContainer = document.getElementById('cms-breadcrumb');
+    if(!bcContainer) return;
+    bcContainer.innerHTML = '';
+    cmsBreadcrumbs.forEach((bc, idx) => {
+      const btn = document.createElement('button');
+      btn.style = 'background:none; border:none; color:#3b82f6; font-weight:600; cursor:pointer; font-size:0.85rem; padding:0;';
+      if(idx === cmsBreadcrumbs.length - 1) {
+        btn.style.color = '#1e293b';
+        btn.style.cursor = 'default';
+      }
+      btn.innerHTML = bc.name;
+      if(idx < cmsBreadcrumbs.length - 1) {
+        btn.onclick = () => {
+          cmsBreadcrumbs = cmsBreadcrumbs.slice(0, idx + 1);
+          window.fetchCmsFolder(bc.id, apiKey);
+        };
+      }
+      bcContainer.appendChild(btn);
+      
+      if(idx < cmsBreadcrumbs.length - 1) {
+        const sep = document.createElement('span');
+        sep.textContent = '>';
+        sep.style.color = '#94a3b8';
+        sep.style.margin = '0 4px';
+        bcContainer.appendChild(sep);
       }
     });
   }
 
-  function renderFetchedFiles() {
+  function renderFetchedFiles(apiKey) {
     const listEl = document.getElementById('fetched-files-list');
     listEl.innerHTML = '';
     if(fetchedDriveFiles.length === 0) {
-      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No PDF files found.</p>';
+      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files or folders found.</p>';
       return;
     }
     fetchedDriveFiles.forEach(f => {
+      const isFolder = f.mimeType === 'application/vnd.google-apps.folder';
       const item = document.createElement('div');
       item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;';
       
       const fileNameDiv = document.createElement('div');
-      fileNameDiv.innerHTML = `📄 ${f.name}`;
+      fileNameDiv.innerHTML = `${isFolder ? '📁' : '📄'} ${f.name}`;
       fileNameDiv.style.flex = "1";
       fileNameDiv.style.overflow = "hidden";
       fileNameDiv.style.textOverflow = "ellipsis";
       fileNameDiv.style.whiteSpace = "nowrap";
 
-      item.onclick = (e) => {
-        if(e.target.tagName.toLowerCase() === 'button') return;
-        Array.from(listEl.children).forEach(c => { c.style.background = 'white'; c.style.borderColor = '#e2e8f0'; });
-        item.style.background = '#eff6ff';
-        item.style.borderColor = '#3b82f6';
-        selectedFileForCMS = f;
-      };
+      if (isFolder) {
+        item.onclick = () => {
+          cmsBreadcrumbs.push({ id: f.id, name: f.name });
+          window.fetchCmsFolder(f.id, apiKey);
+        };
+        item.appendChild(fileNameDiv);
+        const openBtn = document.createElement('button');
+        openBtn.textContent = 'Open ➔';
+        openBtn.style = 'background:none; border:none; padding:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#3b82f6; font-weight:600;';
+        item.appendChild(openBtn);
+      } else {
+        item.onclick = (e) => {
+          if(e.target.tagName.toLowerCase() === 'button') return;
+          Array.from(listEl.children).forEach(c => { c.style.background = 'white'; c.style.borderColor = '#e2e8f0'; });
+          item.style.background = '#eff6ff';
+          item.style.borderColor = '#3b82f6';
+          selectedFileForCMS = f;
+        };
 
-      const openBtn = document.createElement('button');
-      openBtn.textContent = '👁️ Open';
-      openBtn.style = 'background:#f8fafc; border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#475569; font-weight:600;';
-      openBtn.onclick = (e) => {
-        e.stopPropagation();
-        let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
-        if (typeof window.openPdfModal === 'function') {
-          window.openPdfModal(f.name, embedLink);
-        } else if (typeof openPdfModal === 'function') {
-          openPdfModal(f.name, embedLink);
-        }
-      };
+        const openBtn = document.createElement('button');
+        openBtn.textContent = '👁️ Open';
+        openBtn.style = 'background:#f8fafc; border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#475569; font-weight:600;';
+        openBtn.onclick = (e) => {
+          e.stopPropagation();
+          let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
+          if (typeof window.openPdfModal === 'function') {
+            window.openPdfModal(f.name, embedLink);
+          } else if (typeof openPdfModal === 'function') {
+            openPdfModal(f.name, embedLink);
+          }
+        };
 
-      item.appendChild(fileNameDiv);
-      item.appendChild(openBtn);
+        item.appendChild(fileNameDiv);
+        item.appendChild(openBtn);
+      }
+      
       listEl.appendChild(item);
     });
   }
