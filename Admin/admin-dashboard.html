@@ -835,8 +835,61 @@
 
         <!-- SECTION: CONTENT CMS -->
         <div id="section-content" class="admin-section" style="display:none;">
-          <div class="dash-header"><div class="welcome-text"><h1>Content CMS 📝</h1><p>Module coming soon — content editor in progress.</p></div></div>
-        </div>
+          <div class="dash-header" style="margin-bottom:20px;">
+            <div class="welcome-text">
+              <h1>Content CMS 📝</h1>
+              <p>Sync files directly from your Google Drive folder and categorize them for Aspirants.</p>
+            </div>
+          </div>
+          
+          <!-- Drive Config -->
+          <div style="background:white; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+            <h3 style="margin-top:0;">Google Drive Sync Config</h3>
+            <div style="display:flex; gap:15px; margin-bottom:15px; align-items:flex-end;">
+              <div style="flex:1;">
+                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:5px;">Google API Key</label>
+                <input type="password" id="cms-api-key" placeholder="AIzaSy..." style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.9rem;">
+              </div>
+              <div style="flex:1;">
+                <label style="display:block; font-size:0.85rem; font-weight:600; color:#475569; margin-bottom:5px;">Public Folder ID</label>
+                <input type="text" id="cms-folder-id" placeholder="1A2B3C4D5E6F..." style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.9rem;">
+              </div>
+              <button id="btn-sync-drive" style="background:#3b82f6; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;">🔄 Sync Files</button>
+            </div>
+            <p style="font-size:0.85rem; color:#64748b; margin:0;">Make sure the Drive folder is set to "Anyone with the link can view".</p>
+          </div>
+
+          <!-- Uncategorized Files & Categorization UI -->
+          <div style="display:flex; gap:20px; flex-wrap: wrap;">
+            <!-- Fetched Files List -->
+            <div style="flex:1; min-width:300px; background:white; padding:20px; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,0.05); max-height: 600px; overflow-y: auto;">
+              <h3 style="margin-top:0;">Fetched Files <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem;">0</span></h3>
+              <div id="fetched-files-list" style="display:flex; flex-direction:column; gap:10px;">
+                <p style="color:#64748b; font-size:0.9rem;">No files fetched yet. Enter config and sync.</p>
+              </div>
+            </div>
+
+            <!-- Categories -->
+            <div style="flex:1; min-width:300px; background:white; padding:20px; border-radius:12px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+               <h3 style="margin-top:0;">Categorize Selected File</h3>
+               <p style="font-size:0.85rem; color:#64748b;">Select a file from the left, then click a category to assign it.</p>
+               <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+                 <button class="btn-cat-assign" data-cat="ethics" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; font-weight:500;">⚖️ Ethical Quotes</button>
+                 <button class="btn-cat-assign" data-cat="thinkers" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; font-weight:500;">🧠 Thinkers</button>
+                 <button class="btn-cat-assign" data-cat="governance" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; font-weight:500;">🏛️ Governance</button>
+                 <button class="btn-cat-assign" data-cat="society" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; font-weight:500;">👥 Society</button>
+                 <button class="btn-cat-assign" data-cat="public_service" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; cursor:pointer; font-weight:500;">💼 Public Service</button>
+               </div>
+               
+               <h3 style="margin-top:0; font-size:1.1rem; display:flex; justify-content:space-between; align-items:center;">
+                 Assigned Files
+                 <button id="btn-save-cms" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; cursor:pointer;">💾 Save Changes</button>
+               </h3>
+               <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 400px; overflow-y: auto;">
+                 <!-- JS will populate -->
+               </div>
+            </div>
+          </div>
         <!-- END SECTION: CONTENT CMS -->
 
         <!-- SECTION: SETTINGS -->
@@ -1426,7 +1479,128 @@
       if (sectionId === 'overview') window.loadSystemOverview();
       if (sectionId === 'courses') window.loadCoursesList();
       if (sectionId === 'revenue') window.loadRevenueData();
+      if (sectionId === 'content') loadAssignedCMS();
     };
+
+    // --- CONTENT CMS LOGIC ---
+    let fetchedDriveFiles = [];
+    let selectedFileForCMS = null;
+
+    // Load assigned from localStorage (acting as DB for now)
+    window.loadAssignedCMS = function() {
+      const stored = localStorage.getItem('quoteBankFiles');
+      const assigned = stored ? JSON.parse(stored) : [];
+      const listEl = document.getElementById('assigned-files-list');
+      if(!listEl) return;
+      listEl.innerHTML = '';
+      if(assigned.length === 0) {
+        listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files assigned yet.</p>';
+        return;
+      }
+      assigned.forEach((f, idx) => {
+        const item = document.createElement('div');
+        item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; background:#f8fafc; display:flex; justify-content:space-between; align-items:center;';
+        item.innerHTML = `
+          <div>
+            <div style="font-weight:600; font-size:0.9rem;">${f.name}</div>
+            <div style="font-size:0.8rem; color:#64748b; margin-top:4px;">Cat: <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px;">${f.category}</span></div>
+          </div>
+          <button onclick="window.removeCMSFile(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold;">✕</button>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    window.removeCMSFile = function(idx) {
+      const stored = localStorage.getItem('quoteBankFiles');
+      if(stored) {
+        let arr = JSON.parse(stored);
+        arr.splice(idx, 1);
+        localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+        loadAssignedCMS();
+      }
+    };
+
+    const syncBtnDrive = document.getElementById('btn-sync-drive');
+    if(syncBtnDrive) {
+      syncBtnDrive.addEventListener('click', async () => {
+        const apiKey = document.getElementById('cms-api-key').value.trim();
+        const folderId = document.getElementById('cms-folder-id').value.trim();
+        if(!apiKey || !folderId) {
+          alert('Please enter both API Key and Folder ID');
+          return;
+        }
+        syncBtnDrive.textContent = 'Syncing...';
+        syncBtnDrive.disabled = true;
+        
+        try {
+          const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+mimeType='application/pdf'&fields=files(id,name,webViewLink)&key=${apiKey}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          if(data.error) throw new Error(data.error.message);
+          
+          fetchedDriveFiles = data.files || [];
+          document.getElementById('fetched-count').textContent = fetchedDriveFiles.length;
+          renderFetchedFiles();
+        } catch(err) {
+          console.error(err);
+          alert('Failed to fetch from Drive: ' + err.message);
+        } finally {
+          syncBtnDrive.textContent = '🔄 Sync Files';
+          syncBtnDrive.disabled = false;
+        }
+      });
+    }
+
+    function renderFetchedFiles() {
+      const listEl = document.getElementById('fetched-files-list');
+      listEl.innerHTML = '';
+      if(fetchedDriveFiles.length === 0) {
+        listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No PDF files found in folder.</p>';
+        return;
+      }
+      fetchedDriveFiles.forEach(f => {
+        const item = document.createElement('div');
+        item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; transition:all 0.2s;';
+        item.innerHTML = `📄 ${f.name}`;
+        item.onclick = () => {
+          // Deselect all
+          Array.from(listEl.children).forEach(c => { c.style.background = 'transparent'; c.style.borderColor = '#e2e8f0'; });
+          item.style.background = '#eff6ff';
+          item.style.borderColor = '#3b82f6';
+          selectedFileForCMS = f;
+        };
+        listEl.appendChild(item);
+      });
+    }
+
+    document.querySelectorAll('.btn-cat-assign').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(!selectedFileForCMS) { alert('Select a file from the fetched list first!'); return; }
+        const cat = btn.getAttribute('data-cat');
+        const fileObj = {
+          id: selectedFileForCMS.id,
+          name: selectedFileForCMS.name,
+          link: selectedFileForCMS.webViewLink,
+          category: cat
+        };
+        
+        let stored = localStorage.getItem('quoteBankFiles');
+        let arr = stored ? JSON.parse(stored) : [];
+        if(!arr.find(x => x.id === fileObj.id)) {
+          arr.push(fileObj);
+          localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+        }
+        loadAssignedCMS();
+      });
+    });
+
+    const saveCmsBtn = document.getElementById('btn-save-cms');
+    if(saveCmsBtn) {
+      saveCmsBtn.addEventListener('click', () => {
+        alert('Changes saved successfully to Quote Bank!');
+      });
+    }
 
     // Initialize the dashboard on page load
     window.switchAdminSection('overview');
