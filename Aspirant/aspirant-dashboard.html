@@ -16,7 +16,16 @@
     /* Dashboard Specific Styles */
     body {
       background-color: #f8fafc; /* Light gray background for dashboard */
-      color: #0f172a;
+    }
+    @keyframes cardRippleGlow {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); transform: scale(0.98); }
+      50% { box-shadow: 0 0 0 25px rgba(59, 130, 246, 0); transform: scale(1.01); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); transform: scale(1); }
+    }
+    .card-clicked-glow {
+      animation: cardRippleGlow 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+      z-index: 10;
+      position: relative;
     }
 
     .dashboard-layout {
@@ -2439,12 +2448,31 @@ async function fetchTodayTasks() {
           const allItems = document.querySelectorAll('.task-item');
           const totalTasks = allItems.length;
 
+          let breakdown = { 'CLASSES': 0, 'REVISION': 0, 'PYQ TEST': 0, 'MOCK TEST': 0, 'ANALYSIS': 0 };
+
           allItems.forEach(el => {
             if (el.classList.contains('completed')) {
               doneTasks++;
-              totalMinutes += parseInt(el.getAttribute('data-minutes') || '0', 10);
+              const mins = parseInt(el.getAttribute('data-minutes') || '0', 10);
+              totalMinutes += mins;
+              
+              const taskType = (el.getAttribute('data-task-type') || '').toUpperCase();
+              let matchedType = Object.keys(breakdown).find(k => taskType.includes(k)) || 'CLASSES';
+              breakdown[matchedType] += mins;
             }
           });
+
+          // Save today's breakdown to localStorage for historical chart
+          const todayStr = getISTDateStr();
+          let stats = JSON.parse(localStorage.getItem('RONE_StudyStats') || '{}');
+          stats[todayStr] = {
+            totalMinutes: totalMinutes,
+            breakdown: breakdown
+          };
+          localStorage.setItem('RONE_StudyStats', JSON.stringify(stats));
+          
+          // Re-render chart if it's visible or global refresh
+          if (window.refreshStudyChart) window.refreshStudyChart();
 
           // Update Tasks Completed
           const statTasksEl = document.getElementById('stat-tasks-completed');
@@ -2630,94 +2658,126 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // blue-500 with opacity
     gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
 
-    // Dummy data sets for different ranges
-    const chartData = {
-      daily: {
-        labels: ['Classes', 'Revision', 'PYQ Test', 'Mock Test', 'Analysis'],
-        data: [150, 45, 60, 45, 30],
-        unit: 'Minutes'
-      },
-      weekly: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        data: [5, 6.5, 4, 7, 8, 5.5, 4.5], // In hours
-        unit: 'Hours'
-      },
-      monthly: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        data: [35, 42, 38, 45], // In hours
-        unit: 'Hours'
-      },
-      yearly: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        data: [120, 140, 135, 150, 145, 160, 155, 130, 165, 170, 160, 175], // In hours
-        unit: 'Hours'
-      }
+    // Helper to format Date as YYYY-MM-DD
+    const fDate = (d) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     };
 
-    let studyChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chartData.daily.labels,
-        datasets: [{
-          label: 'Study Time (Minutes)',
-          data: chartData.daily.data,
-          fill: true,
-          backgroundColor: gradient,
-          borderColor: '#3b82f6',
-          borderWidth: 2,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#3b82f6',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          tension: 0.4 // Smooth curves
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-            titleColor: '#fff',
-            bodyColor: '#e2e8f0',
-            padding: 12,
-            cornerRadius: 8,
-            displayColors: false
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: '#f1f5f9',
-              drawBorder: false
-            },
-            ticks: {
-              color: '#64748b'
-            }
-          },
-          x: {
-            grid: {
-              display: false,
-              drawBorder: false
-            },
-            ticks: {
-              color: '#64748b'
-            }
-          }
-        }
+    let studyChart = null;
+
+    window.refreshStudyChart = function() {
+      const stats = JSON.parse(localStorage.getItem('RONE_StudyStats') || '{}');
+      const today = new Date();
+      
+      const getStat = (dateStr) => stats[dateStr] || { totalMinutes: 0, breakdown: {'CLASSES':0, 'REVISION':0, 'PYQ TEST':0, 'MOCK TEST':0, 'ANALYSIS':0} };
+      const todayStr = fDate(today);
+
+      // Daily: Today's breakdown
+      const todayData = getStat(todayStr).breakdown;
+      
+      // Weekly: Last 7 days
+      let weeklyLabels = [];
+      let weeklyData = [];
+      for(let i=6; i>=0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        weeklyLabels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+        weeklyData.push(parseFloat((getStat(fDate(d)).totalMinutes / 60).toFixed(1))); // In hours
       }
-    });
+
+      // Monthly: Weeks of current month
+      let monthlyLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+      let monthlyData = [0, 0, 0, 0];
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      for(let i=1; i<=daysInMonth; i++) {
+        const dStr = fDate(new Date(today.getFullYear(), today.getMonth(), i));
+        const hrs = getStat(dStr).totalMinutes / 60;
+        if(i<=7) monthlyData[0] += hrs;
+        else if(i<=14) monthlyData[1] += hrs;
+        else if(i<=21) monthlyData[2] += hrs;
+        else monthlyData[3] += hrs;
+      }
+      monthlyData = monthlyData.map(v => parseFloat(v.toFixed(1)));
+
+      // Yearly: Months of the year
+      let yearlyLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      let yearlyData = new Array(12).fill(0);
+      Object.keys(stats).forEach(dateStr => {
+        if(dateStr.startsWith(today.getFullYear().toString())) {
+          const monthIndex = parseInt(dateStr.split('-')[1]) - 1;
+          yearlyData[monthIndex] += stats[dateStr].totalMinutes / 60;
+        }
+      });
+      yearlyData = yearlyData.map(v => parseFloat(v.toFixed(1)));
+
+      const chartDataSets = {
+        daily: {
+          labels: ['Classes', 'Revision', 'PYQ Test', 'Mock Test', 'Analysis'],
+          data: [todayData['CLASSES'], todayData['REVISION'], todayData['PYQ TEST'], todayData['MOCK TEST'], todayData['ANALYSIS']],
+          unit: 'Minutes'
+        },
+        weekly: { labels: weeklyLabels, data: weeklyData, unit: 'Hours' },
+        monthly: { labels: monthlyLabels, data: monthlyData, unit: 'Hours' },
+        yearly: { labels: yearlyLabels, data: yearlyData, unit: 'Hours' }
+      };
+
+      const activeBtn = document.querySelector('.chart-filter.active');
+      const activeRange = activeBtn ? activeBtn.getAttribute('data-range') : 'daily';
+      const newData = chartDataSets[activeRange];
+
+      if (studyChart) {
+        studyChart.data.labels = newData.labels;
+        studyChart.data.datasets[0].data = newData.data;
+        studyChart.data.datasets[0].label = `Study Time (${newData.unit})`;
+        studyChart.update();
+      } else {
+        studyChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: newData.labels,
+            datasets: [{
+              label: `Study Time (${newData.unit})`,
+              data: newData.data,
+              fill: true,
+              backgroundColor: gradient,
+              borderColor: '#3b82f6',
+              borderWidth: 2,
+              pointBackgroundColor: '#ffffff',
+              pointBorderColor: '#3b82f6',
+              pointBorderWidth: 2,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#fff', bodyColor: '#e2e8f0', padding: 12, cornerRadius: 8, displayColors: false }
+            },
+            scales: {
+              y: { beginAtZero: true, grid: { color: '#f1f5f9', drawBorder: false }, ticks: { color: '#64748b' } },
+              x: { grid: { display: false, drawBorder: false }, ticks: { color: '#64748b' } }
+            }
+          }
+        });
+      }
+      
+      window.latestChartDataSets = chartDataSets;
+    };
+
+    // Initial render
+    window.refreshStudyChart();
 
     // Handle filter buttons
     const filterBtns = document.querySelectorAll('.chart-filter');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', function() {
-        // Update active class
         filterBtns.forEach(b => {
           b.classList.remove('active');
           b.style.background = 'transparent';
@@ -2732,15 +2792,26 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
         this.style.fontWeight = '600';
 
-        // Update chart data
         const range = this.getAttribute('data-range');
-        const newData = chartData[range];
-        
-        studyChart.data.labels = newData.labels;
-        studyChart.data.datasets[0].data = newData.data;
-        studyChart.data.datasets[0].label = `Study Time (${newData.unit})`;
-        studyChart.update();
+        if (window.latestChartDataSets && studyChart) {
+          const newData = window.latestChartDataSets[range];
+          studyChart.data.labels = newData.labels;
+          studyChart.data.datasets[0].data = newData.data;
+          studyChart.data.datasets[0].label = `Study Time (${newData.unit})`;
+          studyChart.update();
+        }
       });
+    });
+
+    // Global Click Animation for Cards
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.card, .stat-card, .glass-card');
+      if (card) {
+        card.classList.remove('card-clicked-glow');
+        void card.offsetWidth; // trigger reflow
+        card.classList.add('card-clicked-glow');
+        setTimeout(() => card.classList.remove('card-clicked-glow'), 500);
+      }
     });
   });
 </script>
