@@ -2279,6 +2279,60 @@ async function fetchTodayTasks() {
           });
         });
 
+        // ===== CALCULATE TODAY'S STUDY TIME =====
+        const TIME_MAP = {
+          'CLASSES': 150,   // 2.5 hrs = 150 min
+          'REVISION': 45,   // 45 min
+          'PYQ TEST': 60,   // 60 min
+          'MOCK TEST': 45,  // 45 min
+          'ANALYSIS': 30,   // 30 min
+        };
+
+        let totalMinutes = 0;
+        let classCount = 0;
+        let revisionCount = 0;
+        let pyqCount = 0;
+        let mockCount = 0;
+        let analysisCount = 0;
+
+        data.forEach(item => {
+          const taskUpper = (item.task || '').toUpperCase();
+          if (taskUpper.startsWith('CLASSES')) {
+            classCount++;
+            totalMinutes += TIME_MAP['CLASSES'];
+            // Each CLASS also gets a PYQ TEST
+            if (item.subject && !item.subject.includes('[')) {
+              pyqCount++;
+              totalMinutes += TIME_MAP['PYQ TEST'];
+            }
+          } else if (taskUpper === 'REVISION' && item.revisions) {
+            item.revisions.forEach(rev => {
+              revisionCount++;
+              totalMinutes += TIME_MAP['REVISION'];
+              // Each non-Same Day Revision also gets a MOCK TEST
+              if (rev.topic && !rev.topic.includes('Same Day Rev')) {
+                mockCount++;
+                totalMinutes += TIME_MAP['MOCK TEST'];
+              }
+            });
+          } else if (taskUpper.includes('ANALYSIS')) {
+            analysisCount++;
+            totalMinutes += TIME_MAP['ANALYSIS'];
+          }
+        });
+
+        // Format: "X hr Y min" or "X hr"
+        const hrs = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        let timeStr = '';
+        if (hrs > 0 && mins > 0) timeStr = `${hrs}h ${mins}m`;
+        else if (hrs > 0) timeStr = `${hrs}h`;
+        else timeStr = `${mins}m`;
+
+        const studyTimeStat = document.getElementById('stat-study-time');
+        if (studyTimeStat) studyTimeStat.textContent = timeStr;
+        // ===== END STUDY TIME CALCULATION =====
+
       } catch (err) {
         console.error(err);
         taskList.innerHTML = '<p style="color: #ef4444; padding: 16px; text-align: center;">Failed to load tasks. Please check the planner image.</p>';
