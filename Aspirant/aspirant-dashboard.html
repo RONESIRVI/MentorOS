@@ -2300,10 +2300,13 @@ async function fetchTodayTasks() {
           if (taskUpper.startsWith('CLASSES')) {
             classCount++;
             totalMinutes += TIME_MAP['CLASSES'];
-            // Each CLASS also gets a PYQ TEST
+            // Each CLASS also gets a PYQ TEST + ANALYSIS
             if (item.subject && !item.subject.includes('[')) {
               pyqCount++;
               totalMinutes += TIME_MAP['PYQ TEST'];
+              // ANALYSIS = 30 min, always added with PYQ TEST
+              analysisCount++;
+              totalMinutes += TIME_MAP['ANALYSIS'];
             }
           } else if (taskUpper === 'REVISION' && item.revisions) {
             item.revisions.forEach(rev => {
@@ -2315,9 +2318,6 @@ async function fetchTodayTasks() {
                 totalMinutes += TIME_MAP['MOCK TEST'];
               }
             });
-          } else if (taskUpper.includes('ANALYSIS')) {
-            analysisCount++;
-            totalMinutes += TIME_MAP['ANALYSIS'];
           }
         });
 
