@@ -2930,6 +2930,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   }
 
   window.fetchCmsFolder = async function(folderId) {
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec";
     const syncBtn = document.getElementById('btn-sync-drive');
     if(syncBtn) {
       syncBtn.textContent = 'Loading...';
