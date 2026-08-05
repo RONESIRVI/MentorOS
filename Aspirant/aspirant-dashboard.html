@@ -2961,14 +2961,38 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
     fetchedDriveFiles.forEach(f => {
       const item = document.createElement('div');
-      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem;';
-      item.innerHTML = `📄 ${f.name}`;
-      item.onclick = () => {
+      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;';
+      
+      const fileNameDiv = document.createElement('div');
+      fileNameDiv.innerHTML = `📄 ${f.name}`;
+      fileNameDiv.style.flex = "1";
+      fileNameDiv.style.overflow = "hidden";
+      fileNameDiv.style.textOverflow = "ellipsis";
+      fileNameDiv.style.whiteSpace = "nowrap";
+
+      item.onclick = (e) => {
+        if(e.target.tagName.toLowerCase() === 'button') return;
         Array.from(listEl.children).forEach(c => { c.style.background = 'white'; c.style.borderColor = '#e2e8f0'; });
         item.style.background = '#eff6ff';
         item.style.borderColor = '#3b82f6';
         selectedFileForCMS = f;
       };
+
+      const openBtn = document.createElement('button');
+      openBtn.textContent = '👁️ Open';
+      openBtn.style = 'background:#f8fafc; border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#475569; font-weight:600;';
+      openBtn.onclick = (e) => {
+        e.stopPropagation();
+        let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
+        if (typeof window.openPdfModal === 'function') {
+          window.openPdfModal(f.name, embedLink);
+        } else if (typeof openPdfModal === 'function') {
+          openPdfModal(f.name, embedLink);
+        }
+      };
+
+      item.appendChild(fileNameDiv);
+      item.appendChild(openBtn);
       listEl.appendChild(item);
     });
   }
