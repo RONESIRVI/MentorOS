@@ -2167,13 +2167,37 @@ async function fetchTodayTasks() {
         
         let hasTasks = false;
         
+        const TIME_MAP = {
+          'CLASSES': 150,   // 2.5 hrs = 150 min
+          'REVISION': 45,   // 45 min
+          'PYQ TEST': 60,   // 60 min
+          'MOCK TEST': 45,  // 45 min
+          'ANALYSIS': 30,   // 30 min
+        };
+
+        const todayStr = getISTDateStr(); // for localStorage key prefix
+        let taskIndex = 0; // for unique ID
+
+        // Helper function to get minutes for a task type
+        function getMinutesForTask(taskName) {
+          const upper = (taskName || '').toUpperCase();
+          if (upper.startsWith('CLASSES')) return TIME_MAP['CLASSES'];
+          if (upper === 'REVISION') return TIME_MAP['REVISION'];
+          if (upper === 'PYQ TEST') return TIME_MAP['PYQ TEST'];
+          if (upper === 'MOCK TEST') return TIME_MAP['MOCK TEST'];
+          if (upper.includes('ANALYSIS')) return TIME_MAP['ANALYSIS'];
+          return 0;
+        }
+
         data.forEach(item => {
           if (item.task === 'REVISION') {
             if (item.revisions && item.revisions.length > 0) {
               item.revisions.forEach(rev => {
                 hasTasks = true;
+                const taskId = `task-${todayStr}-${taskIndex++}`;
+                const mins = getMinutesForTask('REVISION');
                 taskList.innerHTML += `
-                  <div class="task-item">
+                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
                     <div class="task-left">
                       <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                       <div class="task-details">
@@ -2190,7 +2214,7 @@ async function fetchTodayTasks() {
               });
             }
           } 
-          // Handle everything else (CLASSES, Analysis, PYQ TEST, MOCK TEST, etc)
+          // Handle everything else (CLASSES, Analysis, etc)
           else {
             hasTasks = true;
             let tagClass = 'tag-current';
@@ -2198,8 +2222,10 @@ async function fetchTodayTasks() {
               tagClass = 'tag-writing';
             }
             
+            const taskId = `task-${todayStr}-${taskIndex++}`;
+            const mins = getMinutesForTask(item.task);
             taskList.innerHTML += `
-              <div class="task-item">
+              <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
                 <div class="task-left">
                   <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                   <div class="task-details">
@@ -2216,13 +2242,17 @@ async function fetchTodayTasks() {
           }
         });
         
-        // NOW ADD PYQ TEST (derived from CLASSES) matching the email image logic
+        // NOW ADD PYQ TEST (derived from CLASSES)
         data.forEach(item => {
           if (item.task && item.task.startsWith('CLASSES')) {
             if (item.subject && !item.subject.includes('[')) {
               hasTasks = true;
+              
+              // Add PYQ TEST
+              let taskId = `task-${todayStr}-${taskIndex++}`;
+              let mins = getMinutesForTask('PYQ TEST');
               taskList.innerHTML += `
-                <div class="task-item">
+                <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
                   <div class="task-left">
                     <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                     <div class="task-details">
@@ -2236,18 +2266,39 @@ async function fetchTodayTasks() {
                   </div>
                 </div>
               `;
+              
+              // Add ANALYSIS for this PYQ TEST
+              taskId = `task-${todayStr}-${taskIndex++}`;
+              mins = getMinutesForTask('ANALYSIS');
+              taskList.innerHTML += `
+                <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+                  <div class="task-left">
+                    <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
+                    <div class="task-details">
+                      <h4><a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" style="color: inherit; text-decoration: none;" title="Click to open Google Sheet">${item.subject} 🔗</a></h4>
+                      <p>Analysis for PYQ Test</p>
+                    </div>
+                  </div>
+                  <div class="task-meta">
+                    <span class="task-tag tag-writing" style="background: #fecdd3; color: #be123c;">ANALYSIS</span>
+                    <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" title="Update in Google Sheet" style="margin-left: 12px; text-decoration: none; font-size: 1.2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">📝</a>
+                  </div>
+                </div>
+              `;
             }
           }
         });
 
-        // NOW ADD MOCK TEST (derived from REVISION, excluding Same Day Rev) matching the email image logic
+        // NOW ADD MOCK TEST (derived from REVISION)
         data.forEach(item => {
           if (item.task === 'REVISION' && item.revisions) {
             item.revisions.forEach(rev => {
               if (rev.topic && !rev.topic.includes('Same Day Rev')) {
                 hasTasks = true;
+                const taskId = `task-${todayStr}-${taskIndex++}`;
+                const mins = getMinutesForTask('MOCK TEST');
                 taskList.innerHTML += `
-                  <div class="task-item">
+                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
                     <div class="task-left">
                       <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                       <div class="task-details">
@@ -2270,79 +2321,67 @@ async function fetchTodayTasks() {
           taskList.innerHTML = '<p style="color: #64748b; padding: 16px; text-align: center;">No tasks assigned for today. Take a rest!</p>';
         }
         
-        // Add click event for checkboxes
+        // Helper to update dashboard stats based on completed tasks
+        function updateDashboardStats() {
+          let totalMinutes = 0;
+          let doneTasks = 0;
+          const allItems = document.querySelectorAll('.task-item');
+          const totalTasks = allItems.length;
+
+          allItems.forEach(el => {
+            if (el.classList.contains('completed')) {
+              doneTasks++;
+              totalMinutes += parseInt(el.getAttribute('data-minutes') || '0', 10);
+            }
+          });
+
+          // Update Tasks Completed
+          const statTasksEl = document.getElementById('stat-tasks-completed');
+          if (statTasksEl) statTasksEl.textContent = `${doneTasks}/${totalTasks}`;
+
+          // Update Study Time
+          const hrs = Math.floor(totalMinutes / 60);
+          const mins = totalMinutes % 60;
+          let timeStr = '--';
+          if (totalMinutes > 0) {
+            if (hrs > 0 && mins > 0) timeStr = `${hrs}h ${mins}m`;
+            else if (hrs > 0) timeStr = `${hrs}h`;
+            else timeStr = `${mins}m`;
+          }
+          const studyTimeStat = document.getElementById('stat-study-time');
+          if (studyTimeStat) studyTimeStat.textContent = timeStr;
+        }
+        
+        // Add click event for checkboxes and restore state from localStorage
         document.querySelectorAll('.task-item').forEach(el => {
+          const taskId = el.getAttribute('data-id');
+          
+          // Restore state
+          if (taskId && localStorage.getItem(taskId) === 'true') {
+            el.classList.add('completed');
+            el.querySelector('.task-checkbox').innerHTML = '✓';
+          }
+
           el.addEventListener('click', function(e) {
             this.classList.toggle('completed');
+            const isCompleted = this.classList.contains('completed');
+            
             const checkbox = this.querySelector('.task-checkbox');
-            checkbox.innerHTML = this.classList.contains('completed') ? '✓' : '';
+            checkbox.innerHTML = isCompleted ? '✓' : '';
+            
+            // Save to localStorage
+            if (taskId) {
+              if (isCompleted) localStorage.setItem(taskId, 'true');
+              else localStorage.removeItem(taskId);
+            }
 
-            // === UPDATE TASKS COMPLETED COUNT ===
-            const totalTasks = document.querySelectorAll('.task-item').length;
-            const doneTasks = document.querySelectorAll('.task-item.completed').length;
-            const statEl = document.getElementById('stat-tasks-completed');
-            if (statEl) statEl.textContent = `${doneTasks}/${totalTasks}`;
+            // Update stats whenever checked/unchecked
+            updateDashboardStats();
           });
         });
 
-        // Initialize tasks count on load
-        const totalTasksInit = document.querySelectorAll('.task-item').length;
-        const statTasksEl = document.getElementById('stat-tasks-completed');
-        if (statTasksEl) statTasksEl.textContent = `0/${totalTasksInit}`;
-
-        // ===== CALCULATE TODAY'S STUDY TIME =====
-        const TIME_MAP = {
-          'CLASSES': 150,   // 2.5 hrs = 150 min
-          'REVISION': 45,   // 45 min
-          'PYQ TEST': 60,   // 60 min
-          'MOCK TEST': 45,  // 45 min
-          'ANALYSIS': 30,   // 30 min
-        };
-
-        let totalMinutes = 0;
-        let classCount = 0;
-        let revisionCount = 0;
-        let pyqCount = 0;
-        let mockCount = 0;
-        let analysisCount = 0;
-
-        data.forEach(item => {
-          const taskUpper = (item.task || '').toUpperCase();
-          if (taskUpper.startsWith('CLASSES')) {
-            classCount++;
-            totalMinutes += TIME_MAP['CLASSES'];
-            // Each CLASS also gets a PYQ TEST + ANALYSIS
-            if (item.subject && !item.subject.includes('[')) {
-              pyqCount++;
-              totalMinutes += TIME_MAP['PYQ TEST'];
-              // ANALYSIS = 30 min, always added with PYQ TEST
-              analysisCount++;
-              totalMinutes += TIME_MAP['ANALYSIS'];
-            }
-          } else if (taskUpper === 'REVISION' && item.revisions) {
-            item.revisions.forEach(rev => {
-              revisionCount++;
-              totalMinutes += TIME_MAP['REVISION'];
-              // Each non-Same Day Revision also gets a MOCK TEST
-              if (rev.topic && !rev.topic.includes('Same Day Rev')) {
-                mockCount++;
-                totalMinutes += TIME_MAP['MOCK TEST'];
-              }
-            });
-          }
-        });
-
-        // Format: "X hr Y min" or "X hr"
-        const hrs = Math.floor(totalMinutes / 60);
-        const mins = totalMinutes % 60;
-        let timeStr = '';
-        if (hrs > 0 && mins > 0) timeStr = `${hrs}h ${mins}m`;
-        else if (hrs > 0) timeStr = `${hrs}h`;
-        else timeStr = `${mins}m`;
-
-        const studyTimeStat = document.getElementById('stat-study-time');
-        if (studyTimeStat) studyTimeStat.textContent = timeStr;
-        // ===== END STUDY TIME CALCULATION =====
+        // Initialize stats on load
+        updateDashboardStats();
 
       } catch (err) {
         console.error(err);
