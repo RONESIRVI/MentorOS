@@ -1095,7 +1095,7 @@
             
             <!-- Breadcrumb Navigation -->
             <div id="rankers-breadcrumb" style="display: flex; gap: 8px; align-items: center; margin-bottom: 24px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap;">
-              <button onclick="window.loadRankersFolder('ROOT', 'RONE Ranker\\'s Root')" style="background:none; border:none; color:#3b82f6; font-weight:700; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:6px;">
+              <button onclick="window.loadRankersFolder('ROOT', &quot;RONE Ranker's Root&quot;)" style="background:none; border:none; color:#3b82f6; font-weight:700; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:6px;">
                 🏠 Home
               </button>
             </div>
@@ -1356,7 +1356,7 @@
       if(sectionId === 'courses') window.loadCoursesList();
       if(sectionId === 'answers') window.loadMyAnswers();
       if(sectionId === 'quotebank') window.loadQuoteBankFiles('all');
-      if(sectionId === 'rankers') window.loadRankersFolder('ROOT', 'RONE Ranker\\'s Root');
+      if(sectionId === 'rankers') window.loadRankersFolder('ROOT', "RONE Ranker's Root");
     };
 
     // --- QUOTE BANK LOGIC ---
@@ -1424,7 +1424,7 @@
 
     window.loadRankersFolder = async function(folderId, folderName) {
       if(folderId === 'ROOT') {
-        rankersBreadcrumbs = [{id: '15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d', name: 'RONE Ranker\\'s Root'}];
+        rankersBreadcrumbs = [{id: '15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d', name: "RONE Ranker's Root"}];
       } else {
         // If clicking an existing breadcrumb, truncate the array
         const idx = rankersBreadcrumbs.findIndex(b => b.id === folderId);
