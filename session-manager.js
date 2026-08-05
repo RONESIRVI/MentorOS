@@ -1,6 +1,6 @@
 /**
  * RONE MentorOS - Session Timeout Manager
- * 
+ *
  * Behavior:
  *   - After 7 minutes of inactivity → show warning modal with 3-min countdown
  *   - If user clicks "Continue Session" → reset timers, hide modal
@@ -9,18 +9,28 @@
  * Usage (inside any dashboard <script type="module">):
  *   import { initSessionManager } from '../session-manager.js';
  *   initSessionManager(auth, signOut, '../index.html');
+ *
+ * Fixes (v2):
+ *   - Throttled mousemove/scroll to avoid constant timer resets
+ *   - Guard flag (_isWarningActive) to prevent double-starting countdown
+ *   - Double-init prevention (window._sessionManagerInitialized)
+ *   - Page Visibility API: tab switch se galat behavior fix
+ *   - Clean state reset on every modal open/close
  */
 
 const INACTIVITY_LIMIT_MS  = 7 * 60 * 1000;  // 7 minutes
 const WARNING_DURATION_MS  = 3 * 60 * 1000;  // 3-minute countdown
 const WARNING_DURATION_SEC = 3 * 60;          // 180 seconds
+const THROTTLE_MS          = 1000;            // Throttle activity events to 1/sec
 
-let inactivityTimer = null;
-let countdownTimer  = null;
-let secondsLeft     = WARNING_DURATION_SEC;
-let _authInstance   = null;
-let _signOutFn      = null;
-let _redirectPath   = '../index.html';
+let inactivityTimer  = null;
+let countdownTimer   = null;
+let secondsLeft      = WARNING_DURATION_SEC;
+let _authInstance    = null;
+let _signOutFn       = null;
+let _redirectPath    = '../index.html';
+let _lastActivity    = Date.now();
+let _isWarningActive = false;  // Single source of truth for modal state
 
 // ─── Inject Modal HTML + CSS once ─────────────────────────────────────────────
 function injectModal() {
@@ -206,10 +216,20 @@ function injectModal() {
 
 // ─── Show Warning Modal ────────────────────────────────────────────────────────
 function showWarningModal() {
+  // FIX: Guard — don't start again if already showing
+  if (_isWarningActive) return;
+  _isWarningActive = true;
+
   const overlay = document.getElementById('session-timeout-overlay');
   if (!overlay) return;
 
+  // FIX: Always cleanly stop any stale countdown before starting fresh
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
   secondsLeft = WARNING_DURATION_SEC;
+
   overlay.classList.add('active');
   updateCountdownUI();
 
@@ -218,6 +238,7 @@ function showWarningModal() {
     updateCountdownUI();
     if (secondsLeft <= 0) {
       clearInterval(countdownTimer);
+      countdownTimer = null;
       performLogout();
     }
   }, 1000);
@@ -248,7 +269,10 @@ function updateCountdownUI() {
 
 // ─── Perform Logout ────────────────────────────────────────────────────────────
 async function performLogout() {
-  clearInterval(countdownTimer);
+  // FIX: Stop all timers before logout
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  if (inactivityTimer) { clearTimeout(inactivityTimer); inactivityTimer = null; }
+  _isWarningActive = false;
   try {
     if (_authInstance && _signOutFn) {
       await _signOutFn(_authInstance);
@@ -259,48 +283,80 @@ async function performLogout() {
   window.location.href = _redirectPath;
 }
 
-// ─── Reset Session Timer (called on any user activity) ────────────────────────
+// ─── Reset Session Timer (throttled, called on any user activity) ──────────────
 function resetSessionTimer() {
-  const overlay = document.getElementById('session-timeout-overlay');
-  
-  // If the warning modal is already showing, IGNORE mouse/keyboard activity.
-  // The user MUST click "Continue Session" to reset the timer.
-  if (overlay && overlay.classList.contains('active')) {
-    return;
-  }
+  // FIX: If warning modal is active, ignore all background activity
+  if (_isWarningActive) return;
 
-  // Hide modal if visible (failsafe)
-  if (overlay) overlay.classList.remove('active');
+  // FIX: Throttle — only reset once per second to avoid performance issues
+  const now = Date.now();
+  if (now - _lastActivity < THROTTLE_MS) return;
+  _lastActivity = now;
 
-  // Clear countdown
+  // Clear any stale countdown (failsafe)
   if (countdownTimer) {
     clearInterval(countdownTimer);
     countdownTimer = null;
   }
-  secondsLeft = WARNING_DURATION_SEC;
 
   // Reset inactivity timer
   if (inactivityTimer) clearTimeout(inactivityTimer);
   inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
 }
 
-// Global function for the Continue Session button
+// ─── Global: Continue Session button ──────────────────────────────────────────
 window.dismissSessionWarning = function() {
   const overlay = document.getElementById('session-timeout-overlay');
   if (overlay) overlay.classList.remove('active');
-  
+
+  // FIX: Clean stop of countdown
   if (countdownTimer) {
     clearInterval(countdownTimer);
     countdownTimer = null;
   }
-  secondsLeft = WARNING_DURATION_SEC;
-  
+  secondsLeft      = WARNING_DURATION_SEC;
+  _isWarningActive = false;       // FIX: Release the guard
+  _lastActivity    = Date.now();  // FIX: Mark as just-active
+
+  // Restart inactivity timer fresh
   if (inactivityTimer) clearTimeout(inactivityTimer);
   inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
 };
 
+// ─── Page Visibility API — handle tab switching ────────────────────────────────
+function handleVisibilityChange() {
+  if (document.hidden) {
+    // Tab hidden — suspend inactivity timer to avoid firing in background
+    if (inactivityTimer && !_isWarningActive) {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = null;
+    }
+  } else {
+    // Tab visible again
+    if (!_isWarningActive && !inactivityTimer) {
+      const hiddenFor = Date.now() - _lastActivity;
+      if (hiddenFor >= INACTIVITY_LIMIT_MS) {
+        // Been away too long — show warning immediately
+        showWarningModal();
+      } else {
+        // Resume timer for remaining time
+        const remaining = INACTIVITY_LIMIT_MS - hiddenFor;
+        inactivityTimer = setTimeout(showWarningModal, remaining);
+      }
+    }
+    _lastActivity = Date.now();
+  }
+}
+
 // ─── Public Init Function ──────────────────────────────────────────────────────
 export function initSessionManager(authInstance, signOutFunction, redirectPath = '../index.html') {
+  // FIX: Prevent double-initialization (e.g., if called multiple times)
+  if (window._sessionManagerInitialized) {
+    console.warn('⚠️ Session Manager already initialized, skipping.');
+    return;
+  }
+  window._sessionManagerInitialized = true;
+
   _authInstance  = authInstance;
   _signOutFn     = signOutFunction;
   _redirectPath  = redirectPath;
@@ -308,14 +364,18 @@ export function initSessionManager(authInstance, signOutFunction, redirectPath =
   // Inject modal DOM
   injectModal();
 
-  // Track user activity events
-  const activityEvents = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click'];
+  // FIX: Track user activity — throttled events separately from instant events
+  const activityEvents = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click', 'touchmove'];
   activityEvents.forEach(event => {
     document.addEventListener(event, resetSessionTimer, { passive: true });
   });
 
+  // FIX: Page visibility support (tab switching)
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
   // Start the initial inactivity timer
+  _lastActivity   = Date.now();
   inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
 
-  console.log('✅ Session Manager initialized: 7min inactivity → 3min warning → auto logout');
+  console.log('✅ Session Manager initialized (v2): 7min inactivity → 3min warning → auto logout');
 }

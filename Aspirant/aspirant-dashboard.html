@@ -677,9 +677,6 @@
           <span class="icon">📝</span> Answer Writing
         </a>
         
-        <a href="#" class="sidebar-nav-item" id="nav-tests" onclick="window.switchAspirantSection('tests')">
-          <span class="icon">📝</span> Test Series
-        </a>
         <a href="#" class="sidebar-nav-item" id="nav-report" onclick="window.switchAspirantSection('report')">
           <span class="icon">📊</span> Report Card
         </a>
@@ -992,47 +989,7 @@
         <!-- END SECTION: ANSWER WRITING -->
 
         
-        <!-- SECTION: TEST SERIES -->
-        <div id="section-tests" class="aspirant-section" style="display:none;">
-          <div class="dash-header" style="margin-bottom: 30px;">
-            <div class="page-title">
-              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Test Series</h2>
-              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Evaluate your preparation with our premium mock tests.</p>
-            </div>
-          </div>
-
-          <!-- Top Stats Grid -->
-          <div class="stats-grid" style="margin-bottom: 24px;">
-            <div class="stat-card blue">
-              <div class="stat-info">
-                <h3 id="test-stat-total">0</h3>
-                <p>Total Mock Tests</p>
-              </div>
-              <div class="stat-icon">📑</div>
-            </div>
-            <div class="stat-card green">
-              <div class="stat-info">
-                <h3 id="test-stat-attempted">0</h3>
-                <p>Tests Attempted</p>
-              </div>
-              <div class="stat-icon">✅</div>
-            </div>
-            <div class="stat-card purple">
-              <div class="stat-info">
-                <h3 id="test-stat-avg">0</h3>
-                <p>Average Marks</p>
-              </div>
-              <div class="stat-icon">📈</div>
-            </div>
-          </div>
-
-          <div id="tests-container" class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
-            <div style="text-align: center; padding: 40px; color: #64748b; font-size: 1.1rem; grid-column: 1 / -1;">
-              Loading tests...
-            </div>
-          </div>
-        </div>
-        <!-- END SECTION: TEST SERIES -->
+        <!-- END SECTION: ANSWER WRITING -->
 
         <!-- SECTION: REPORT CARD -->
         <div id="section-report" class="aspirant-section" style="display:none;">
@@ -1098,33 +1055,6 @@
               </div>
             </div>
 
-            <div class="glass-card" style="background: linear-gradient(135deg, #ffffff, #f8fafc);">
-              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: #f3e8ff; color: #a855f7; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📝</div>
-                <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">Mock Tests</h3>
-              </div>
-              
-              <div style="margin-bottom: 24px;">
-                <p style="font-size: 0.95rem; margin: 0 0 8px 0; display: flex; justify-content: space-between; color: #475569;">
-                  <span>Average Marks</span>
-                  <span style="font-weight: 700; color: #a855f7;">42.5%</span>
-                </p>
-                <div class="animated-progress">
-                  <div class="animated-progress-bar" style="width: 42.5%; background: linear-gradient(90deg, #c084fc, #a855f7);"></div>
-                </div>
-              </div>
-              
-              <div style="display: flex; justify-content: space-between; background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <div style="text-align: center;">
-                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #3b82f6;">2</p>
-                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Attempted</p>
-                </div>
-                <div style="width: 1px; background: #e2e8f0;"></div>
-                <div style="text-align: center;">
-                  <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #10b981;">Top 30%</p>
-                  <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Percentile</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1225,6 +1155,8 @@
         }
       </style>
 
+        <!-- END SECTION: AI STUDY PLANNER -->
+
     </main>
   </div>
 
@@ -1267,7 +1199,6 @@
 
       if(sectionId === 'courses') window.loadCoursesList();
       if(sectionId === 'answers') window.loadMyAnswers();
-      if(sectionId === 'tests') window.loadTests();
     };
 
     window.openPaymentModal = function(id, name, fee) {
@@ -1526,44 +1457,6 @@
       }
     };
     
-    window.loadTests = async function() {
-      const container = document.getElementById('tests-container');
-      if(!container) return;
-      try {
-        const snap = await getDocs(collection(db, 'tests'));
-        if(snap.empty) {
-          container.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b; font-size: 1.1rem; grid-column: 1 / -1;">No active tests available right now.</div>';
-          return;
-        }
-        document.getElementById('test-stat-total').textContent = snap.size;
-        let html = '';
-        snap.forEach(d => {
-          const test = d.data();
-          html += `
-            <div class="glass-card">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                <span class="badge badge-live">Live</span>
-                <span style="font-size: 1.5rem;">🎯</span>
-              </div>
-              <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">${test.topic || test.title || 'Mains Test'}</h3>
-              <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>⏱️ Duration:</span> <strong>${test.duration || '2 Hours'}</strong></p>
-                <div style="height: 1px; background: #e2e8f0; margin: 8px 0;"></div>
-                <p style="margin: 0; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;"><span>💯 Max Marks:</span> <strong>${test.maxMarks || '200'}</strong></p>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <a href="${test.pdfLink || '#'}" target="_blank" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px; background: linear-gradient(135deg, #10b981, #059669);">Print Test</a>
-                <a href="#" onclick="window.triggerOMRUpload(event, '${d.id}', '${_esc(test.topic || test.title || 'Test')}')" class="premium-btn" style="justify-content: center; font-size: 0.9rem; padding: 10px;">Upload OMR</a>
-              </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-      } catch(e) {
-        console.error(e);
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #ef4444; font-size: 1.1rem; grid-column: 1 / -1;">Failed to load tests.</div>';
-      }
-    };
-
     window.triggerOMRUpload = function(e_obj, testId, testTopic) {
       const btn = e_obj.currentTarget || e_obj.target;
       const fileInput = document.createElement('input');
@@ -2142,7 +2035,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         }
       });
     }
-  
+</script>
+
 </script>
 </body>
 </html>

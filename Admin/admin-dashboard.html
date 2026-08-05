@@ -508,9 +508,6 @@
         <a href="#" class="sidebar-nav-item" id="nav-content" onclick="switchAdminSection('content')">
           <span class="icon">📝</span> Content CMS
         </a>
-        <a href="#" class="sidebar-nav-item" id="nav-tests" onclick="switchAdminSection('tests')">
-          <span class="icon">📄</span> Tests & PYQs
-        </a>
         <a href="#" class="sidebar-nav-item" id="nav-settings" onclick="switchAdminSection('settings')">
           <span class="icon">⚙️</span> Settings
         </a>
@@ -675,7 +672,7 @@
                   <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Max Seats *</label><input id="cf-seats" type="number" placeholder="500" min="1" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
                   <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Fee (Rs.)</label><input id="cf-fee" type="number" placeholder="12000" min="0" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
                 </div>
-                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Category</label><select id="cf-category" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background:white;cursor:pointer;"><option value="UPSC">UPSC CSE</option><option value="RAS">RAS / RPSC</option><option value="Foundation">Foundation</option><option value="Test Series">Test Series</option><option value="Other">Other</option></select></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Category</label><select id="cf-category" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background:white;cursor:pointer;"><option value="UPSC">UPSC CSE</option><option value="RAS">RAS / RPSC</option><option value="Foundation">Foundation</option><option value="Other">Other</option></select></div>
                 <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Start Date</label><input id="cf-startdate" type="date" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
                 <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Status</label><select id="cf-status" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background:white;cursor:pointer;"><option value="Active">Active</option><option value="Draft">Draft</option><option value="Inactive">Inactive</option></select></div>
                 <div><label style="font-size:0.85rem;font-weight:600;color:#475569;display:block;margin-bottom:6px;">Description</label><textarea id="cf-desc" rows="2" placeholder="Short description..." style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea></div>
@@ -847,41 +844,6 @@
           <div class="dash-header"><div class="welcome-text"><h1>Settings ⚙️</h1><p>Module coming soon.</p></div></div>
         </div>
         <!-- END SECTION: SETTINGS -->
-
-        <!-- SECTION: TESTS & PYQs (Live Generator) -->
-        <div id="section-tests" class="admin-section" style="display:none;">
-          <div class="dash-header">
-            <div class="welcome-text"><h1>Live Test Generator 📄</h1><p>Generate 2-column bilingual tests directly from Google Sheets.</p></div>
-          </div>
-          <div class="panel" style="margin-bottom:20px;">
-            <h2 class="panel-title" style="margin-bottom:15px;">Google Sheet Settings</h2>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-              <input type="text" id="sheet-url" placeholder="Paste Published CSV Link from Google Sheets..." style="flex:1; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
-              <input type="text" id="topic-filter" placeholder="Filter by Topic (e.g. कालीबंगा)..." style="width:200px; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
-              <button onclick="window.fetchAndGenerateTest()" style="background:#3b82f6;color:white;padding:10px 20px;border-radius:6px;border:none;cursor:pointer;font-weight:600;">Generate Test</button>
-            </div>
-            <div style="font-size:0.8rem; color:#64748b;"><strong>Note:</strong> File > Share > Publish to web > Select Sheet > CSV > Publish. Paste that link here. Column order should roughly be: Topic, Question, A, B, C, D.</div>
-          </div>
-          
-          <div class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-              <h2 class="panel-title">Generated Test Preview</h2>
-              <div>
-                 <button onclick="window.printTest()" style="background:#10b981;color:white;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:600;margin-right:10px;">Print to PDF</button>
-                 <div style="display:inline-block; border-left:1px solid #cbd5e1; padding-left:15px; margin-left:5px;">
-                    <input type="file" id="test-file-upload" accept="application/pdf" style="font-size:0.8rem;">
-                    <button onclick="window.uploadTestToDrive()" id="btn-upload-test" style="background:#f59e0b;color:white;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:600;">Publish to Aspirants</button>
-                 </div>
-                 <div id="test-upload-progress" style="font-size:0.8rem; color:#f59e0b; margin-top:5px; display:none; text-align:right;">Uploading...</div>
-              </div>
-            </div>
-            
-            <div id="test-preview-area" style="min-height:400px; border:1px dashed #cbd5e1; padding:20px; background:#f8fafc; border-radius:8px;">
-              <div style="text-align:center; color:#94a3b8; margin-top:150px;">Your generated test will appear here.</div>
-            </div>
-          </div>
-        </div>
-        <!-- END SECTION: TESTS & PYQs -->
 
       </div>
     </main>
@@ -1464,194 +1426,6 @@
       if (sectionId === 'overview') window.loadSystemOverview();
       if (sectionId === 'courses') window.loadCoursesList();
       if (sectionId === 'revenue') window.loadRevenueData();
-    };
-
-    // Test Generator Logic
-    window.fetchAndGenerateTest = async function() {
-      const urlInput = document.getElementById('sheet-url').value.trim();
-      const topicFilter = document.getElementById('topic-filter').value.trim().toLowerCase();
-      const previewArea = document.getElementById('test-preview-area');
-      if(!urlInput) { alert('Please paste the CSV link first.'); return; }
-      
-      previewArea.innerHTML = '<div style="text-align:center; color:#3b82f6; margin-top:100px;">Fetching and parsing CSV data...</div>';
-      
-      try {
-        const response = await fetch(urlInput);
-        if(!response.ok) throw new Error('Network response was not ok');
-        const csvText = await response.text();
-        
-        let rows = parseCSV(csvText);
-        if(rows.length < 2) throw new Error('Not enough data in CSV');
-        
-        let headers = rows[0].map(h => (h||'').toLowerCase().trim());
-        
-        let dataRows = rows.slice(1).filter(r => r.some(cell => cell.trim() !== ''));
-        
-        if(topicFilter) {
-          dataRows = dataRows.filter(row => {
-             const topicStr = (row[0] || '').toLowerCase();
-             return topicStr.includes(topicFilter);
-          });
-        }
-
-        if(dataRows.length === 0) {
-          previewArea.innerHTML = '<div style="text-align:center; color:#ef4444; margin-top:100px;">No questions found for the given topic filter.</div>';
-          return;
-        }
-
-        let html = `
-          <div id="printable-test-area" style="font-family: 'Plus Jakarta Sans', sans-serif; color: #000; background: #fff; padding: 40px;">
-            <div style="text-align:center; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px;">
-              <h1 style="margin:0 0 10px 0; font-size:24px;">RONE MENTOROS - PRELIMS TEST</h1>
-              <h2 style="margin:0; font-size:18px; font-weight:normal;">Topic: ${topicFilter ? topicFilter.toUpperCase() : 'General'} | Total Questions: ${dataRows.length}</h2>
-            </div>
-            <div style="column-count: 2; column-gap: 40px; column-rule: 1px solid #ccc;">
-        `;
-        
-        dataRows.forEach((row, i) => {
-          let q = row[1] || '';
-          let a = row[2] || '';
-          let b = row[3] || '';
-          let c = row[4] || '';
-          let d = row[5] || '';
-          
-          html += `
-            <div style="break-inside: avoid; margin-bottom: 25px; page-break-inside: avoid;">
-              <div style="font-weight: 700; margin-bottom: 8px; font-size: 15px;">Q${i+1}. ${q}</div>
-              <div style="margin-left: 20px; font-size: 14px; line-height: 1.6;">
-                (A) ${a}<br>
-                (B) ${b}<br>
-                (C) ${c}<br>
-                (D) ${d}
-              </div>
-            </div>
-          `;
-        });
-
-        html += `
-            </div>
-          </div>
-        `;
-        previewArea.innerHTML = html;
-
-      } catch(e) {
-        console.error(e);
-        previewArea.innerHTML = `<div style="text-align:center; color:#ef4444; margin-top:100px;">Error parsing CSV: ${e.message}</div>`;
-      }
-    };
-
-    // CSV Parser Helper
-    function parseCSV(str) {
-      const arr = [];
-      let quote = false;
-      let row = 0, col = 0;
-      for (let c = 0; c < str.length; c++) {
-        let cc = str[c], nc = str[c+1];
-        arr[row] = arr[row] || [];
-        arr[row][col] = arr[row][col] || '';
-        if (cc === '"' && quote && nc === '"') { arr[row][col] += cc; c++; continue; }
-        if (cc === '"') { quote = !quote; continue; }
-        if (cc === ',' && !quote) { col++; continue; }
-        if (cc === '\n' && !quote) { row++; col = 0; continue; }
-        if (cc === '\r' && !quote) { continue; }
-        arr[row][col] += cc;
-      }
-      return arr;
-    }
-
-    window.printTest = function() {
-      const printArea = document.getElementById('printable-test-area');
-      if(!printArea) { alert('Generate the test first!'); return; }
-      
-      const win = window.open('', '_blank');
-      win.document.write(`
-        <html><head>
-        <title>Print Test</title>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-        <style>
-          @media print { 
-            body { margin: 0; } 
-            @page { margin: 1cm; }
-          }
-          body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        </style>
-        </head><body>
-        ${printArea.outerHTML}
-        <script>window.print(); window.close();<\/script>
-        </body></html>
-       `);
-       win.document.close();
-    };
-
-    window.uploadTestToDrive = async function() {
-      const fileInput = document.getElementById('test-file-upload');
-      const btn = document.getElementById('btn-upload-test');
-      const prog = document.getElementById('test-upload-progress');
-      const topicFilter = document.getElementById('topic-filter').value.trim() || 'General';
-      
-      if(!fileInput.files.length) { 
-        alert('Please print the test to PDF first, then choose that file here to publish it to Aspirants.'); 
-        return; 
-      }
-      
-      const file = fileInput.files[0];
-      if(file.type !== 'application/pdf') { alert('Only PDF files are allowed.'); return; }
-      if(file.size > 15 * 1024 * 1024) { alert('File size must be less than 15MB.'); return; }
-
-      btn.disabled = true; 
-      btn.textContent = 'Publishing...';
-      prog.style.display = 'block';
-      prog.textContent = 'Converting to Base64...';
-      
-      try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function() {
-          const base64Data = reader.result.split(',')[1];
-          prog.textContent = 'Uploading to Google Drive...';
-          
-          const scriptURL = "https://script.google.com/macros/s/AKfycbwIV4Nt5t9ZMsJgyvcCa-V4UfhMNToZ5fQZe-AJutNLUaAUvAVnMMQA4XrOR1FdoeI_bw/exec";
-          
-          const formData = new URLSearchParams();
-          formData.append('fileData', base64Data);
-          formData.append('mimeType', file.type);
-          formData.append('fileName', 'Test_' + topicFilter + '_' + Date.now() + '.pdf');
-          formData.append('studentName', 'Admin');
-          formData.append('courseName', 'Tests');
-
-          const response = await fetch(scriptURL, {
-            method: 'POST',
-            body: formData
-          });
-          
-          const result = await response.json();
-          
-          if(result.status === "success") {
-             prog.textContent = 'Saving Test Metadata...';
-             const docId = Date.now().toString();
-             await setDoc(doc(db, 'tests', docId), {
-                 topic: topicFilter,
-                 pdfLink: result.url,
-                 fileName: formData.get('fileName'),
-                 uploadedBy: window.cachedUserName || 'admin',
-                 uploadedAt: new Date().toISOString()
-             });
-             alert('Test successfully published to all Aspirants!');
-             prog.style.display = 'none';
-          } else {
-             throw new Error(result.message);
-          }
-          btn.textContent = 'Publish to Aspirants';
-          btn.disabled = false;
-        };
-        reader.onerror = () => { throw new Error('File reading failed'); };
-      } catch(err) {
-        console.error(err);
-        alert('Upload failed: ' + err.message);
-        btn.textContent = 'Publish to Aspirants';
-        btn.disabled = false;
-        prog.style.display = 'none';
-      }
     };
 
     // Initialize the dashboard on page load
