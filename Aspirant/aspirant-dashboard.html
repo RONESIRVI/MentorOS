@@ -1154,13 +1154,25 @@
                 <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">Answer Writing</h3>
               </div>
               
-              <div style="margin-bottom: 24px;">
-                <p style="font-size: 0.95rem; margin: 0 0 8px 0; display: flex; justify-content: space-between; color: #475569;">
-                  <span>Average Quality Score</span>
-                  <span style="font-weight: 700; color: #3b82f6;" id="report-ans-avg">0 / 100</span>
-                </p>
-                <div class="animated-progress">
-                  <div id="report-ans-avg-bar" class="animated-progress-bar" style="width: 0%; background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
+              <div style="margin-bottom: 24px; padding: 20px; background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 16px; box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.03); backdrop-filter: blur(10px);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
+                  <div>
+                    <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px;">Average Quality Score</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: #64748b;">Based on evaluated submissions</p>
+                  </div>
+                  <div style="display: flex; align-items: baseline; gap: 4px;">
+                    <span style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #2563eb, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;" id="report-ans-avg-num">0</span>
+                    <span style="font-size: 1rem; font-weight: 700; color: #94a3b8;">/ 100</span>
+                  </div>
+                </div>
+                
+                <div style="position: relative; width: 100%; height: 14px; background: rgba(226, 232, 240, 0.8); border-radius: 10px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+                  <!-- Glowing bar -->
+                  <div id="report-ans-avg-bar" style="position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); border-radius: 10px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; font-weight: 600; color: #94a3b8;">
+                  <span>Needs Work (0)</span>
+                  <span>Excellent (100)</span>
                 </div>
               </div>
               
@@ -2065,8 +2077,8 @@
         if (reportEvald) reportEvald.textContent = evald;
         const reportPend = document.getElementById('report-ans-pend');
         if (reportPend) reportPend.textContent = pend;
-        const reportAvg = document.getElementById('report-ans-avg');
-        if (reportAvg) reportAvg.textContent = `${avgScore} / 100`;
+        const reportAvg = document.getElementById('report-ans-avg-num');
+        if (reportAvg) reportAvg.textContent = `${avgScore}`;
 
         if(document.getElementById('report-top-eval')) document.getElementById('report-top-eval').textContent = evald;
         if(document.getElementById('report-top-pend')) document.getElementById('report-top-pend').textContent = pend;
