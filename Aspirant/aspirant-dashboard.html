@@ -1515,11 +1515,16 @@
               </div>
             `;
             // Modify standard drive link for preview
-            let embedLink = item.url;
-            if(embedLink.includes('/view')) {
-              embedLink = embedLink.replace('/view', '/preview');
-            }
-            card.onclick = () => openPdfModal(item.name, embedLink);
+            let embedLink = `https://drive.google.com/file/d/${item.id}/preview`;
+            card.onclick = () => {
+              if (typeof window.openPdfModal === 'function') {
+                window.openPdfModal(item.name, embedLink);
+              } else if (typeof openPdfModal === 'function') {
+                openPdfModal(item.name, embedLink);
+              } else {
+                console.error("openPdfModal function not found");
+              }
+            };
           }
           grid.appendChild(card);
         });
