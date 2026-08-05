@@ -1479,7 +1479,13 @@
       if (sectionId === 'overview') window.loadSystemOverview();
       if (sectionId === 'courses') window.loadCoursesList();
       if (sectionId === 'revenue') window.loadRevenueData();
-      if (sectionId === 'content') loadAssignedCMS();
+      if (sectionId === 'content') {
+        loadAssignedCMS();
+        const savedApi = localStorage.getItem('driveApiKey');
+        const savedFolder = localStorage.getItem('driveFolderId');
+        if(savedApi) document.getElementById('cms-api-key').value = savedApi;
+        if(savedFolder) document.getElementById('cms-folder-id').value = savedFolder;
+      }
     };
 
     // --- CONTENT CMS LOGIC ---
@@ -1530,6 +1536,9 @@
           alert('Please enter both API Key and Folder ID');
           return;
         }
+        
+        localStorage.setItem('driveApiKey', apiKey);
+        localStorage.setItem('driveFolderId', folderId);
         syncBtnDrive.textContent = 'Syncing...';
         syncBtnDrive.disabled = true;
         
