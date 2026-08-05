@@ -2341,7 +2341,12 @@ async function fetchTodayTasks() {
         };
 
         const todayStr = getISTDateStr(); // for localStorage key prefix
-        let taskIndex = 0; // for unique ID
+        
+        function generateTaskId(type, subject, topic) {
+          const str = `${type}-${subject || ''}-${topic || ''}`;
+          // Convert to base64, removing padding to make it safe for DOM IDs
+          return 'task-' + todayStr + '-' + btoa(unescape(encodeURIComponent(str))).replace(/=/g, '');
+        }
 
         // Helper function to get minutes for a task type
         function getMinutesForTask(taskName) {
@@ -2359,10 +2364,10 @@ async function fetchTodayTasks() {
             if (item.revisions && item.revisions.length > 0) {
               item.revisions.forEach(rev => {
                 hasTasks = true;
-                const taskId = `task-${todayStr}-${taskIndex++}`;
+                const taskId = generateTaskId('REVISION', rev.subject, rev.topic);
                 const mins = getMinutesForTask('REVISION');
                 taskList.innerHTML += `
-                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}" data-task-type="REVISION">
                     <div class="task-left">
                       <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                       <div class="task-details">
@@ -2387,10 +2392,10 @@ async function fetchTodayTasks() {
               tagClass = 'tag-writing';
             }
             
-            const taskId = `task-${todayStr}-${taskIndex++}`;
+            const taskId = generateTaskId(item.task, item.subject, item.topic);
             const mins = getMinutesForTask(item.task);
             taskList.innerHTML += `
-              <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+              <div class="task-item" data-id="${taskId}" data-minutes="${mins}" data-task-type="${item.task}">
                 <div class="task-left">
                   <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                   <div class="task-details">
@@ -2414,10 +2419,10 @@ async function fetchTodayTasks() {
               hasTasks = true;
               
               // Add PYQ TEST
-              let taskId = `task-${todayStr}-${taskIndex++}`;
+              let taskId = generateTaskId('PYQ TEST', item.subject, item.topic);
               let mins = getMinutesForTask('PYQ TEST');
               taskList.innerHTML += `
-                <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+                <div class="task-item" data-id="${taskId}" data-minutes="${mins}" data-task-type="PYQ TEST">
                   <div class="task-left">
                     <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                     <div class="task-details">
@@ -2433,10 +2438,10 @@ async function fetchTodayTasks() {
               `;
               
               // Add ANALYSIS for this PYQ TEST
-              taskId = `task-${todayStr}-${taskIndex++}`;
+              taskId = generateTaskId('ANALYSIS', item.subject, item.topic);
               mins = getMinutesForTask('ANALYSIS');
               taskList.innerHTML += `
-                <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+                <div class="task-item" data-id="${taskId}" data-minutes="${mins}" data-task-type="ANALYSIS">
                   <div class="task-left">
                     <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                     <div class="task-details">
@@ -2460,10 +2465,10 @@ async function fetchTodayTasks() {
             item.revisions.forEach(rev => {
               if (rev.topic && !rev.topic.includes('Same Day Rev')) {
                 hasTasks = true;
-                const taskId = `task-${todayStr}-${taskIndex++}`;
+                const taskId = generateTaskId('MOCK TEST', rev.subject, rev.topic);
                 const mins = getMinutesForTask('MOCK TEST');
                 taskList.innerHTML += `
-                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}">
+                  <div class="task-item" data-id="${taskId}" data-minutes="${mins}" data-task-type="MOCK TEST">
                     <div class="task-left">
                       <div class="task-checkbox" title="Mark visually complete on dashboard"></div>
                       <div class="task-details">
@@ -2547,6 +2552,9 @@ async function fetchTodayTasks() {
           }
 
           el.addEventListener('click', function(e) {
+            // ONLY toggle if the explicit checkbox was clicked
+            if (!e.target.classList.contains('task-checkbox')) return;
+            
             this.classList.toggle('completed');
             const isCompleted = this.classList.contains('completed');
             
