@@ -1355,6 +1355,51 @@
     }
   </script>
 
+  <!-- Modal for Viewing Evaluated Result -->
+  <div id="view-eval-modal" style="display:none;position:fixed;inset:0;background:rgba(15, 23, 42, 0.7);align-items:center;justify-content:center;z-index:9999;padding:20px; backdrop-filter: blur(4px);">
+    <div style="background:white;border-radius:16px;width:95%;height:90%;max-width:1200px;display:flex;overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+      
+      <!-- Left side: PDF Preview -->
+      <div style="flex:7;background:#f8fafc;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;">
+        <div style="padding:16px 24px;background:white;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="margin:0;font-size:1.1rem;color:#0f172a; display:flex; align-items:center; gap:8px;">📄 My Evaluated Copy</h3>
+          <a id="btn-view-annotated" href="#" target="_blank" style="background:linear-gradient(135deg, #ef4444, #dc2626);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:6px;transition:transform 0.2s; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <span>🖍️</span> View Mentor's Annotations
+          </a>
+        </div>
+        <div style="flex:1;padding:0;">
+          <iframe id="view-pdf-frame" src="" style="width:100%;height:100%;border:none;"></iframe>
+        </div>
+      </div>
+      
+      <!-- Right side: Score & Feedback -->
+      <div style="flex:3;background:white;padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;font-size:1.4rem;color:#1e293b;">Evaluation Result</h2>
+          <button onclick="window.closeViewModal()" style="background:none;border:none;font-size:1.5rem;color:#94a3b8;cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+        </div>
+        
+        <div style="background:#f1f5f9; padding:16px; border-radius:12px;">
+          <p style="margin:0 0 4px 0; font-size:0.85rem; color:#64748b; font-weight:600; text-transform:uppercase;">Subject & Topic</p>
+          <p id="view-eval-subject" style="margin:0; font-size:1.05rem; color:#0f172a; font-weight:700;"></p>
+          <p id="view-eval-topic" style="margin:4px 0 0 0; font-size:0.95rem; color:#475569;"></p>
+        </div>
+
+        <div style="background:linear-gradient(135deg, #f0fdf4, #dcfce7); padding:20px; border-radius:12px; border:1px solid #bbf7d0; text-align:center;">
+          <p style="margin:0; font-size:0.9rem; color:#166534; font-weight:600; text-transform:uppercase;">Marks Obtained</p>
+          <p style="margin:8px 0 0 0; font-size:3rem; color:#15803d; font-weight:800; line-height:1;"><span id="view-eval-marks">0</span><span style="font-size:1.2rem; color:#166534;">/100</span></p>
+        </div>
+        
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label style="font-weight:600;color:#334155; font-size:0.95rem;">💡 Mentor's Feedback</label>
+          <div id="view-eval-feedback" style="width:100%;min-height:200px;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:0.95rem;color:#334155;line-height:1.6; white-space:pre-wrap; overflow-y:auto; box-sizing:border-box;"></div>
+        </div>
+        
+        <button onclick="window.closeViewModal()" style="margin-top:auto;padding:14px;background:#e2e8f0;color:#475569;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:1rem; transition:background 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">Close Viewer</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -1927,6 +1972,31 @@
       }
     };
     
+    window.openViewModal = function(docId) {
+      const ev = window.myEvalDataMap && window.myEvalDataMap[docId];
+      if(!ev) return;
+      document.getElementById('view-eval-subject').textContent = ev.subject || '-';
+      document.getElementById('view-eval-topic').textContent = ev.topic || '-';
+      document.getElementById('view-eval-marks').textContent = ev.marks || '0';
+      document.getElementById('view-eval-feedback').textContent = ev.feedback || 'No feedback provided yet.';
+      
+      let previewLink = ev.link || '';
+      if (previewLink && previewLink.includes('drive.google.com') && previewLink.includes('/view')) {
+        previewLink = previewLink.replace('/view', '/preview');
+      } else if (previewLink && previewLink.includes('drive.google.com') && !previewLink.includes('/preview')) {
+        previewLink = previewLink + '/preview';
+      }
+      document.getElementById('view-pdf-frame').src = previewLink;
+      
+      document.getElementById('btn-view-annotated').href = ev.link || '#';
+      document.getElementById('view-eval-modal').style.display = 'flex';
+    };
+
+    window.closeViewModal = function() {
+      document.getElementById('view-eval-modal').style.display = 'none';
+      document.getElementById('view-pdf-frame').src = '';
+    };
+
     window.loadMyAnswers = async function() {
       const tbody = document.getElementById('answers-table-body');
       if(!tbody) return;
@@ -1961,7 +2031,9 @@
           } else if(ev.status === 'Submitted') {
             actionBtn = `<span style="font-size:0.8rem; color:#1d4ed8; font-weight:600;">⏳ Awaiting Review</span>`;
           } else {
-            actionBtn = `<span style="font-size:0.8rem; color:#166534; font-weight:600;">✔️ Reviewed</span>`;
+            window.myEvalDataMap = window.myEvalDataMap || {};
+            window.myEvalDataMap[docId] = ev;
+            actionBtn = `<button onclick="window.openViewModal('${docId}')" style="padding:7px 14px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; border-radius:8px; font-size:0.8rem; font-weight:700; cursor:pointer; white-space:nowrap; box-shadow:0 2px 8px rgba(37,99,235,0.3); transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">👁️ View Result</button>`;
           }
 
           if (ev.status !== 'Evaluated' && ev.status !== 'Completed' && ev.status !== 'Graded') {
