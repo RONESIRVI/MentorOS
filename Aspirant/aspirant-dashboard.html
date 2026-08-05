@@ -706,6 +706,7 @@
     }
 
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -1173,6 +1174,32 @@
                   <p style="margin: 0; font-size: 1.5rem; font-weight: 800; color: #f59e0b;" id="report-ans-pend">0</p>
                   <p style="margin: 0; font-size: 0.8rem; color: #64748b;">Pending</p>
                 </div>
+              </div>
+            </div>
+            </div>
+
+            <!-- Performance Analytics Chart Section -->
+            <div class="glass-card" style="margin-top: 24px; background: linear-gradient(135deg, #ffffff, #f8fafc);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 40px; height: 40px; border-radius: 10px; background: #f5f3ff; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📈</div>
+                  <div>
+                    <h3 style="margin: 0; font-size: 1.2rem; color: #1e293b;">Study Time Analytics</h3>
+                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748b;">Performance tracking based on your tasks</p>
+                  </div>
+                </div>
+                
+                <!-- Time Filters -->
+                <div style="display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 8px; overflow-x: auto;">
+                  <button class="chart-filter active" data-range="daily" style="padding: 6px 12px; border-radius: 6px; border: none; background: #fff; color: #0f172a; font-weight: 600; font-size: 0.85rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); white-space: nowrap;">Daily</button>
+                  <button class="chart-filter" data-range="weekly" style="padding: 6px 12px; border-radius: 6px; border: none; background: transparent; color: #64748b; font-weight: 500; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Weekly</button>
+                  <button class="chart-filter" data-range="monthly" style="padding: 6px 12px; border-radius: 6px; border: none; background: transparent; color: #64748b; font-weight: 500; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Monthly</button>
+                  <button class="chart-filter" data-range="yearly" style="padding: 6px 12px; border-radius: 6px; border: none; background: transparent; color: #64748b; font-weight: 500; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">Yearly</button>
+                </div>
+              </div>
+              
+              <div style="height: 300px; width: 100%; position: relative;">
+                <canvas id="studyTimeChart"></canvas>
               </div>
             </div>
 
@@ -2508,6 +2535,130 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
 </script>
 
+<script>
+  // Study Time Chart Logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('studyTimeChart');
+    if (!ctx) return;
+    
+    // Create gradient for the area chart
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // blue-500 with opacity
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+    // Dummy data sets for different ranges
+    const chartData = {
+      daily: {
+        labels: ['Classes', 'Revision', 'PYQ Test', 'Mock Test', 'Analysis'],
+        data: [150, 45, 60, 45, 30],
+        unit: 'Minutes'
+      },
+      weekly: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: [5, 6.5, 4, 7, 8, 5.5, 4.5], // In hours
+        unit: 'Hours'
+      },
+      monthly: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        data: [35, 42, 38, 45], // In hours
+        unit: 'Hours'
+      },
+      yearly: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        data: [120, 140, 135, 150, 145, 160, 155, 130, 165, 170, 160, 175], // In hours
+        unit: 'Hours'
+      }
+    };
+
+    let studyChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.daily.labels,
+        datasets: [{
+          label: 'Study Time (Minutes)',
+          data: chartData.daily.data,
+          fill: true,
+          backgroundColor: gradient,
+          borderColor: '#3b82f6',
+          borderWidth: 2,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#3b82f6',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          tension: 0.4 // Smooth curves
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleColor: '#fff',
+            bodyColor: '#e2e8f0',
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#f1f5f9',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#64748b'
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              color: '#64748b'
+            }
+          }
+        }
+      }
+    });
+
+    // Handle filter buttons
+    const filterBtns = document.querySelectorAll('.chart-filter');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Update active class
+        filterBtns.forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'transparent';
+          b.style.color = '#64748b';
+          b.style.boxShadow = 'none';
+          b.style.fontWeight = '500';
+        });
+        
+        this.classList.add('active');
+        this.style.background = '#fff';
+        this.style.color = '#0f172a';
+        this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        this.style.fontWeight = '600';
+
+        // Update chart data
+        const range = this.getAttribute('data-range');
+        const newData = chartData[range];
+        
+        studyChart.data.labels = newData.labels;
+        studyChart.data.datasets[0].data = newData.data;
+        studyChart.data.datasets[0].label = `Study Time (${newData.unit})`;
+        studyChart.update();
+      });
+    });
+  });
 </script>
 </body>
 </html>
