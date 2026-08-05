@@ -1091,8 +1091,26 @@
             </div>
           </div>
           
-          <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); height: calc(100vh - 200px);">
-            <iframe src="https://drive.google.com/embeddedfolderview?id=15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d#grid" style="width: 100%; height: 100%; border: none;"></iframe>
+          <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); min-height: calc(100vh - 200px); padding: 20px;">
+            
+            <!-- Breadcrumb Navigation -->
+            <div id="rankers-breadcrumb" style="display: flex; gap: 8px; align-items: center; margin-bottom: 24px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap;">
+              <button onclick="window.loadRankersFolder('ROOT', 'RONE Ranker\\'s Root')" style="background:none; border:none; color:#3b82f6; font-weight:700; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:6px;">
+                🏠 Home
+              </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="rankers-loader" style="display:none; text-align:center; padding: 40px; color: #64748b; font-size: 1.1rem;">
+              <div style="font-size: 2rem; margin-bottom: 10px; animation: spin 2s linear infinite;">⏳</div>
+              Fetching Drive Files...
+            </div>
+
+            <!-- Grid Container -->
+            <div class="content-grid" id="rankers-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+              <!-- Cards will be injected here -->
+            </div>
+
           </div>
         </div>
         <!-- END SECTION: RONE RANKERS -->
@@ -1338,6 +1356,7 @@
       if(sectionId === 'courses') window.loadCoursesList();
       if(sectionId === 'answers') window.loadMyAnswers();
       if(sectionId === 'quotebank') window.loadQuoteBankFiles('all');
+      if(sectionId === 'rankers') window.loadRankersFolder('ROOT', 'RONE Ranker\\'s Root');
     };
 
     // --- QUOTE BANK LOGIC ---
@@ -1399,6 +1418,118 @@
         });
       });
     });
+    // --- RONE RANKERS LOGIC ---
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwfEsD_gtTLlB6CxjQlFwzMpYhhCGb90f_f4gKTIfgd7CLToLnbhVs6zxq86kTEGFSPvQ/exec"; // User will paste this here
+    let rankersBreadcrumbs = [];
+
+    window.loadRankersFolder = async function(folderId, folderName) {
+      if(folderId === 'ROOT') {
+        rankersBreadcrumbs = [{id: '15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d', name: 'RONE Ranker\\'s Root'}];
+      } else {
+        // If clicking an existing breadcrumb, truncate the array
+        const idx = rankersBreadcrumbs.findIndex(b => b.id === folderId);
+        if(idx !== -1) {
+          rankersBreadcrumbs = rankersBreadcrumbs.slice(0, idx + 1);
+        } else {
+          rankersBreadcrumbs.push({id: folderId, name: folderName});
+        }
+      }
+
+      // Update Breadcrumbs UI
+      const bcContainer = document.getElementById('rankers-breadcrumb');
+      if(bcContainer) {
+        bcContainer.innerHTML = '';
+        rankersBreadcrumbs.forEach((bc, idx) => {
+          const btn = document.createElement('button');
+          btn.style = 'background:none; border:none; color:#3b82f6; font-weight:700; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; gap:6px;';
+          if(idx === rankersBreadcrumbs.length - 1) {
+            btn.style.color = '#1e293b'; // Current folder
+            btn.style.cursor = 'default';
+          }
+          btn.innerHTML = (idx === 0 ? '🏠 ' : '') + bc.name;
+          if(idx < rankersBreadcrumbs.length - 1) {
+            btn.onclick = () => window.loadRankersFolder(bc.id, bc.name);
+          }
+          bcContainer.appendChild(btn);
+
+          if(idx < rankersBreadcrumbs.length - 1) {
+            const sep = document.createElement('span');
+            sep.textContent = '>';
+            sep.style.color = '#94a3b8';
+            sep.style.fontSize = '0.8rem';
+            bcContainer.appendChild(sep);
+          }
+        });
+      }
+
+      const grid = document.getElementById('rankers-grid');
+      const loader = document.getElementById('rankers-loader');
+      if(!grid || !loader) return;
+
+      grid.innerHTML = '';
+      loader.style.display = 'block';
+
+      if(GAS_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+        loader.style.display = 'none';
+        grid.innerHTML = `<p style="grid-column:1/-1; color:#ef4444; font-weight:bold; text-align:center;">Please deploy the Google Apps Script and paste the URL in aspirant-dashboard.html (Search for YOUR_GOOGLE_APPS_SCRIPT_URL_HERE).</p>`;
+        return;
+      }
+
+      const targetId = rankersBreadcrumbs[rankersBreadcrumbs.length - 1].id;
+
+      try {
+        const res = await fetch(`${GAS_URL}?id=${targetId}`);
+        const data = await res.json();
+        
+        loader.style.display = 'none';
+        
+        if(!data.success) throw new Error(data.error);
+
+        const items = data.data || [];
+        if(items.length === 0) {
+          grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;">This folder is empty.</p>`;
+          return;
+        }
+
+        items.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'quote-card';
+          card.style.cursor = 'pointer';
+          card.style.transition = 'transform 0.2s, box-shadow 0.2s';
+          
+          if(item.type === 'folder') {
+            card.innerHTML = `
+              <h3 class="quote-title">📁 ${item.name}</h3>
+              <p class="quote-desc" style="color:#64748b; font-size:0.85rem;">Folder</p>
+              <div class="quote-card-footer" style="justify-content:flex-end;">
+                <button class="btn-read-pdf" style="background:#f1f5f9; color:#3b82f6;">Open</button>
+              </div>
+            `;
+            card.onclick = () => window.loadRankersFolder(item.id, item.name);
+          } else {
+            card.innerHTML = `
+              <h3 class="quote-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}">📄 ${item.name}</h3>
+              <p class="quote-desc" style="color:#64748b; font-size:0.85rem;">PDF Document</p>
+              <div class="quote-card-footer" style="justify-content:flex-end;">
+                <button class="btn-read-pdf">Read PDF</button>
+              </div>
+            `;
+            // Modify standard drive link for preview
+            let embedLink = item.url;
+            if(embedLink.includes('/view')) {
+              embedLink = embedLink.replace('/view', '/preview');
+            }
+            card.onclick = () => openPdfModal(item.name, embedLink);
+          }
+          grid.appendChild(card);
+        });
+      } catch(err) {
+        console.error(err);
+        loader.style.display = 'none';
+        grid.innerHTML = `<p style="grid-column:1/-1; color:#ef4444; font-weight:bold; text-align:center;">Failed to load folder: ${err.message}</p>`;
+      }
+    };
+
 
 
     window.openPaymentModal = function(id, name, fee) {
