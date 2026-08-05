@@ -1385,16 +1385,19 @@
           <p style="text-align: center; margin-top: 50px; color: #64748b;">Loading document...</p>
         </div>
       </div>
-      <!-- Right Column: Ranker Info Placeholder -->
+      <!-- Right Column: Ranker Analysis Tool -->
       <div style="flex:1;padding:30px;display:flex;flex-direction:column;background:white;min-width:350px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
           <h2 style="margin:0; color:#0f172a;">Ranker's Analysis</h2>
-          <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+          <div>
+            <button onclick="startScreenCutter()" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9rem; margin-right:10px; display:inline-flex; align-items:center; gap:6px; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              ✂️ Screen Cut Tool
+            </button>
+            <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+          </div>
         </div>
-        <div style="background:#f1f5f9;border:2px dashed #cbd5e1;border-radius:12px;padding:30px;text-align:center;color:#64748b;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-          <div style="font-size:3rem;margin-bottom:15px;">🚀</div>
-          <h3 style="margin:0 0 10px;color:#1e293b;">Future System</h3>
-          <p style="margin:0;line-height:1.5;">Evaluations jaisa system yahan baad mein taiyar kiya jayega.</p>
+        <div id="rankers-snippets-container" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
+          <!-- Saved Snippets will appear here -->
         </div>
       </div>
     </div>
@@ -1413,6 +1416,8 @@
       
       wrapper.innerHTML = `<iframe src="${embedLink}" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe>`;
       document.getElementById('pdf-modal').style.display = 'flex';
+      
+      if (typeof renderRankerSnippets === 'function') renderRankerSnippets();
     }
     
     function closePdfModal() {
@@ -3089,6 +3094,247 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
     });
   }
-</script>
+  </script>
+
+  <!-- Screen Cutter Overlay & Category Modal -->
+  <div id="screen-cutter-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999999; cursor:crosshair; background:rgba(0,0,0,0.9);">
+    <canvas id="cutter-canvas" style="position:absolute; top:0; left:0; width:100vw; height:100vh;"></canvas>
+    
+    <div id="cutter-toolbar" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); background:white; padding:10px 20px; border-radius:30px; display:flex; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+      <button onclick="cancelScreenCutter()" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:600;">Cancel</button>
+      <button id="btn-confirm-cut" onclick="confirmScreenCut()" style="background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:600; display:none;">Confirm Cut</button>
+    </div>
+  </div>
+
+  <div id="cut-category-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+    <div style="background:white; padding:30px; border-radius:16px; width:400px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+      <h3 style="margin:0 0 15px; color:#0f172a;">Save Snippet</h3>
+      <div style="width:100%; height:150px; background:#f1f5f9; border-radius:8px; margin-bottom:15px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        <img id="cut-preview-img" src="" style="max-width:100%; max-height:100%; object-fit:contain;">
+      </div>
+      <div style="text-align:left; margin-bottom:20px;">
+        <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color:#475569;">Select Category:</label>
+        <select id="cut-category-select" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; outline:none; font-family:inherit;">
+          <option value="Good Introduction">Good Introduction</option>
+          <option value="Good Body / Arguments">Good Body / Arguments</option>
+          <option value="Good Conclusion">Good Conclusion</option>
+          <option value="Data & Facts Usage">Data & Facts Usage</option>
+          <option value="Diagrams & Maps">Diagrams & Maps</option>
+          <option value="Presentation / Handwriting">Presentation / Handwriting</option>
+          <option value="Areas of Improvement">Areas of Improvement</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button onclick="closeCutCategoryModal()" style="background:#e2e8f0; color:#475569; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Cancel</button>
+        <button onclick="saveScreenCut()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Save Snippet</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Screen Cutter JS Logic
+    let cutterStream = null;
+    let rawCaptureCanvas = null;
+    let cropStartX = 0, cropStartY = 0, cropEndX = 0, cropEndY = 0;
+    let isCutting = false;
+    let finalBase64Image = null;
+
+    async function startScreenCutter() {
+      try {
+        cutterStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        const video = document.createElement('video');
+        video.srcObject = cutterStream;
+        video.play();
+        
+        video.onloadedmetadata = () => {
+          // Add a tiny delay to ensure the screen stream is fully painted
+          setTimeout(() => {
+            rawCaptureCanvas = document.createElement('canvas');
+            rawCaptureCanvas.width = video.videoWidth;
+            rawCaptureCanvas.height = video.videoHeight;
+            const ctx = rawCaptureCanvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, rawCaptureCanvas.width, rawCaptureCanvas.height);
+            
+            cutterStream.getTracks().forEach(track => track.stop());
+            initCropUI();
+          }, 300);
+        };
+      } catch(err) {
+        console.error("Screen capture failed:", err);
+        alert("Screen Share permission is required to use the Screen Cut tool.");
+      }
+    }
+
+    function initCropUI() {
+      const overlay = document.getElementById('screen-cutter-overlay');
+      overlay.style.display = 'block';
+      
+      const canvas = document.getElementById('cutter-canvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const ctx = canvas.getContext('2d');
+      
+      // Draw dimmed full background
+      ctx.drawImage(rawCaptureCanvas, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      let tempStartX = 0, tempStartY = 0;
+      
+      canvas.onmousedown = (e) => {
+        isCutting = true;
+        tempStartX = e.clientX;
+        tempStartY = e.clientY;
+        document.getElementById('btn-confirm-cut').style.display = 'none';
+      };
+      
+      canvas.onmousemove = (e) => {
+        if (!isCutting) return;
+        const curX = e.clientX;
+        const curY = e.clientY;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(rawCaptureCanvas, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const rx = Math.min(tempStartX, curX);
+        const ry = Math.min(tempStartY, curY);
+        const rw = Math.abs(curX - tempStartX);
+        const rh = Math.abs(curY - tempStartY);
+        
+        if (rw > 10 && rh > 10) {
+          ctx.drawImage(rawCaptureCanvas, 
+            (rx / canvas.width) * rawCaptureCanvas.width, (ry / canvas.height) * rawCaptureCanvas.height, 
+            (rw / canvas.width) * rawCaptureCanvas.width, (rh / canvas.height) * rawCaptureCanvas.height,
+            rx, ry, rw, rh
+          );
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.strokeRect(rx, ry, rw, rh);
+        }
+      };
+      
+      canvas.onmouseup = (e) => {
+        isCutting = false;
+        cropEndX = e.clientX;
+        cropEndY = e.clientY;
+        cropStartX = tempStartX;
+        cropStartY = tempStartY;
+        
+        if (Math.abs(cropEndX - cropStartX) > 20 && Math.abs(cropEndY - cropStartY) > 20) {
+          document.getElementById('btn-confirm-cut').style.display = 'inline-block';
+        }
+      };
+    }
+
+    function cancelScreenCutter() {
+      document.getElementById('screen-cutter-overlay').style.display = 'none';
+      document.getElementById('btn-confirm-cut').style.display = 'none';
+    }
+
+    function confirmScreenCut() {
+      const overlayCanvas = document.getElementById('cutter-canvas');
+      const rx = Math.min(cropStartX, cropEndX);
+      const ry = Math.min(cropStartY, cropEndY);
+      const rw = Math.abs(cropEndX - cropStartX);
+      const rh = Math.abs(cropEndY - cropStartY);
+      
+      const srcX = (rx / overlayCanvas.width) * rawCaptureCanvas.width;
+      const srcY = (ry / overlayCanvas.height) * rawCaptureCanvas.height;
+      const srcW = (rw / overlayCanvas.width) * rawCaptureCanvas.width;
+      const srcH = (rh / overlayCanvas.height) * rawCaptureCanvas.height;
+      
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = srcW;
+      finalCanvas.height = srcH;
+      const finalCtx = finalCanvas.getContext('2d');
+      finalCtx.drawImage(rawCaptureCanvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+      
+      finalBase64Image = finalCanvas.toDataURL('image/png');
+      cancelScreenCutter();
+      
+      document.getElementById('cut-preview-img').src = finalBase64Image;
+      document.getElementById('cut-category-modal').style.display = 'flex';
+    }
+
+    function closeCutCategoryModal() {
+      document.getElementById('cut-category-modal').style.display = 'none';
+      finalBase64Image = null;
+    }
+
+    function saveScreenCut() {
+      const category = document.getElementById('cut-category-select').value;
+      if (!finalBase64Image) return;
+      
+      const snippet = {
+        id: 'snip_' + Date.now(),
+        image: finalBase64Image,
+        category: category,
+        timestamp: new Date().getTime()
+      };
+      
+      let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
+      snippets.unshift(snippet);
+      localStorage.setItem('rone_ranker_snippets', JSON.stringify(snippets));
+      
+      closeCutCategoryModal();
+      renderRankerSnippets();
+    }
+
+    function deleteSnippet(id) {
+      if(!confirm('Are you sure you want to delete this snippet?')) return;
+      let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
+      snippets = snippets.filter(s => s.id !== id);
+      localStorage.setItem('rone_ranker_snippets', JSON.stringify(snippets));
+      renderRankerSnippets();
+    }
+
+    function renderRankerSnippets() {
+      const container = document.getElementById('rankers-snippets-container');
+      if(!container) return;
+      
+      let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
+      
+      if (snippets.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;color:#64748b;padding:30px 0;margin:auto;">
+            <div style="font-size:3rem;margin-bottom:15px;opacity:0.5;">✂️</div>
+            <h4 style="margin:0 0 5px; color:#475569;">No Snippets Yet</h4>
+            <p style="font-size:0.9rem;">Use the Screen Cut Tool to capture insights!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '';
+      snippets.forEach(snip => {
+        let badgeColor = '#3b82f6';
+        let badgeBg = '#dbeafe';
+        if(snip.category.includes('Intro')) { badgeColor = '#10b981'; badgeBg = '#d1fae5'; }
+        if(snip.category.includes('Body')) { badgeColor = '#8b5cf6'; badgeBg = '#ede9fe'; }
+        if(snip.category.includes('Conclusion')) { badgeColor = '#f59e0b'; badgeBg = '#fef3c7'; }
+        if(snip.category.includes('Improvement')) { badgeColor = '#ef4444'; badgeBg = '#fee2e2'; }
+        
+        html += `
+          <div style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border:1px solid #e2e8f0; position:relative;">
+            <button onclick="deleteSnippet('${snip.id}')" style="position:absolute; top:8px; right:8px; background:white; color:#ef4444; border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">✕</button>
+            <div style="padding:10px 15px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-right:30px;">
+              <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">${snip.category}</span>
+              <span style="font-size:0.7rem; color:#94a3b8;">${new Date(snip.timestamp).toLocaleDateString()}</span>
+            </div>
+            <div style="padding:15px; text-align:center; background:#f8fafc;">
+              <a href="${snip.image}" target="_blank">
+                <img src="${snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;">
+              </a>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+  </script>
 </body>
 </html>
