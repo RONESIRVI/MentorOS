@@ -2276,8 +2276,19 @@ async function fetchTodayTasks() {
             this.classList.toggle('completed');
             const checkbox = this.querySelector('.task-checkbox');
             checkbox.innerHTML = this.classList.contains('completed') ? '✓' : '';
+
+            // === UPDATE TASKS COMPLETED COUNT ===
+            const totalTasks = document.querySelectorAll('.task-item').length;
+            const doneTasks = document.querySelectorAll('.task-item.completed').length;
+            const statEl = document.getElementById('stat-tasks-completed');
+            if (statEl) statEl.textContent = `${doneTasks}/${totalTasks}`;
           });
         });
+
+        // Initialize tasks count on load
+        const totalTasksInit = document.querySelectorAll('.task-item').length;
+        const statTasksEl = document.getElementById('stat-tasks-completed');
+        if (statTasksEl) statTasksEl.textContent = `0/${totalTasksInit}`;
 
         // ===== CALCULATE TODAY'S STUDY TIME =====
         const TIME_MAP = {
