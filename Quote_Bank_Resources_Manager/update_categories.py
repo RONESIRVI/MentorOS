@@ -112,10 +112,13 @@ def main():
     # Push to GitHub
     print("🚀 Pushing changes to GitHub...")
     try:
+        # Commit the local one in Quote_Bank_Resources_Manager
+        local_repo_path = "Quote_Bank_Resources_Manager/" + JSON_FILENAME
+        subprocess.run(["git", "add", local_repo_path], cwd=PORTAL_DIR, check=True)
         subprocess.run(["git", "add", JSON_FILENAME], cwd=PORTAL_DIR, check=True)
         status = subprocess.run(["git", "status", "--porcelain"], cwd=PORTAL_DIR, capture_output=True, text=True)
         if JSON_FILENAME in status.stdout:
-            subprocess.run(["git", "commit", "-m", "Update snippet_categories.json with dual-folder metadata"], cwd=PORTAL_DIR, check=True)
+            subprocess.run(["git", "commit", "-m", "Update snippet_categories.json via bat file"], cwd=PORTAL_DIR, check=True)
             subprocess.run(["git", "push", "origin", "main"], cwd=PORTAL_DIR, check=True)
             print("✅ Successfully pushed to GitHub!")
             print("🌐 Changes will be live on the portal in ~1 minute.")
