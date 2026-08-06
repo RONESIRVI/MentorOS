@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="hi-IN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1f5e">
+  <title>RONE MentorOS</title>
+  <meta name="description" content="RONE MentorOS — India's most advanced AI-powered UPSC/RPSC mentorship platform. Student login, course enrollment, daily accountability, answer writing, and complete mentorship system.">
+  <meta name="keywords" content="UPSC, RPSC, IAS, RAS, Civil Services, Mentorship, Coaching, Answer Writing, AI Analytics">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== TOP MARQUEE ANNOUNCEMENT BAR ===== -->
+  <aside class="announcement-bar" role="region" aria-label="Announcements">
+    <div class="marquee-wrap">
+      <div class="marquee-track" id="marqueeTrack">
+        <!-- Fetched from ticker.json dynamically -->
+        <span style="padding: 0 20px; color: #cbd5e1; font-size: 0.9rem;">Loading announcements...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== STICKY NAVBAR ===== -->
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-inner">
+        <!-- Logo -->
+        <a href="/" class="logo-link" aria-label="RONE MentorOS Home">
+          <div class="logo">
+            <div class="logo-icon">R</div>
+            <div class="logo-text">
+              <span class="logo-main">RONE</span>
+              <span class="logo-sub">MentorOS</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Desktop Nav -->
+        <nav class="nav-links" aria-label="Primary Navigation">
+          <a href="/" class="nav-link active">Home</a>
+
+          <div class="nav-dropdown">
+            <button class="nav-link dropdown-btn" aria-expanded="false" aria-haspopup="true">
+              Platform
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-section">
+                <h4 class="dropdown-heading">Portals</h4>
+                <a href="#student-login" class="dropdown-item">🎓 Aspirant Portal</a>
+                <a href="#mentor-login" class="dropdown-item">👨‍🏫 Mentor Portal</a>
+                <a href="#admin-login" class="dropdown-item">⚙️ Admin ERP</a>
+              </div>
+              <div class="dropdown-section">
+                <h4 class="dropdown-heading">Learning</h4>
+                <a href="#workflow" class="dropdown-item">📚 LMS Courses</a>
+                <a href="#workflow" class="dropdown-item">✍️ Answer Writing</a>
+                <a href="#workflow" class="dropdown-item">📰 Current Affairs</a>
+              </div>
+              <div class="dropdown-section">
+                <h4 class="dropdown-heading">AI Tools</h4>
+                <a href="#ai" class="dropdown-item">🤖 AI Study Planner</a>
+                <a href="#ai" class="dropdown-item">📊 AI Analytics</a>
+                <a href="#ai" class="dropdown-item">🏆 Rank Predictor</a>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="nav-dropdown">
+            <button class="nav-link dropdown-btn" aria-expanded="false" aria-haspopup="true">
+              Resources
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-section">
+                <h4 class="dropdown-heading">Free Resources</h4>
+                <a href="#" class="dropdown-item">📄 Notes & Mind Maps</a>
+                <a href="#" class="dropdown-item">🗞️ Current Affairs</a>
+                <a href="#" class="dropdown-item">🎬 Free Video Lectures</a>
+              </div>
+              <div class="dropdown-section">
+                <h4 class="dropdown-heading">Topper Resources</h4>
+                <a href="#" class="dropdown-item">🏅 Topper Answer Copies</a>
+                <a href="#" class="dropdown-item">🎥 Topper Videos</a>
+                <a href="#" class="dropdown-item">💬 Testimonials</a>
+              </div>
+            </div>
+          </div>
+
+          <a href="#about" class="nav-link">About Us</a>
+          <a href="#contact" class="nav-link">Contact</a>
+        </nav>
+
+        <!-- CTA Buttons -->
+        <div class="nav-cta">
+          <a href="#student-login" class="btn-outline" id="nav-login-btn">Student Login</a>
+          <a href="#student-login" class="btn-primary" id="nav-enroll-btn">Register</a>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-inner">
+        <a href="#student-login" class="mobile-link">🎓 Student Login</a>
+        <a href="#mentor-login" class="mobile-link">👨‍🏫 Mentor Login</a>
+        <a href="#admin-login" class="mobile-link">⚙️ Admin Login</a>
+        <hr class="mobile-divider">
+        <a href="#workflow" class="mobile-link">📚 LMS Courses</a>
+        <a href="#workflow" class="mobile-link">✍️ Answer Writing</a>
+        <a href="#ai" class="mobile-link">🤖 AI Features</a>
+        <hr class="mobile-divider">
+        <a href="#about" class="mobile-link">About Us</a>
+        <a href="#contact" class="mobile-link">Contact</a>
+        <a href="#student-login" class="btn-primary" style="display:block;text-align:center;margin-top:1rem;">Register Now</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main id="main-content">
+
+    <!-- ===== HERO SECTION: LOGIN + PORTAL ===== -->
+    <section class="hero-section" id="portal">
+      <div class="container">
+        <div class="hero-grid">
+
+          <!-- LEFT: Login Card -->
+          <div class="login-card" id="student-login">
+            <div class="login-tabs">
+              <button class="login-tab active" data-tab="student" id="tab-student">🎓 Aspirant</button>
+              <button class="login-tab" data-tab="mentor" id="tab-mentor">👨‍🏫 Mentor</button>
+              <button class="login-tab" data-tab="admin" id="tab-admin">⚙️ Admin</button>
+            </div>
+
+            <!-- Student Login Form -->
+            <div class="tab-content active" id="tab-student-content">
+              <div class="login-header">
+                <h2 class="login-title">Welcome Back, Aspirant!</h2>
+                <p class="login-subtitle">Sign in to your RONE MentorOS dashboard</p>
+              </div>
+              <form class="login-form" id="studentLoginForm">
+                <div class="form-group">
+                  <label for="student-email">Mobile / Email</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="student-email" name="email" placeholder="Enter mobile or email" autocomplete="username">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="student-password">Password / OTP</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="student-password" name="password" placeholder="Enter password or OTP" autocomplete="current-password">
+                    <button type="button" class="toggle-password" aria-label="Show password">👁</button>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="remember-me"> Remember me
+                  </label>
+                  <a href="#" class="forgot-link">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-login" id="studentLoginBtn">
+                  <span>Login to Dashboard</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+                <div id="login-error-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;color:#ef4444;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);margin-bottom:8px;"></div>
+                <div class="login-divider"><span>or</span></div>
+                <button type="button" class="btn-otp" id="sendOtpBtn">📲 Login with OTP</button>
+                <button type="button" class="btn-google" id="googleLoginBtn">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continue with Google
+                </button>
+              </form>
+              <p class="signup-link">New to RONE? <a href="#courses">Register as Aspirant →</a></p>
+            </div>
+
+            <!-- Mentor Login Form -->
+            <div class="tab-content" id="tab-mentor-content">
+              <div class="login-header">
+                <h2 class="login-title">Mentor Portal</h2>
+                <p class="login-subtitle">Access your student management dashboard</p>
+              </div>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="mentor-email">Mentor ID / Email</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="mentor-email" placeholder="Enter Mentor ID or email">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="mentor-password">Password</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="mentor-password" placeholder="Enter password">
+                  </div>
+                </div>
+                <button type="submit" class="btn-login mentor-btn">Login as Mentor →</button>
+              </form>
+            </div>
+
+            <!-- Admin Login Form -->
+            <div class="tab-content" id="tab-admin-content">
+              <div class="login-header">
+                <h2 class="login-title">Admin ERP</h2>
+                <p class="login-subtitle">Full platform management & analytics</p>
+              </div>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="admin-email">Admin Username</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="admin-email" placeholder="Enter admin username">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="admin-password">Password</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="admin-password" placeholder="Enter password">
+                  </div>
+                </div>
+                <button type="submit" class="btn-login admin-btn">Login to Admin ERP →</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- RIGHT: Platform Info -->
+          <div class="hero-info">
+            <div class="hero-badge">🥇 India's #1 UPSC/RPSC AI Mentorship Platform</div>
+            <h1 class="hero-title">
+              Your Journey to<br>
+              <span class="gradient-text">IAS / RAS</span><br>
+              Starts Here
+            </h1>
+            <p class="hero-subtitle">
+              Complete ERP + LMS + CRM + AI Analytics — एक ही platform पर। Personal mentor, daily accountability, AI study planner और answer writing — सब कुछ।
+            </p>
+
+            <!-- Stats -->
+            <div class="hero-stats">
+              <div class="stat-item">
+                <div class="stat-number" data-count="2500">0</div>
+                <div class="stat-label">Active Aspirants</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" data-count="180">0</div>
+                <div class="stat-label">Selections</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" data-count="45">0</div>
+                <div class="stat-label">Expert Mentors</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" data-count="98">0</div>
+                <div class="stat-label">% Success Rate</div>
+              </div>
+            </div>
+
+            <!-- Trust badges -->
+            <div class="trust-badges">
+              <div class="trust-badge">
+                <span class="trust-icon">🤖</span>
+                <span>AI-Powered</span>
+              </div>
+              <div class="trust-badge">
+                <span class="trust-icon">🔒</span>
+                <span>100% Secure</span>
+              </div>
+              <div class="trust-badge">
+                <span class="trust-icon">📱</span>
+                <span>Mobile Ready</span>
+              </div>
+              <div class="trust-badge">
+                <span class="trust-icon">⚡</span>
+                <span>Real-time Updates</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PLATFORM MODULES STRIP ===== -->
+    <section class="modules-strip">
+      <div class="container">
+        <div class="modules-scroll">
+          <div class="module-chip">📚 LMS</div>
+          <div class="module-chip">✍️ Answer Writing</div>
+          <div class="module-chip">🤝 Mentorship</div>
+          <div class="module-chip">📊 AI Analytics</div>
+          <div class="module-chip">📅 Daily Planner</div>
+          <div class="module-chip">📰 Current Affairs</div>
+          <div class="module-chip">🗓️ Study Planner</div>
+          <div class="module-chip">📈 Report Card</div>
+          <div class="module-chip">🔔 Smart Alerts</div>
+          <div class="module-chip">💰 Finance ERP</div>
+          <div class="module-chip">🏅 Leaderboard</div>
+          <div class="module-chip">💬 Mentor Chat</div>
+          <div class="module-chip">🎥 Video Classes</div>
+          <div class="module-chip">🤖 AI Rank Predictor</div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ===== WORKFLOW SECTION ===== -->
+    <section class="workflow-section" id="workflow">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">🔄 Your Journey</div>
+          <h2 class="section-title">How RONE MentorOS Works</h2>
+          <p class="section-subtitle">From registration to selection — every step guided by AI and personal mentors</p>
+        </div>
+
+        <div class="workflow-grid">
+          <div class="workflow-step">
+            <div class="step-number">01</div>
+            <div class="step-icon">📝</div>
+            <h3>Register & Payment</h3>
+            <p>Quick enrollment with Razorpay. Installment options available with scholarship support.</p>
+          </div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step">
+            <div class="step-number">02</div>
+            <div class="step-icon">🔬</div>
+            <h3>Diagnostic Test</h3>
+            <p>AI analyses your current level across all subjects and identifies weak areas instantly.</p>
+          </div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step">
+            <div class="step-number">03</div>
+            <div class="step-icon">🤝</div>
+            <h3>Mentor Assignment</h3>
+            <p>A dedicated personal mentor is assigned based on your profile and subject needs.</p>
+          </div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step">
+            <div class="step-number">04</div>
+            <div class="step-icon">🗓️</div>
+            <h3>AI Study Plan</h3>
+            <p>Personalized daily study schedule generated by AI based on your target exam date.</p>
+          </div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step">
+            <div class="step-number">05</div>
+            <div class="step-icon">📊</div>
+            <h3>Daily Accountability</h3>
+            <p>Track wake time, study hours, tasks, mood. Mentor reviews your daily log every morning.</p>
+          </div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-step">
+            <div class="step-number">06</div>
+            <div class="step-icon">🏆</div>
+            <h3>Selection</h3>
+            <p>Weekly reviews, monthly performance reports, continuous improvement → Final Selection!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== AI FEATURES SECTION ===== -->
+    <section class="ai-section" id="ai">
+      <div class="container">
+        <div class="section-header light">
+          <div class="section-badge ai-badge-pill">🤖 Powered by AI</div>
+          <h2 class="section-title">Intelligent Features That Accelerate Success</h2>
+          <p class="section-subtitle" style="color:rgba(255,255,255,0.75)">10 AI-powered tools built specifically for UPSC/RPSC aspirants</p>
+        </div>
+
+        <div class="ai-grid">
+          <div class="ai-card">
+            <div class="ai-icon">📝</div>
+            <h3>AI Answer Evaluation</h3>
+            <p>Rubric-based AI scoring with detailed feedback on structure, content, and presentation within minutes.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">📊</div>
+            <h3>AI Report Card</h3>
+            <p>Dynamic performance tracking across all subjects with improvement graphs and weak area identification.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">🎯</div>
+            <h3>AI Weak Topic Detection</h3>
+            <p>Real-time analysis of your test performance to pinpoint exact topics needing revision.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">📅</div>
+            <h3>AI Timetable Generator</h3>
+            <p>Smart daily schedule based on exam date, current level, weak areas, and available study hours.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">🔄</div>
+            <h3>AI Revision Planner</h3>
+            <p>Spaced repetition-based revision scheduling that ensures nothing is forgotten before exam day.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">💡</div>
+            <h3>AI Mentor Suggestions</h3>
+            <p>Smart recommendations for mentors to guide each student based on their AI-analyzed profile.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">🗞️</div>
+            <h3>AI Current Affairs</h3>
+            <p>Daily news summarized and mapped to UPSC syllabus with MCQs generated automatically.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">📄</div>
+            <h3>AI One Page Notes</h3>
+            <p>Complex topics condensed into crisp, exam-ready one-page revision notes by AI.</p>
+          </div>
+          <div class="ai-card">
+            <div class="ai-icon">🏆</div>
+            <h3>AI Rank Prediction</h3>
+            <p>Predict your likely rank based on overall performance, accuracy trends, and historical data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DASHBOARD PREVIEW SECTION ===== -->
+    <section class="dashboard-section" id="dashboards">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">📊 Powerful Dashboards</div>
+          <h2 class="section-title">Built for Every Role</h2>
+          <p class="section-subtitle">Aspirant and Mentor — each with a dedicated, powerful workspace</p>
+        </div>
+
+        <div class="dashboard-tabs">
+          <button class="dash-tab active" data-dash="aspirant">🎓 Aspirant</button>
+          <button class="dash-tab" data-dash="mentor">👨‍🏫 Mentor</button>
+        </div>
+
+        <div class="dashboard-content">
+
+          <!-- Aspirant Dashboard Preview -->
+          <div class="dash-panel active" id="dash-aspirant">
+            <div class="dash-preview">
+              <div class="preview-sidebar">
+                <div class="preview-logo">RONE</div>
+                <div class="preview-nav-item active">🏠 Home</div>
+                <div class="preview-nav-item">📚 My Courses</div>
+                <div class="preview-nav-item">📅 Daily Planner</div>
+                <div class="preview-nav-item">✍️ Answer Writing</div>
+                <div class="preview-nav-item">📊 Report Card</div>
+                <div class="preview-nav-item">📰 Current Affairs</div>
+                <div class="preview-nav-item">🤝 My Mentor</div>
+                <div class="preview-nav-item">🤖 AI Planner</div>
+              </div>
+              <div class="preview-main">
+                <div class="preview-header">
+                  <div>
+                    <div class="preview-welcome">Welcome back, Rahul Singh 👋</div>
+                    <div class="preview-date">Monday, 28 July 2026 • Day 142 of Preparation</div>
+                  </div>
+                  <div class="preview-streak">🔥 42 Day Streak!</div>
+                </div>
+                <div class="preview-stats-row">
+                  <div class="preview-stat blue">
+                    <div class="ps-number">6h 30m</div>
+                    <div class="ps-label">Today's Study Hours</div>
+                  </div>
+                  <div class="preview-stat green">
+                    <div class="ps-number">8/10</div>
+                    <div class="ps-label">Tasks Completed</div>
+                  </div>
+                  <div class="preview-stat amber">
+                    <div class="ps-number">Rank #12</div>
+                    <div class="ps-label">Batch Leaderboard</div>
+                  </div>
+                  <div class="preview-stat purple">
+                    <div class="ps-number">78%</div>
+                    <div class="ps-label">Overall Accuracy</div>
+                  </div>
+                </div>
+                <div class="preview-cards-row">
+                  <div class="preview-card">
+                    <div class="pc-title">📅 Today's Tasks</div>
+                    <div class="pc-item done">✅ Morning Current Affairs</div>
+                    <div class="pc-item done">✅ GS1 History Lecture</div>
+                    <div class="pc-item pending">⏳ Answer Writing Q3</div>
+                    <div class="pc-item pending">⏳ 25 MCQ Practice</div>
+                  </div>
+                  <div class="preview-card">
+                    <div class="pc-title">📈 This Week</div>
+                    <div class="pc-bar-item">
+                      <span>History</span>
+                      <div class="pc-bar"><div class="pc-bar-fill" style="width:85%"></div></div>
+                      <span>85%</span>
+                    </div>
+                    <div class="pc-bar-item">
+                      <span>Polity</span>
+                      <div class="pc-bar"><div class="pc-bar-fill" style="width:72%"></div></div>
+                      <span>72%</span>
+                    </div>
+                    <div class="pc-bar-item">
+                      <span>Economy</span>
+                      <div class="pc-bar"><div class="pc-bar-fill amber-fill" style="width:58%"></div></div>
+                      <span>58%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mentor Dashboard Preview -->
+          <div class="dash-panel" id="dash-mentor">
+            <div class="dash-preview mentor-preview">
+              <div class="preview-sidebar mentor-sidebar">
+                <div class="preview-logo">RONE</div>
+                <div class="preview-nav-item active">🏠 Dashboard</div>
+                <div class="preview-nav-item">👥 My Students (24)</div>
+                <div class="preview-nav-item">✍️ Pending Copies (8)</div>
+                <div class="preview-nav-item">📅 Meeting Calendar</div>
+                <div class="preview-nav-item">📊 Student Analytics</div>
+                <div class="preview-nav-item">✅ Daily Accountability</div>
+                <div class="preview-nav-item">📋 Weekly Review</div>
+                <div class="preview-nav-item">💬 Messages</div>
+              </div>
+              <div class="preview-main">
+                <div class="preview-header">
+                  <div>
+                    <div class="preview-welcome">Mentor Dashboard — Dr. Priya Sharma 👩‍🏫</div>
+                    <div class="preview-date">Today: 8 pending copies • 3 meetings • 2 missed accountability logs</div>
+                  </div>
+                </div>
+                <div class="preview-stats-row">
+                  <div class="preview-stat blue"><div class="ps-number">24</div><div class="ps-label">Assigned Students</div></div>
+                  <div class="preview-stat amber"><div class="ps-number">8</div><div class="ps-label">Pending Evaluations</div></div>
+                  <div class="preview-stat green"><div class="ps-number">3</div><div class="ps-label">Meetings Today</div></div>
+                  <div class="preview-stat red"><div class="ps-number">2</div><div class="ps-label">Missed Logs Alert</div></div>
+                </div>
+                <div class="preview-cards-row">
+                  <div class="preview-card">
+                    <div class="pc-title">📋 Pending Answer Copies</div>
+                    <div class="pc-student-item">Rahul S. • Q3 Polity • <span class="urgent">Urgent</span></div>
+                    <div class="pc-student-item">Priya K. • Essay Draft • <span class="normal">Due Today</span></div>
+                    <div class="pc-student-item">Amit M. • Ethics Q5 • <span class="normal">Due Today</span></div>
+                    <div class="pc-student-item">+5 more pending...</div>
+                  </div>
+                  <div class="preview-card">
+                    <div class="pc-title">🤖 AI Student Alerts</div>
+                    <div class="pc-alert">⚠️ Rahul — Economy weak (42% accuracy)</div>
+                    <div class="pc-alert">⚠️ Priya — 3 days missed accountability</div>
+                    <div class="pc-alert green-alert">✅ Amit — Improved 15% this week!</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== AUTOMATIONS SECTION ===== -->
+    <section class="automations-section" id="automations">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-badge">⚡ Smart Automations</div>
+          <h2 class="section-title">Platform Runs on Autopilot</h2>
+          <p class="section-subtitle">12 intelligent automations that keep every student, mentor, and admin updated — 24/7</p>
+        </div>
+        <div class="automations-grid">
+          <div class="auto-card"><span class="auto-icon">✅</span><span>Auto Attendance Marking</span></div>
+          <div class="auto-card"><span class="auto-icon">🔔</span><span>Smart Push Reminders</span></div>
+          <div class="auto-card"><span class="auto-icon">📧</span><span>Daily Email Digest</span></div>
+          <div class="auto-card"><span class="auto-icon">💬</span><span>WhatsApp Reminders</span></div>
+          <div class="auto-card"><span class="auto-icon">⚠️</span><span>Missed Task Alerts</span></div>
+          <div class="auto-card"><span class="auto-icon">📊</span><span>Weekly Progress Report</span></div>
+          <div class="auto-card"><span class="auto-icon">📈</span><span>Monthly Performance Report</span></div>
+          <div class="auto-card"><span class="auto-icon">👨‍🏫</span><span>Mentor Notifications</span></div>
+          <div class="auto-card"><span class="auto-icon">🤖</span><span>AI Weak Topic Detection</span></div>
+          <div class="auto-card"><span class="auto-icon">🔁</span><span>Revision Reminders</span></div>
+          <div class="auto-card"><span class="auto-icon">📝</span><span>Test Reminders</span></div>
+          <div class="auto-card"><span class="auto-icon">💰</span><span>Payment Reminders</span></div>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+  </main>
+
+
+
+  <script type="module" src="script.js"></script>
+
+  <script>
+    // Fetch and render the ticker from ticker.json
+    async function loadTicker() {
+      const track = document.getElementById('marqueeTrack');
+      if (!track) return;
+      try {
+        // Cache buster to always get fresh ticker
+        const res = await fetch(`ticker.json?t=${new Date().getTime()}`);
+        if (!res.ok) throw new Error('Failed to load ticker.json');
+        
+        const payload = await res.json();
+        
+        // Handle both new {speed, messages} format and old [...] format
+        const data = Array.isArray(payload) ? payload : payload.messages || [];
+        const speed = payload.speed || 25; // Default speed if not specified
+        
+        if (data && data.length > 0) {
+          // Calculate a proportional duration based on the number of items
+          // So speed remains visually consistent regardless of how many items exist.
+          // Formula: user_speed * (data.length / 5) * 5 (since we scroll 5 sets)
+          // Actually, if we repeat 10 times, 50% is 5 sets.
+          // Base speed is for 5 items. If there are fewer, it should take less total time to cover 50%.
+          const setsToScroll = 5; 
+          const calculatedDuration = speed * (data.length / 5) * setsToScroll;
+          track.style.animationDuration = `${calculatedDuration}s`;
+          
+          let html = '';
+          // Render items 10 times to ensure the track is wider than any screen for a seamless loop
+          for (let i = 0; i < 10; i++) {
+            data.forEach(item => {
+              const icon = item.Icon || '🔔';
+              const msg = item.Message || '';
+              const link = item.Link || '#';
+              html += `<a href="${link}" class="marquee-item">${icon} ${msg}</a><span class="marquee-dot">•</span>`;
+            });
+          }
+          track.innerHTML = html;
+        } else {
+          track.innerHTML = '<span style="padding: 0 20px; color: #cbd5e1;">No new announcements.</span>';
+        }
+      } catch (err) {
+        console.error('Ticker Error:', err);
+        track.innerHTML = '<span style="padding: 0 20px; color: #cbd5e1;">Error loading announcements.</span>';
+      }
+    }
+    
+    // Call loadTicker when DOM is ready
+    document.addEventListener('DOMContentLoaded', loadTicker);
+  </script>
+</body>
+</html>
