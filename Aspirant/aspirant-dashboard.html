@@ -3399,20 +3399,29 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       const year = document.getElementById('cut-year-select').value;
       const paper = document.getElementById('cut-paper-select').value;
       
-      if (!finalBase64Image) return;
+      if (!finalBase64Image) {
+        alert('❌ No image to save! Please cut a screen area first.');
+        return;
+      }
       
       const saveBtn = document.getElementById('btn-save-cut');
+      const cancelBtn = document.getElementById('btn-cancel-cut-save');
       const originalText = saveBtn.innerHTML;
-      saveBtn.innerHTML = 'Uploading... <span class="spinner"></span>';
+      saveBtn.innerHTML = '⏳ Uploading to Drive...';
       saveBtn.disabled = true;
-      document.getElementById('btn-cancel-cut-save').disabled = true;
+      cancelBtn.disabled = true;
       
-      let imageUrl = finalBase64Image; // Fallback to local base64 if GAS fails or is not configured
+      let imageUrl = null;
       
       if (SNIPPET_GAS_URL && SNIPPET_GAS_URL.includes('script.google.com')) {
         try {
+          // 30 second timeout for GAS upload
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000);
+          
           const response = await fetch(SNIPPET_GAS_URL, {
             method: 'POST',
+            signal: controller.signal,
             body: JSON.stringify({
               image: finalBase64Image,
               parentFolderId: SNIPPET_MAIN_FOLDER_ID,
@@ -3423,25 +3432,39 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
               fileName: `Snippet_${Date.now()}.png`
             })
           });
+          clearTimeout(timeoutId);
+          
           const result = await response.json();
           if (result.success && result.previewUrl) {
             imageUrl = result.previewUrl;
+            saveBtn.innerHTML = '✅ Saved!';
           } else {
-            console.error("GAS Upload Failed:", result.error);
-            alert("Upload to Drive failed. Saving snippet locally instead.");
+            console.error("GAS Upload Failed:", result.error || result);
+            saveBtn.innerHTML = '⚠️ Drive Failed - Saving Locally';
+            imageUrl = finalBase64Image; // Fallback to local
           }
         } catch(err) {
-          console.error("Error connecting to GAS:", err);
-          alert("Could not connect to Google Drive. Saving snippet locally instead.");
+          if (err.name === 'AbortError') {
+            console.error("GAS Upload timed out after 30s");
+            saveBtn.innerHTML = '⚠️ Timeout - Saving Locally';
+          } else {
+            console.error("Error connecting to GAS:", err);
+            saveBtn.innerHTML = '⚠️ Error - Saving Locally';
+          }
+          imageUrl = finalBase64Image; // Fallback to local base64
         }
       } else {
-         console.warn("GAS_URL not set. Saving snippet locally in localStorage.");
+        console.warn("GAS_URL not set. Saving snippet locally in localStorage.");
+        imageUrl = finalBase64Image;
       }
       
       const snippet = {
         id: 'snip_' + Date.now(),
         image: imageUrl,
         category: category,
+        rank: rank,
+        year: year,
+        paper: paper,
         timestamp: new Date().getTime(),
         pdfId: currentPdfId
       };
@@ -3450,12 +3473,13 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       snippets.unshift(snippet);
       localStorage.setItem('rone_ranker_snippets', JSON.stringify(snippets));
       
-      saveBtn.innerHTML = originalText;
-      saveBtn.disabled = false;
-      document.getElementById('btn-cancel-cut-save').disabled = false;
-      
-      closeCutCategoryModal();
-      renderRankerSnippets();
+      setTimeout(() => {
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+        closeCutCategoryModal();
+        renderRankerSnippets();
+      }, 800);
     }
 
     function deleteSnippet(id) {
