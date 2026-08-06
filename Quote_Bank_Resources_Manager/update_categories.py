@@ -101,20 +101,24 @@ def main():
         print(f"❌ Error reading Excel file: {e}")
         return
 
-    # Save JSON and JS locally
+    # Save JSON locally
     try:
-        with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
+        with open(JSON_FILENAME, 'w', encoding='utf-8-sig') as f:
             json.dump(output_data, f, ensure_ascii=False, indent=2)
         print(f"✅ Saved local {JSON_FILENAME}")
-        
-        js_filename = JSON_FILENAME.replace('.json', '.js')
+    except Exception as e:
+        print(f"❌ Error saving JSON file: {e}")
+        return
+
+    # Save JS locally
+    js_filename = JSON_FILENAME.replace('.json', '.js')
+    try:
         js_content = f"window.SNIPPET_CATEGORIES = {json.dumps(output_data, ensure_ascii=False, indent=2)};"
-        with open(js_filename, 'w', encoding='utf-8') as f:
+        with open(js_filename, 'w', encoding='utf-8-sig') as f:
             f.write(js_content)
         print(f"✅ Saved local {js_filename}")
-        
     except Exception as e:
-        print(f"❌ Error saving JSON/JS files: {e}")
+        print(f"❌ Error saving JS file: {e}")
         return
 
     # Copy files to Portal Directory
