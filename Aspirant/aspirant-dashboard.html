@@ -3444,7 +3444,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
             </div>
             <div style="padding:15px; text-align:center; background:#f8fafc;">
               <a href="${snip.image}" target="_blank">
-                <img src="${snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;">
+                <img src="${snip.image.includes('drive.google.com') ? snip.image.replace('/preview', '').replace('file/d/', 'uc?id=') : snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
               </a>
             </div>
           </div>
