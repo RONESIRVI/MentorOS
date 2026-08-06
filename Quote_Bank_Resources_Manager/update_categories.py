@@ -75,6 +75,18 @@ def main():
             years_list = []
             papers_list = []
             
+        # Deduplicate categories (ignore duplicates with/without icons)
+        seen_stripped = set()
+        deduped_cats = []
+        for cat in categories_list:
+            # Strip emojis and whitespace for comparison
+            import re
+            stripped = re.sub(r'[^\w\s]', '', cat).strip().lower()
+            if stripped and stripped not in seen_stripped:
+                seen_stripped.add(stripped)
+                deduped_cats.append(cat.strip())
+        categories_list = deduped_cats
+
         output_data = {
             "categories": categories_list,
             "ranks": [r for r in ranks_list if r.strip()],
@@ -112,13 +124,23 @@ def main():
     # Push to GitHub
     print("🚀 Pushing changes to GitHub...")
     try:
-        # Commit the local one in Quote_Bank_Resources_Manager
+        # Stage both files
         local_repo_path = "Quote_Bank_Resources_Manager/" + JSON_FILENAME
         subprocess.run(["git", "add", local_repo_path], cwd=PORTAL_DIR, check=True)
         subprocess.run(["git", "add", JSON_FILENAME], cwd=PORTAL_DIR, check=True)
-        status = subprocess.run(["git", "status", "--porcelain"], cwd=PORTAL_DIR, capture_output=True, text=True)
-        if JSON_FILENAME in status.stdout:
+        
+        # Check if anything is staged for commit
+        status = subprocess.run(["git", "diff", "--cached", "--name-only"], cwd=PORTAL_DIR, capture_output=True, text=True)
+        if status.stdout.strip():
             subprocess.run(["git", "commit", "-m", "Update snippet_categories.json via bat file"], cwd=PORTAL_DIR, check=True)
+            
+            # 🔄 Sync with remote before pushing to prevent conflict errors!
+            print("🔄 Syncing with GitHub (Fetching new updates)...")
+            try:
+                subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd=PORTAL_DIR, check=True)
+            except subprocess.CalledProcessError:
+                print("⚠️ Warning: Auto-merge during pull failed, attempting to push anyway...")
+                
             subprocess.run(["git", "push", "origin", "main"], cwd=PORTAL_DIR, check=True)
             print("✅ Successfully pushed to GitHub!")
             print("🌐 Changes will be live on the portal in ~1 minute.")
