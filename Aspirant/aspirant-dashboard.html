@@ -2940,30 +2940,32 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   });
   // --- QUOTE BANK CMS LOGIC (Shifted from Admin) ---
   const toggleCmsBtn = document.getElementById('btn-toggle-cms');
+  let cmsAutoLoaded = false; // Flag to prevent duplicate auto-load
   if(toggleCmsBtn) {
     toggleCmsBtn.addEventListener('click', () => {
       const configPanel = document.getElementById('aspirant-cms-config');
       if(configPanel.style.display === 'none') {
         configPanel.style.display = 'block';
         toggleCmsBtn.textContent = '⚙️ Hide Manage Sync';
-        // Auto-load API key & folder if saved
-        const savedApi = localStorage.getItem('driveApiKey');
-        const savedFolder = localStorage.getItem('driveFolderId');
-        const apiKeyEl = document.getElementById('cms-api-key');
-        const folderIdEl = document.getElementById('cms-folder-id');
-        if(savedApi && apiKeyEl) apiKeyEl.value = savedApi;
-        if(savedFolder && folderIdEl) folderIdEl.value = savedFolder;
         window.loadAssignedCMS();
+        // Auto-load files from Drive folder if not already loaded
+        if(!cmsAutoLoaded) {
+          cmsAutoLoaded = true;
+          cmsBreadcrumbs = [{ id: RANKERS_ROOT_ID, name: '🏠 Root' }];
+          window.fetchCmsFolder(RANKERS_ROOT_ID);
+        }
       } else {
         configPanel.style.display = 'none';
         toggleCmsBtn.textContent = '⚙️ Manage Quote Bank Sync';
-        if (window.renderQuoteBankFiles) window.renderQuoteBankFiles(); // Reload frontend grid
+        if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
       }
     });
   }
 
   let fetchedDriveFiles = [];
   let selectedFileForCMS = null;
+  let cmsBreadcrumbs = [];
+  const RANKERS_ROOT_ID = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ';
 
   window.loadAssignedCMS = function() {
     const stored = localStorage.getItem('quoteBankFiles');
@@ -2999,8 +3001,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
   };
 
-  let cmsBreadcrumbs = [];
-  const RANKERS_ROOT_ID = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ';
 
   const syncBtnDrive = document.getElementById('btn-sync-drive');
   if(syncBtnDrive) {
