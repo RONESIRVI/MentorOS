@@ -1,5 +1,8 @@
-[
-  {
-    "Category": "Good Introduction"
-  }
-]
+{
+  "categories": [
+    "Good Introduction"
+  ],
+  "ranks": [],
+  "years": [],
+  "papers": []
+}
