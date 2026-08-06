@@ -1086,7 +1086,11 @@
 
               <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
                  <h3 style="margin-top:0;">Categorize File</h3>
-                 <p style="font-size:0.85rem; color:#64748b;">Select a file from top, then assign category.</p>
+                 <p style="font-size:0.85rem; color:#64748b; margin-bottom: 12px; background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe;">
+                   <strong>Step 1:</strong> Find your photos by clicking <b>"📂 Open Folder ➔"</b> above until you see files.<br>
+                   <strong>Step 2:</strong> Click on a file (📄) to select it (it will turn blue).<br>
+                   <strong>Step 3:</strong> Click a Category below to assign it to the Quote Bank.
+                 </p>
                  <div id="dynamic-cat-buttons" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
                    <p style="color:#64748b; font-size:0.9rem;">Loading categories...</p>
                  </div>
@@ -1617,7 +1621,7 @@
           const btn = e.target.closest('.btn-cat-assign');
           if (!btn) return;
           if(typeof selectedFileForCMS === 'undefined' || !selectedFileForCMS) { 
-            alert('Select a file from the fetched list first!'); 
+            alert('⚠️ You have not selected a file!\n\n1. If you see folders (📁), click "Open Folder ➔" to go inside them.\n2. When you see a file (📄), click on it to select it (it will turn blue).\n3. Then, click this category button to assign it.'); 
             return; 
           }
           const cat = btn.getAttribute('data-cat');
@@ -3085,10 +3089,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     fetchedDriveFiles.forEach(f => {
       const isFolder = f.type === 'folder';
       const item = document.createElement('div');
-      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;';
+      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; transition: all 0.2s ease;';
       
       const fileNameDiv = document.createElement('div');
-      fileNameDiv.innerHTML = `${isFolder ? '📁' : '📄'} ${f.name}`;
+      fileNameDiv.innerHTML = `${isFolder ? '📁' : '📄'} <strong>${f.name}</strong>`;
       fileNameDiv.style.flex = "1";
       fileNameDiv.style.overflow = "hidden";
       fileNameDiv.style.textOverflow = "ellipsis";
@@ -3099,10 +3103,13 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
           cmsBreadcrumbs.push({ id: f.id, name: f.name });
           window.fetchCmsFolder(f.id);
         };
+        item.onmouseover = () => { item.style.background = '#f8fafc'; };
+        item.onmouseout = () => { item.style.background = 'white'; };
+        
         item.appendChild(fileNameDiv);
         const openBtn = document.createElement('button');
-        openBtn.textContent = 'Open ➔';
-        openBtn.style = 'background:none; border:none; padding:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#3b82f6; font-weight:600;';
+        openBtn.textContent = '📂 Open Folder ➔';
+        openBtn.style = 'background:#eff6ff; border:1px solid #bfdbfe; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#2563eb; font-weight:700;';
         item.appendChild(openBtn);
       } else {
         item.onclick = (e) => {
