@@ -42,7 +42,7 @@ const server = http.createServer((request, response) => {
   });
 
   page.on('pageerror', err => {
-    console.log('💥 PAGE ERROR (Syntax/Runtime):', err.toString());
+    console.log('💥 PAGE ERROR (Syntax/Runtime):', err.stack || err.toString());
     errorCount++;
   });
 
