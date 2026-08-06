@@ -3118,9 +3118,18 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         <img id="cut-preview-img" src="" style="max-width:100%; max-height:100%; object-fit:contain;">
       </div>
       <div style="text-align:left; margin-bottom:20px;">
-        <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color:#475569;">Select Category:</label>
-        <select id="cut-category-select" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; outline:none; font-family:inherit;">
-          <option value="">Loading categories...</option>
+        <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color:#475569;">Select Options:</label>
+        <select id="cut-category-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+          <option value="Uncategorized">Select Category...</option>
+        </select>
+        <select id="cut-rank-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+          <option value="">Select Rank / Name (Optional)</option>
+        </select>
+        <select id="cut-year-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+          <option value="">Select Year (Optional)</option>
+        </select>
+        <select id="cut-paper-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1;">
+          <option value="">Select Paper (Optional)</option>
         </select>
       </div>
       <div style="display:flex; gap:10px; justify-content:flex-end;">
@@ -3153,7 +3162,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         video.play();
         
         video.onloadedmetadata = () => {
-          // Add a tiny delay to ensure the screen stream is fully painted
           setTimeout(() => {
             rawCaptureCanvas = document.createElement('canvas');
             rawCaptureCanvas.width = video.videoWidth;
@@ -3180,8 +3188,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       canvas.height = window.innerHeight;
       
       const ctx = canvas.getContext('2d');
-      
-      // Draw dimmed full background
       ctx.drawImage(rawCaptureCanvas, 0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -3263,29 +3269,64 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       cancelScreenCutter();
       
       document.getElementById('cut-preview-img').src = finalBase64Image;
-      loadSnippetCategories(); // Fetch categories dynamically
+      fetchSnippetMetadata();
       document.getElementById('cut-category-modal').style.display = 'flex';
     }
 
-    let dynamicCategories = [];
-
-    async function loadSnippetCategories() {
+    async function fetchSnippetMetadata() {
       try {
         const response = await fetch('../snippet_categories.json?t=' + new Date().getTime());
-        if (!response.ok) throw new Error("Failed to fetch categories");
-        dynamicCategories = await response.json();
+        const data = await response.json();
         
-        const select = document.getElementById('cut-category-select');
-        select.innerHTML = '';
-        dynamicCategories.forEach(cat => {
-          const option = document.createElement('option');
-          option.value = cat['Category'];
-          option.textContent = cat['Category'];
-          select.appendChild(option);
-        });
+        // Populate Categories
+        const categorySelect = document.getElementById('cut-category-select');
+        categorySelect.innerHTML = '<option value="Uncategorized">Select Category...</option>';
+        if(data.categories) {
+          data.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            categorySelect.appendChild(option);
+          });
+        }
+
+        // Populate Ranks
+        const rankSelect = document.getElementById('cut-rank-select');
+        rankSelect.innerHTML = '<option value="">Select Rank / Name (Optional)</option>';
+        if(data.ranks) {
+          data.ranks.forEach(r => {
+            const option = document.createElement('option');
+            option.value = r;
+            option.textContent = r;
+            rankSelect.appendChild(option);
+          });
+        }
+
+        // Populate Years
+        const yearSelect = document.getElementById('cut-year-select');
+        yearSelect.innerHTML = '<option value="">Select Year (Optional)</option>';
+        if(data.years) {
+          data.years.forEach(y => {
+            const option = document.createElement('option');
+            option.value = y;
+            option.textContent = y;
+            yearSelect.appendChild(option);
+          });
+        }
+
+        // Populate Papers
+        const paperSelect = document.getElementById('cut-paper-select');
+        paperSelect.innerHTML = '<option value="">Select Paper (Optional)</option>';
+        if(data.papers) {
+          data.papers.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p;
+            option.textContent = p;
+            paperSelect.appendChild(option);
+          });
+        }
       } catch(err) {
         console.error("Error loading categories:", err);
-        document.getElementById('cut-category-select').innerHTML = '<option value="Default">Default Category</option>';
       }
     }
 
@@ -3295,8 +3336,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
 
     async function saveScreenCut() {
-      const select = document.getElementById('cut-category-select');
-      const category = select.value;
+      const category = document.getElementById('cut-category-select').value;
+      const rank = document.getElementById('cut-rank-select').value;
+      const year = document.getElementById('cut-year-select').value;
+      const paper = document.getElementById('cut-paper-select').value;
       
       if (!finalBase64Image) return;
       
@@ -3316,6 +3359,9 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
               image: finalBase64Image,
               parentFolderId: SNIPPET_MAIN_FOLDER_ID,
               categoryName: category,
+              rankName: rank,
+              year: year,
+              paper: paper,
               fileName: `Snippet_${Date.now()}.png`
             })
           });
