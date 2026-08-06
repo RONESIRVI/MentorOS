@@ -1559,6 +1559,10 @@
             <button class="btn-read-pdf" onclick="openPdfModal('${f.name}', '${f.link}')">Read PDF</button>
           </div>
         `;
+        container.appendChild(card);
+      });
+    };
+
     // Attach click listeners to sidebar categories
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Fetch dynamic categories from snippet_categories.js dynamically to avoid CORS
