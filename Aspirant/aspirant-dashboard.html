@@ -1562,19 +1562,19 @@
         container.appendChild(card);
       });
     };
-
-    // Attach click listeners to sidebar categories
+    <!-- Load Snippet Categories (Avoids CORS issues for local files) -->
+  <script src="../Quote_Bank_Resources_Manager/snippet_categories.js"></script>
+  
+  <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch dynamic categories from snippet_categories.json
+      // 1. Fetch dynamic categories from snippet_categories.js
       let dynamicCats = [];
       try {
-        const res = await fetch('../Quote_Bank_Resources_Manager/snippet_categories.json?t=' + new Date().getTime());
-        if(res.ok) {
-          const data = await res.json();
-          dynamicCats = data.categories || [];
+        if(window.SNIPPET_CATEGORIES) {
+          dynamicCats = window.SNIPPET_CATEGORIES.categories || [];
         }
       } catch(err) {
-        console.error("Could not load snippet_categories.json", err);
+        console.error("Could not load snippet_categories.js", err);
       }
 
       // 2. Populate Sidebar Categories
@@ -3340,8 +3340,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     async function fetchSnippetMetadata() {
       try {
-        const response = await fetch('../Quote_Bank_Resources_Manager/snippet_categories.json?t=' + new Date().getTime());
-        const data = await response.json();
+        const data = window.SNIPPET_CATEGORIES || {};
         
         // Populate Categories
         const categorySelect = document.getElementById('cut-category-select');
