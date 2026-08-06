@@ -145,7 +145,7 @@ def main():
             # 🔄 Sync with remote before pushing to prevent conflict errors!
             print("🔄 Syncing with GitHub (Fetching new updates)...")
             try:
-                subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd=PORTAL_DIR, check=True)
+                subprocess.run(["git", "pull", "--rebase", "--autostash", "origin", "main"], cwd=PORTAL_DIR, check=True)
             except subprocess.CalledProcessError:
                 print("⚠️ Warning: Auto-merge during pull failed, attempting to push anyway...")
                 
