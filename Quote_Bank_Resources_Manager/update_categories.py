@@ -75,16 +75,14 @@ def main():
             years_list = []
             papers_list = []
             
-        # Deduplicate categories (ignore duplicates with/without icons)
-        seen_stripped = set()
+        # Deduplicate categories exactly
+        seen = set()
         deduped_cats = []
         for cat in categories_list:
-            # Strip emojis and whitespace for comparison
-            import re
-            stripped = re.sub(r'[^\w\s]', '', cat).strip().lower()
-            if stripped and stripped not in seen_stripped:
-                seen_stripped.add(stripped)
-                deduped_cats.append(cat.strip())
+            c = cat.strip()
+            if c and c not in seen:
+                seen.add(c)
+                deduped_cats.append(c)
         categories_list = deduped_cats
 
         output_data = {
@@ -103,31 +101,41 @@ def main():
         print(f"❌ Error reading Excel file: {e}")
         return
 
-    # Save JSON locally
+    # Save JSON and JS locally
     try:
         with open(JSON_FILENAME, 'w', encoding='utf-8') as f:
             json.dump(output_data, f, ensure_ascii=False, indent=2)
         print(f"✅ Saved local {JSON_FILENAME}")
+        
+        js_filename = JSON_FILENAME.replace('.json', '.js')
+        js_content = f"window.SNIPPET_CATEGORIES = {json.dumps(output_data, ensure_ascii=False, indent=2)};"
+        with open(js_filename, 'w', encoding='utf-8') as f:
+            f.write(js_content)
+        print(f"✅ Saved local {js_filename}")
+        
     except Exception as e:
-        print(f"❌ Error saving JSON file: {e}")
+        print(f"❌ Error saving JSON/JS files: {e}")
         return
 
-    # Copy JSON to Portal Directory
+    # Copy files to Portal Directory
     portal_json_path = os.path.join(PORTAL_DIR, JSON_FILENAME)
+    portal_js_path = os.path.join(PORTAL_DIR, js_filename)
     try:
         shutil.copy2(JSON_FILENAME, portal_json_path)
-        print(f"✅ Copied {JSON_FILENAME} to {PORTAL_DIR}")
+        shutil.copy2(js_filename, portal_js_path)
+        print(f"✅ Copied {JSON_FILENAME} and {js_filename} to {PORTAL_DIR}")
     except Exception as e:
-        print(f"❌ Error copying file to Portal folder: {e}")
+        print(f"❌ Error copying files to Portal folder: {e}")
         return
 
     # Push to GitHub
     print("🚀 Pushing changes to GitHub...")
     try:
-        # Stage both files
-        local_repo_path = "Quote_Bank_Resources_Manager/" + JSON_FILENAME
-        subprocess.run(["git", "add", local_repo_path], cwd=PORTAL_DIR, check=True)
+        # Stage all updated files
+        subprocess.run(["git", "add", "Quote_Bank_Resources_Manager/" + JSON_FILENAME], cwd=PORTAL_DIR, check=True)
         subprocess.run(["git", "add", JSON_FILENAME], cwd=PORTAL_DIR, check=True)
+        subprocess.run(["git", "add", "Quote_Bank_Resources_Manager/" + js_filename], cwd=PORTAL_DIR, check=True)
+        subprocess.run(["git", "add", js_filename], cwd=PORTAL_DIR, check=True)
         
         # Check if anything is staged for commit
         status = subprocess.run(["git", "diff", "--cached", "--name-only"], cwd=PORTAL_DIR, capture_output=True, text=True)
