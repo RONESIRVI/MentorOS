@@ -1058,7 +1058,52 @@
               <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Direct access to premium PDFs synced from Google Drive.</p>
             </div>
           </div>
+          
+          <button id="btn-toggle-cms" style="margin-bottom: 20px; background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; box-shadow:0 4px 6px rgba(59,130,246,0.2);">⚙️ Manage Quote Bank Sync</button>
+          
+          <div id="aspirant-cms-config" style="display:none; background:white; padding:24px; border-radius:16px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #e2e8f0;">
+            <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h3 style="margin-top:0; margin-bottom:5px; color:#0f172a;">🏠 RONE Ranker's Root Auto-Sync</h3>
+                <p style="margin:0; font-size:0.85rem; color:#64748b;">Browse Ranker's Root directly to categorize premium PDFs.</p>
+              </div>
+              <button id="btn-sync-drive" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 24px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load Ranker's Root</button>
+            </div>
 
+            <div style="display:flex; gap:20px; flex-wrap: wrap;">
+              <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
+                <h3 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
+                  Fetched Files 
+                  <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem; color:#0f172a;">0</span>
+                </h3>
+                <div id="cms-breadcrumb" style="display:flex; gap:6px; align-items:center; margin-bottom:12px; font-size:0.85rem; overflow-x:auto; white-space:nowrap; padding-bottom:4px;">
+                  <!-- JS will populate -->
+                </div>
+                <div id="fetched-files-list" style="display:flex; flex-direction:column; gap:8px;">
+                  <p style="color:#64748b; font-size:0.9rem;">No files fetched yet.</p>
+                </div>
+              </div>
+
+              <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
+                 <h3 style="margin-top:0;">Categorize File</h3>
+                 <p style="font-size:0.85rem; color:#64748b;">Select a file from left, then assign category.</p>
+                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:20px;">
+                   <button class="btn-cat-assign" data-cat="ethics" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">⚖️ Ethics</button>
+                   <button class="btn-cat-assign" data-cat="thinkers" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🧠 Thinkers</button>
+                   <button class="btn-cat-assign" data-cat="governance" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🏛️ Gov</button>
+                   <button class="btn-cat-assign" data-cat="society" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">👥 Society</button>
+                   <button class="btn-cat-assign" data-cat="public_service" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">💼 Public Service</button>
+                 </div>
+                 
+                 <h3 style="margin-top:0; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
+                   Assigned Files
+                   <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; cursor:pointer;">💾 Save</button>
+                 </h3>
+                 <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
+                 </div>
+              </div>
+            </div>
+          </div>
           <div class="quote-bank-layout">
             <!-- Sidebar / Categories -->
             <div class="qb-sidebar">
@@ -1476,7 +1521,7 @@
     // --- QUOTE BANK LOGIC ---
     let currentQuoteBankCategory = 'all';
 
-    window.loadQuoteBankFiles = async function(category = 'all') {
+    window.loadQuoteBankFiles = function(category = 'all') {
       currentQuoteBankCategory = category;
       // Update sidebar active state
       document.querySelectorAll('.qb-category-list li').forEach(li => {
@@ -1486,49 +1531,41 @@
 
       const container = document.getElementById('qb-cards-container');
       if(!container) return;
-      
-      container.innerHTML = '<p style="color:#64748b; font-size:0.95rem; grid-column: 1 / -1;">Loading resources...</p>';
-      
-      try {
-        const res = await fetch('../Quote_Bank_Resources_Manager/quote_bank_files.json?t=' + new Date().getTime());
-        if(!res.ok) throw new Error("Failed to load resources");
-        const allFiles = await res.json();
-        
-        const filtered = category === 'all' ? allFiles : allFiles.filter(f => f.category === category);
-        
-        container.innerHTML = '';
-        
-        if(filtered.length === 0) {
-          container.innerHTML = `<p style="color:#64748b; font-size:0.95rem; grid-column: 1 / -1;">No materials found for this category.</p>`;
-          return;
-        }
-        
-        const catEmojis = {
-          'ethics': '⚖️',
-          'thinkers': '🧠',
-          'governance': '🏛️',
-          'society': '👥',
-          'public_service': '💼'
-        };
 
-        filtered.forEach(f => {
-          const emoji = catEmojis[f.category] || '📄';
-          const card = document.createElement('div');
-          card.className = 'quote-card';
-          card.innerHTML = `
-            <h3 class="quote-title">${emoji} ${f.name}</h3>
-            <p class="quote-desc">Category: ${f.category}</p>
-            <div class="quote-card-footer">
-              <span style="font-size:0.8rem; color:#94a3b8;">PDF Document</span>
-              <button class="btn-read-pdf" onclick="openPdfModal('${f.name}', '${f.link}')">Read PDF</button>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      } catch(err) {
-        console.error("Error loading quote bank files:", err);
-        container.innerHTML = `<p style="color:#ef4444; font-size:0.95rem; grid-column: 1 / -1;">Error loading resources. Please ensure Run_Update.bat was executed.</p>`;
+      const stored = localStorage.getItem('quoteBankFiles');
+      const allFiles = stored ? JSON.parse(stored) : [];
+      
+      const filtered = category === 'all' ? allFiles : allFiles.filter(f => f.category === category);
+      
+      container.innerHTML = '';
+      
+      if(filtered.length === 0) {
+        container.innerHTML = `<p style="color:#64748b; font-size:0.95rem; grid-column: 1 / -1;">No materials found for this category. Admin needs to sync files from Google Drive.</p>`;
+        return;
       }
+      
+      const catEmojis = {
+        'ethics': '⚖️',
+        'thinkers': '🧠',
+        'governance': '🏛️',
+        'society': '👥',
+        'public_service': '💼'
+      };
+
+      filtered.forEach(f => {
+        const emoji = catEmojis[f.category] || '📄';
+        const card = document.createElement('div');
+        card.className = 'quote-card';
+        card.innerHTML = `
+          <h3 class="quote-title">${emoji} ${f.name}</h3>
+          <p class="quote-desc">Category: ${f.category}</p>
+          <div class="quote-card-footer">
+            <span style="font-size:0.8rem; color:#94a3b8;">PDF Document</span>
+            <button class="btn-read-pdf" onclick="openPdfModal('${f.name}', '${f.link}')">Read PDF</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
     };
 
     // Attach click listeners to sidebar categories
@@ -1539,10 +1576,6 @@
           window.loadQuoteBankFiles(cat);
         });
       });
-      // Initial Load
-      if (document.getElementById('qb-cards-container')) {
-        window.loadQuoteBankFiles('all');
-      }
     });
     // --- RONE RANKERS LOGIC ---
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec"; // User will paste this here
@@ -2844,7 +2877,228 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       }
     });
   });
+  // --- QUOTE BANK CMS LOGIC (Shifted from Admin) ---
+  const toggleCmsBtn = document.getElementById('btn-toggle-cms');
+  if(toggleCmsBtn) {
+    toggleCmsBtn.addEventListener('click', () => {
+      const configPanel = document.getElementById('aspirant-cms-config');
+      if(configPanel.style.display === 'none') {
+        configPanel.style.display = 'block';
+        toggleCmsBtn.textContent = '⚙️ Hide Manage Sync';
+        // Auto-load API key & folder if saved
+        const savedApi = localStorage.getItem('driveApiKey');
+        const savedFolder = localStorage.getItem('driveFolderId');
+        if(savedApi) document.getElementById('cms-api-key').value = savedApi;
+        if(savedFolder) document.getElementById('cms-folder-id').value = savedFolder;
+        window.loadAssignedCMS();
+      } else {
+        configPanel.style.display = 'none';
+        toggleCmsBtn.textContent = '⚙️ Manage Quote Bank Sync';
+        if (window.renderQuoteBankFiles) window.renderQuoteBankFiles(); // Reload frontend grid
+      }
+    });
+  }
 
+  let fetchedDriveFiles = [];
+  let selectedFileForCMS = null;
+
+  window.loadAssignedCMS = function() {
+    const stored = localStorage.getItem('quoteBankFiles');
+    const assigned = stored ? JSON.parse(stored) : [];
+    const listEl = document.getElementById('assigned-files-list');
+    if(!listEl) return;
+    listEl.innerHTML = '';
+    if(assigned.length === 0) {
+      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files assigned yet.</p>';
+      return;
+    }
+    assigned.forEach((f, idx) => {
+      const item = document.createElement('div');
+      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; background:white; display:flex; justify-content:space-between; align-items:center;';
+      item.innerHTML = `
+        <div>
+          <div style="font-weight:600; font-size:0.85rem;">${f.name}</div>
+          <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">Cat: <span style="background:#e2e8f0; padding:2px 6px; border-radius:4px;">${f.category}</span></div>
+        </div>
+        <button onclick="window.removeCMSFile(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold;">✕</button>
+      `;
+      listEl.appendChild(item);
+    });
+  };
+
+  window.removeCMSFile = function(idx) {
+    const stored = localStorage.getItem('quoteBankFiles');
+    if(stored) {
+      let arr = JSON.parse(stored);
+      arr.splice(idx, 1);
+      localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+      window.loadAssignedCMS();
+    }
+  };
+
+  let cmsBreadcrumbs = [];
+  const RANKERS_ROOT_ID = '15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d';
+
+  const syncBtnDrive = document.getElementById('btn-sync-drive');
+  if(syncBtnDrive) {
+    syncBtnDrive.addEventListener('click', async () => {
+      cmsBreadcrumbs = [{ id: RANKERS_ROOT_ID, name: "🏠 Root" }];
+      await window.fetchCmsFolder(RANKERS_ROOT_ID);
+    });
+  }
+
+  window.fetchCmsFolder = async function(folderId) {
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec";
+    const syncBtn = document.getElementById('btn-sync-drive');
+    if(syncBtn) {
+      syncBtn.textContent = 'Loading...';
+      syncBtn.disabled = true;
+    }
+    
+    try {
+      const res = await fetch(`${GAS_URL}?id=${folderId}`);
+      const data = await res.json();
+      if(!data.success) throw new Error(data.error);
+      
+      fetchedDriveFiles = (data.data || []).sort((a, b) => {
+        const aFolder = a.type === 'folder';
+        const bFolder = b.type === 'folder';
+        if (aFolder && !bFolder) return -1;
+        if (!aFolder && bFolder) return 1;
+        return a.name.localeCompare(b.name);
+      });
+      document.getElementById('fetched-count').textContent = fetchedDriveFiles.length;
+      
+      renderCmsBreadcrumbs();
+      renderFetchedFiles();
+    } catch(err) {
+      console.error(err);
+      alert('Failed to fetch from Drive: ' + err.message);
+    } finally {
+      if(syncBtn) {
+        syncBtn.textContent = '🔄 Load Ranker\'s Root';
+        syncBtn.disabled = false;
+      }
+    }
+  };
+
+  function renderCmsBreadcrumbs() {
+    const bcContainer = document.getElementById('cms-breadcrumb');
+    if(!bcContainer) return;
+    bcContainer.innerHTML = '';
+    cmsBreadcrumbs.forEach((bc, idx) => {
+      const btn = document.createElement('button');
+      btn.style = 'background:none; border:none; color:#3b82f6; font-weight:600; cursor:pointer; font-size:0.85rem; padding:0;';
+      if(idx === cmsBreadcrumbs.length - 1) {
+        btn.style.color = '#1e293b';
+        btn.style.cursor = 'default';
+      }
+      btn.innerHTML = bc.name;
+      if(idx < cmsBreadcrumbs.length - 1) {
+        btn.onclick = () => {
+          cmsBreadcrumbs = cmsBreadcrumbs.slice(0, idx + 1);
+          window.fetchCmsFolder(bc.id);
+        };
+      }
+      bcContainer.appendChild(btn);
+      
+      if(idx < cmsBreadcrumbs.length - 1) {
+        const sep = document.createElement('span');
+        sep.textContent = '>';
+        sep.style.color = '#94a3b8';
+        sep.style.margin = '0 4px';
+        bcContainer.appendChild(sep);
+      }
+    });
+  }
+
+  function renderFetchedFiles() {
+    const listEl = document.getElementById('fetched-files-list');
+    listEl.innerHTML = '';
+    if(fetchedDriveFiles.length === 0) {
+      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files or folders found.</p>';
+      return;
+    }
+    fetchedDriveFiles.forEach(f => {
+      const isFolder = f.type === 'folder';
+      const item = document.createElement('div');
+      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;';
+      
+      const fileNameDiv = document.createElement('div');
+      fileNameDiv.innerHTML = `${isFolder ? '📁' : '📄'} ${f.name}`;
+      fileNameDiv.style.flex = "1";
+      fileNameDiv.style.overflow = "hidden";
+      fileNameDiv.style.textOverflow = "ellipsis";
+      fileNameDiv.style.whiteSpace = "nowrap";
+
+      if (isFolder) {
+        item.onclick = () => {
+          cmsBreadcrumbs.push({ id: f.id, name: f.name });
+          window.fetchCmsFolder(f.id);
+        };
+        item.appendChild(fileNameDiv);
+        const openBtn = document.createElement('button');
+        openBtn.textContent = 'Open ➔';
+        openBtn.style = 'background:none; border:none; padding:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#3b82f6; font-weight:600;';
+        item.appendChild(openBtn);
+      } else {
+        item.onclick = (e) => {
+          if(e.target.tagName.toLowerCase() === 'button') return;
+          Array.from(listEl.children).forEach(c => { c.style.background = 'white'; c.style.borderColor = '#e2e8f0'; });
+          item.style.background = '#eff6ff';
+          item.style.borderColor = '#3b82f6';
+          selectedFileForCMS = f;
+        };
+
+        const openBtn = document.createElement('button');
+        openBtn.textContent = '👁️ Open';
+        openBtn.style = 'background:#f8fafc; border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#475569; font-weight:600;';
+        openBtn.onclick = (e) => {
+          e.stopPropagation();
+          let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
+          if (typeof window.openPdfModal === 'function') {
+            window.openPdfModal(f.name, embedLink);
+          } else if (typeof openPdfModal === 'function') {
+            openPdfModal(f.name, embedLink);
+          }
+        };
+
+        item.appendChild(fileNameDiv);
+        item.appendChild(openBtn);
+      }
+      
+      listEl.appendChild(item);
+    });
+  }
+
+  document.querySelectorAll('.btn-cat-assign').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(!selectedFileForCMS) { alert('Select a file from the fetched list first!'); return; }
+      const cat = btn.getAttribute('data-cat');
+      const fileObj = {
+        id: selectedFileForCMS.id,
+        name: selectedFileForCMS.name,
+        link: selectedFileForCMS.webViewLink,
+        category: cat
+      };
+      
+      let stored = localStorage.getItem('quoteBankFiles');
+      let arr = stored ? JSON.parse(stored) : [];
+      if(!arr.find(x => x.id === fileObj.id)) {
+        arr.push(fileObj);
+        localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+      }
+      window.loadAssignedCMS();
+    });
+  });
+
+  const saveCmsBtn = document.getElementById('btn-save-cms');
+  if(saveCmsBtn) {
+    saveCmsBtn.addEventListener('click', () => {
+      alert('Changes saved successfully! Hide this panel to see the updated Quote Bank.');
+      if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
+    });
+  }
   </script>
 
   <!-- Screen Cutter Overlay & Category Modal -->
