@@ -1070,22 +1070,6 @@
               <button id="btn-sync-drive" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 24px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load Ranker's Root</button>
             </div>
 
-            <!-- DYNAMIC CATEGORIZE SECTION -->
-            <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:20px;">
-               <h3 style="margin-top:0;">Categorize File</h3>
-               <p style="font-size:0.85rem; color:#64748b;">Select a file from below, then assign category.</p>
-               <div id="dynamic-cat-buttons" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-                 <p style="color:#64748b; font-size:0.9rem;">Loading categories from Snippet Tool...</p>
-               </div>
-               
-               <h3 style="margin-top:0; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
-                 Assigned Files
-                 <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; cursor:pointer;">💾 Save</button>
-               </h3>
-               <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
-               </div>
-            </div>
-
             <div style="display:flex; gap:20px; flex-wrap: wrap;">
               <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
                 <h3 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
@@ -1098,6 +1082,25 @@
                 <div id="fetched-files-list" style="display:flex; flex-direction:column; gap:8px;">
                   <p style="color:#64748b; font-size:0.9rem;">No files fetched yet.</p>
                 </div>
+              </div>
+
+              <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
+                 <h3 style="margin-top:0;">Categorize File</h3>
+                 <p style="font-size:0.85rem; color:#64748b;">Select a file from left, then assign category.</p>
+                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:20px;">
+                   <button class="btn-cat-assign" data-cat="ethics" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">⚖️ Ethics</button>
+                   <button class="btn-cat-assign" data-cat="thinkers" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🧠 Thinkers</button>
+                   <button class="btn-cat-assign" data-cat="governance" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🏛️ Gov</button>
+                   <button class="btn-cat-assign" data-cat="society" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">👥 Society</button>
+                   <button class="btn-cat-assign" data-cat="public_service" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">💼 Public Service</button>
+                 </div>
+                 
+                 <h3 style="margin-top:0; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
+                   Assigned Files
+                   <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; cursor:pointer;">💾 Save</button>
+                 </h3>
+                 <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
+                 </div>
               </div>
             </div>
           </div>
@@ -1566,83 +1569,13 @@
     };
 
     // Attach click listeners to sidebar categories
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch dynamic categories from snippet_categories.json
-      let dynamicCats = [];
-      try {
-        const res = await fetch('../Quote_Bank_Resources_Manager/snippet_categories.json?t=' + new Date().getTime());
-        if(res.ok) {
-          const data = await res.json();
-          dynamicCats = data.categories || [];
-        }
-      } catch(err) {
-        console.error("Could not load snippet_categories.json", err);
-      }
-
-      // 2. Populate Sidebar Categories
-      const qbCategoriesList = document.getElementById('qb-categories');
-      if (qbCategoriesList && dynamicCats.length > 0) {
-        qbCategoriesList.innerHTML = '<li class="active" data-cat="all">📚 All Materials</li>';
-        dynamicCats.forEach(cat => {
-          const li = document.createElement('li');
-          li.setAttribute('data-cat', cat);
-          li.innerHTML = `📄 ${cat}`;
-          qbCategoriesList.appendChild(li);
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.qb-category-list li').forEach(li => {
+        li.addEventListener('click', () => {
+          const cat = li.getAttribute('data-cat');
+          window.loadQuoteBankFiles(cat);
         });
-      }
-
-      // 3. Populate CMS Categorize Buttons
-      const cmsButtonsContainer = document.getElementById('dynamic-cat-buttons');
-      if (cmsButtonsContainer && dynamicCats.length > 0) {
-        cmsButtonsContainer.innerHTML = '';
-        dynamicCats.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.className = 'btn-cat-assign';
-          btn.setAttribute('data-cat', cat);
-          btn.style = 'padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;';
-          btn.innerHTML = `📄 ${cat}`;
-          cmsButtonsContainer.appendChild(btn);
-        });
-      } else if (cmsButtonsContainer) {
-        cmsButtonsContainer.innerHTML = '<p style="color:#ef4444; font-size:0.9rem;">No categories found. Please run categories updater.</p>';
-      }
-
-      // 4. Attach Event Listeners to Sidebar
-      if (qbCategoriesList) {
-        qbCategoriesList.querySelectorAll('li').forEach(li => {
-          li.addEventListener('click', () => {
-            const cat = li.getAttribute('data-cat');
-            window.loadQuoteBankFiles(cat);
-          });
-        });
-      }
-      
-      // 5. Use Event Delegation for dynamic CMS buttons
-      if (cmsButtonsContainer) {
-        cmsButtonsContainer.addEventListener('click', (e) => {
-          const btn = e.target.closest('.btn-cat-assign');
-          if (!btn) return;
-          if(typeof selectedFileForCMS === 'undefined' || !selectedFileForCMS) { 
-            alert('Select a file from the fetched list first!'); 
-            return; 
-          }
-          const cat = btn.getAttribute('data-cat');
-          const fileObj = {
-            id: selectedFileForCMS.id,
-            name: selectedFileForCMS.name,
-            link: selectedFileForCMS.webViewLink,
-            category: cat
-          };
-          
-          let stored = localStorage.getItem('quoteBankFiles');
-          let arr = stored ? JSON.parse(stored) : [];
-          if(!arr.find(x => x.id === fileObj.id)) {
-            arr.push(fileObj);
-            localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
-          }
-          if (window.loadAssignedCMS) window.loadAssignedCMS();
-        });
-      }
+      });
     });
     // --- RONE RANKERS LOGIC ---
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec"; // User will paste this here
@@ -3138,7 +3071,26 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     });
   }
 
-
+  document.querySelectorAll('.btn-cat-assign').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(!selectedFileForCMS) { alert('Select a file from the fetched list first!'); return; }
+      const cat = btn.getAttribute('data-cat');
+      const fileObj = {
+        id: selectedFileForCMS.id,
+        name: selectedFileForCMS.name,
+        link: selectedFileForCMS.webViewLink,
+        category: cat
+      };
+      
+      let stored = localStorage.getItem('quoteBankFiles');
+      let arr = stored ? JSON.parse(stored) : [];
+      if(!arr.find(x => x.id === fileObj.id)) {
+        arr.push(fileObj);
+        localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+      }
+      window.loadAssignedCMS();
+    });
+  });
 
   const saveCmsBtn = document.getElementById('btn-save-cms');
   if(saveCmsBtn) {
