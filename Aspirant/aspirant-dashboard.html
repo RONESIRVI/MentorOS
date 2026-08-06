@@ -3132,6 +3132,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
   <script>
     const SNIPPET_GAS_URL = "https://script.google.com/macros/s/AKfycbxz323IKfMGZ4qsWfIFTVJKYyF2URoX9PWrj9XtLFXyEKjGLqk8r1zdkzfjzX99Xkn5/exec";
+    const SNIPPET_MAIN_FOLDER_ID = "PASTE_YOUR_MAIN_DRIVE_FOLDER_ID_HERE";
+    
     // Screen Cutter JS Logic
     let cutterStream = null;
     let rawCaptureCanvas = null;
@@ -3279,7 +3281,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
           const option = document.createElement('option');
           option.value = cat['Category'];
           option.textContent = cat['Category'];
-          option.dataset.folderId = cat['Folder ID'];
           select.appendChild(option);
         });
       } catch(err) {
@@ -3296,8 +3297,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     async function saveScreenCut() {
       const select = document.getElementById('cut-category-select');
       const category = select.value;
-      const selectedOption = select.options[select.selectedIndex];
-      const folderId = selectedOption ? selectedOption.dataset.folderId : "";
       
       if (!finalBase64Image) return;
       
@@ -3315,7 +3314,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
             method: 'POST',
             body: JSON.stringify({
               image: finalBase64Image,
-              folderId: folderId,
+              parentFolderId: SNIPPET_MAIN_FOLDER_ID,
+              categoryName: category,
               fileName: `Snippet_${Date.now()}.png`
             })
           });
