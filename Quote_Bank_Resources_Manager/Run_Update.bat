@@ -1,8 +1,9 @@
 @echo off
-echo Running Categories Update...
-python update_categories.py
+cd /d "%~dp0"
+echo ====================================
+echo  Snipping Tool Categories Updater
+echo ====================================
 echo.
-echo Running Resources Update...
-python update_resources.py
+python update_categories.py
 echo.
 pause
