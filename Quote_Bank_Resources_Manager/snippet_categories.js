@@ -3,6 +3,9 @@ window.SNIPPET_CATEGORIES = {
     "Ethics",
     "Thinkers",
     "Gov",
+    "⚖️Ethics",
+    "🧠Thinkers",
+    "🏛️Gov",
     "👥Society",
     "💼Public Service"
   ],
