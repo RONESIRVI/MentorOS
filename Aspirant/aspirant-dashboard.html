@@ -2888,8 +2888,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         // Auto-load API key & folder if saved
         const savedApi = localStorage.getItem('driveApiKey');
         const savedFolder = localStorage.getItem('driveFolderId');
-        if(savedApi) document.getElementById('cms-api-key').value = savedApi;
-        if(savedFolder) document.getElementById('cms-folder-id').value = savedFolder;
+        const apiKeyEl = document.getElementById('cms-api-key');
+        const folderIdEl = document.getElementById('cms-folder-id');
+        if(savedApi && apiKeyEl) apiKeyEl.value = savedApi;
+        if(savedFolder && folderIdEl) folderIdEl.value = savedFolder;
         window.loadAssignedCMS();
       } else {
         configPanel.style.display = 'none';
@@ -3181,33 +3183,56 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     function initCropUI() {
       const overlay = document.getElementById('screen-cutter-overlay');
-      overlay.style.display = 'block';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
       
       const canvas = document.getElementById('cutter-canvas');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Set canvas resolution to native capture resolution
+      canvas.width = rawCaptureCanvas.width;
+      canvas.height = rawCaptureCanvas.height;
+      
+      // Scale using CSS to fit viewport while maintaining aspect ratio
+      canvas.style.position = 'relative';
+      canvas.style.maxWidth = '100vw';
+      canvas.style.maxHeight = '100vh';
+      canvas.style.width = 'auto';
+      canvas.style.height = 'auto';
+      canvas.style.objectFit = 'contain';
       
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(rawCaptureCanvas, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(rawCaptureCanvas, 0, 0);
       ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       let tempStartX = 0, tempStartY = 0;
       
+      function getCanvasCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY
+        };
+      }
+      
       canvas.onmousedown = (e) => {
         isCutting = true;
-        tempStartX = e.clientX;
-        tempStartY = e.clientY;
+        const coords = getCanvasCoords(e);
+        tempStartX = coords.x;
+        tempStartY = coords.y;
         document.getElementById('btn-confirm-cut').style.display = 'none';
       };
       
       canvas.onmousemove = (e) => {
         if (!isCutting) return;
-        const curX = e.clientX;
-        const curY = e.clientY;
+        const coords = getCanvasCoords(e);
+        const curX = coords.x;
+        const curY = coords.y;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(rawCaptureCanvas, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(rawCaptureCanvas, 0, 0);
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
@@ -3217,13 +3242,9 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         const rh = Math.abs(curY - tempStartY);
         
         if (rw > 10 && rh > 10) {
-          ctx.drawImage(rawCaptureCanvas, 
-            (rx / canvas.width) * rawCaptureCanvas.width, (ry / canvas.height) * rawCaptureCanvas.height, 
-            (rw / canvas.width) * rawCaptureCanvas.width, (rh / canvas.height) * rawCaptureCanvas.height,
-            rx, ry, rw, rh
-          );
+          ctx.drawImage(rawCaptureCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
           ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 2 * (canvas.width / canvas.clientWidth);
           ctx.setLineDash([5, 5]);
           ctx.strokeRect(rx, ry, rw, rh);
         }
@@ -3231,8 +3252,9 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       
       canvas.onmouseup = (e) => {
         isCutting = false;
-        cropEndX = e.clientX;
-        cropEndY = e.clientY;
+        const coords = getCanvasCoords(e);
+        cropEndX = coords.x;
+        cropEndY = coords.y;
         cropStartX = tempStartX;
         cropStartY = tempStartY;
         
@@ -3248,22 +3270,16 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
 
     function confirmScreenCut() {
-      const overlayCanvas = document.getElementById('cutter-canvas');
       const rx = Math.min(cropStartX, cropEndX);
       const ry = Math.min(cropStartY, cropEndY);
       const rw = Math.abs(cropEndX - cropStartX);
       const rh = Math.abs(cropEndY - cropStartY);
       
-      const srcX = (rx / overlayCanvas.width) * rawCaptureCanvas.width;
-      const srcY = (ry / overlayCanvas.height) * rawCaptureCanvas.height;
-      const srcW = (rw / overlayCanvas.width) * rawCaptureCanvas.width;
-      const srcH = (rh / overlayCanvas.height) * rawCaptureCanvas.height;
-      
       const finalCanvas = document.createElement('canvas');
-      finalCanvas.width = srcW;
-      finalCanvas.height = srcH;
+      finalCanvas.width = rw;
+      finalCanvas.height = rh;
       const finalCtx = finalCanvas.getContext('2d');
-      finalCtx.drawImage(rawCaptureCanvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+      finalCtx.drawImage(rawCaptureCanvas, rx, ry, rw, rh, 0, 0, rw, rh);
       
       finalBase64Image = finalCanvas.toDataURL('image/png');
       cancelScreenCutter();
