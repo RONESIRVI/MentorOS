@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../style.css">
   <style>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
     /* Dashboard Specific Styles */
     body {
       background-color: #f8fafc; /* Light gray background for dashboard */
@@ -3118,18 +3120,12 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       <div style="text-align:left; margin-bottom:20px;">
         <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color:#475569;">Select Category:</label>
         <select id="cut-category-select" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; outline:none; font-family:inherit;">
-          <option value="Good Introduction">Good Introduction</option>
-          <option value="Good Body / Arguments">Good Body / Arguments</option>
-          <option value="Good Conclusion">Good Conclusion</option>
-          <option value="Data & Facts Usage">Data & Facts Usage</option>
-          <option value="Diagrams & Maps">Diagrams & Maps</option>
-          <option value="Presentation / Handwriting">Presentation / Handwriting</option>
-          <option value="Areas of Improvement">Areas of Improvement</option>
+          <option value="">Loading categories...</option>
         </select>
       </div>
       <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button onclick="closeCutCategoryModal()" style="background:#e2e8f0; color:#475569; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Cancel</button>
-        <button onclick="saveScreenCut()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Save Snippet</button>
+        <button id="btn-cancel-cut-save" onclick="closeCutCategoryModal()" style="background:#e2e8f0; color:#475569; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Cancel</button>
+        <button id="btn-save-cut" onclick="saveScreenCut()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Save Snippet</button>
       </div>
     </div>
   </div>
@@ -3264,7 +3260,31 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       cancelScreenCutter();
       
       document.getElementById('cut-preview-img').src = finalBase64Image;
+      loadSnippetCategories(); // Fetch categories dynamically
       document.getElementById('cut-category-modal').style.display = 'flex';
+    }
+
+    let dynamicCategories = [];
+
+    async function loadSnippetCategories() {
+      try {
+        const response = await fetch('../snippet_categories.json?t=' + new Date().getTime());
+        if (!response.ok) throw new Error("Failed to fetch categories");
+        dynamicCategories = await response.json();
+        
+        const select = document.getElementById('cut-category-select');
+        select.innerHTML = '';
+        dynamicCategories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat['Category'];
+          option.textContent = cat['Category'];
+          option.dataset.folderId = cat['Folder ID'];
+          select.appendChild(option);
+        });
+      } catch(err) {
+        console.error("Error loading categories:", err);
+        document.getElementById('cut-category-select').innerHTML = '<option value="Default">Default Category</option>';
+      }
     }
 
     function closeCutCategoryModal() {
@@ -3272,13 +3292,50 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       finalBase64Image = null;
     }
 
-    function saveScreenCut() {
-      const category = document.getElementById('cut-category-select').value;
+    async function saveScreenCut() {
+      const select = document.getElementById('cut-category-select');
+      const category = select.value;
+      const selectedOption = select.options[select.selectedIndex];
+      const folderId = selectedOption ? selectedOption.dataset.folderId : "";
+      
       if (!finalBase64Image) return;
+      
+      const saveBtn = document.getElementById('btn-save-cut');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = 'Uploading... <span class="spinner"></span>';
+      saveBtn.disabled = true;
+      document.getElementById('btn-cancel-cut-save').disabled = true;
+      
+      let imageUrl = finalBase64Image; // Fallback to local base64 if GAS fails or is not configured
+      
+      if (SNIPPET_GAS_URL && SNIPPET_GAS_URL.includes('script.google.com')) {
+        try {
+          const response = await fetch(SNIPPET_GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              image: finalBase64Image,
+              folderId: folderId,
+              fileName: `Snippet_${Date.now()}.png`
+            })
+          });
+          const result = await response.json();
+          if (result.success && result.previewUrl) {
+            imageUrl = result.previewUrl;
+          } else {
+            console.error("GAS Upload Failed:", result.error);
+            alert("Upload to Drive failed. Saving snippet locally instead.");
+          }
+        } catch(err) {
+          console.error("Error connecting to GAS:", err);
+          alert("Could not connect to Google Drive. Saving snippet locally instead.");
+        }
+      } else {
+         console.warn("GAS_URL not set. Saving snippet locally in localStorage.");
+      }
       
       const snippet = {
         id: 'snip_' + Date.now(),
-        image: finalBase64Image,
+        image: imageUrl,
         category: category,
         timestamp: new Date().getTime(),
         pdfId: currentPdfId
@@ -3287,6 +3344,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
       snippets.unshift(snippet);
       localStorage.setItem('rone_ranker_snippets', JSON.stringify(snippets));
+      
+      saveBtn.innerHTML = originalText;
+      saveBtn.disabled = false;
+      document.getElementById('btn-cancel-cut-save').disabled = false;
       
       closeCutCategoryModal();
       renderRankerSnippets();
