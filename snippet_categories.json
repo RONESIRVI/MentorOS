@@ -1,15 +1,16 @@
 {
   "categories": [
-    "⚖️ Ethics",
-    "🧠 Thinkers",
-    "🏛️ Gov",
-    "👥 Society",
-    "💼 Public Service"
+    "⚖️Ethics",
+    "🧠Thinkers",
+    "🏛️Gov",
+    "👥Society",
+    "💼Public Service",
+    "Ethics",
+    "Thinkers",
+    "Gov"
   ],
   "ranks": [
-    "Rank 1 - Shruti Sharma",
-    "Rank 2 - Ankita Agarwal",
-    "Rank 3 - Gamini Singla"
+    "Rank 1 - Shruti Sharma"
   ],
   "years": [
     "2023",
@@ -20,8 +21,8 @@
     "GS Paper 1",
     "GS Paper 2",
     "GS Paper 3",
-    "GS Paper 4",
+    "Ethics",
     "Essay",
-    "Optional"
+    "PUB ADD"
   ]
 }
