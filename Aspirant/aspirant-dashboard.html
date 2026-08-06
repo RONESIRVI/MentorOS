@@ -1070,8 +1070,8 @@
               <button id="btn-sync-drive" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 24px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load Ranker's Root</button>
             </div>
 
-            <div style="display:flex; gap:20px; flex-wrap: wrap;">
-              <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
+            <div style="display:flex; flex-direction:column; gap:20px;">
+              <div style="background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
                 <h3 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
                   Fetched Files 
                   <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem; color:#0f172a;">0</span>
@@ -1084,10 +1084,10 @@
                 </div>
               </div>
 
-              <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
+              <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
                  <h3 style="margin-top:0;">Categorize File</h3>
-                 <p style="font-size:0.85rem; color:#64748b;">Select a file from left, then assign category.</p>
-                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:20px;">
+                 <p style="font-size:0.85rem; color:#64748b;">Select a file from top, then assign category.</p>
+                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
                    <button class="btn-cat-assign" data-cat="ethics" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">⚖️ Ethics</button>
                    <button class="btn-cat-assign" data-cat="thinkers" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🧠 Thinkers</button>
                    <button class="btn-cat-assign" data-cat="governance" style="padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;">🏛️ Gov</button>
