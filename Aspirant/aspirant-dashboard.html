@@ -3291,7 +3291,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     async function fetchSnippetMetadata() {
       try {
-        const response = await fetch('../snippet_categories.json?t=' + new Date().getTime());
+        const response = await fetch('../Quote_Bank_Resources_Manager/snippet_categories.json?t=' + new Date().getTime());
         const data = await response.json();
         
         // Populate Categories
