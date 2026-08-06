@@ -1404,7 +1404,10 @@
   </div>
 
   <script>
+    let currentPdfId = null;
+
     function openPdfModal(title, driveLink) {
+      currentPdfId = driveLink;
       document.getElementById('pdf-modal-title').textContent = title;
       const wrapper = document.getElementById('pdf-iframe-wrapper');
       
@@ -3141,7 +3144,11 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     async function startScreenCutter() {
       try {
-        cutterStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        cutterStream = await navigator.mediaDevices.getDisplayMedia({ 
+          video: { displaySurface: "browser" }, 
+          preferCurrentTab: true,
+          audio: false 
+        });
         const video = document.createElement('video');
         video.srcObject = cutterStream;
         video.play();
@@ -3273,7 +3280,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         id: 'snip_' + Date.now(),
         image: finalBase64Image,
         category: category,
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        pdfId: currentPdfId
       };
       
       let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
@@ -3296,7 +3304,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       const container = document.getElementById('rankers-snippets-container');
       if(!container) return;
       
-      let snippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
+      let allSnippets = JSON.parse(localStorage.getItem('rone_ranker_snippets') || '[]');
+      let snippets = allSnippets.filter(s => s.pdfId === currentPdfId);
       
       if (snippets.length === 0) {
         container.innerHTML = `
