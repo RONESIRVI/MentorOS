@@ -1559,17 +1559,19 @@
             <button class="btn-read-pdf" onclick="openPdfModal('${f.name}', '${f.link}')">Read PDF</button>
           </div>
         `;
-        container.appendChild(card);
-      });
-    };
-    <!-- Load Snippet Categories (Avoids CORS issues for local files) -->
-  <script src="../Quote_Bank_Resources_Manager/snippet_categories.js"></script>
-  
-  <script>
+    // Attach click listeners to sidebar categories
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch dynamic categories from snippet_categories.js
+      // 1. Fetch dynamic categories from snippet_categories.js dynamically to avoid CORS
       let dynamicCats = [];
       try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = '../Quote_Bank_Resources_Manager/snippet_categories.js?t=' + new Date().getTime();
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+        
         if(window.SNIPPET_CATEGORIES) {
           dynamicCats = window.SNIPPET_CATEGORIES.categories || [];
         }
@@ -3340,6 +3342,14 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     async function fetchSnippetMetadata() {
       try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = '../Quote_Bank_Resources_Manager/snippet_categories.js?t=' + new Date().getTime();
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
         const data = window.SNIPPET_CATEGORIES || {};
         
         // Populate Categories
