@@ -214,34 +214,23 @@ function injectModal() {
   document.getElementById('session-btn-logout').addEventListener('click', performLogout);
 }
 
+let clockInterval = null;
+
 // ─── Show Warning Modal ────────────────────────────────────────────────────────
-function showWarningModal() {
-  // FIX: Guard — don't start again if already showing
-  if (_isWarningActive) return;
+function showWarningModal(remainingMs) {
   _isWarningActive = true;
-
   const overlay = document.getElementById('session-timeout-overlay');
-  if (!overlay) return;
-
-  // FIX: Always cleanly stop any stale countdown before starting fresh
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
+  if (overlay && !overlay.classList.contains('active')) {
+    overlay.classList.add('active');
   }
-  secondsLeft = WARNING_DURATION_SEC;
-
-  overlay.classList.add('active');
+  secondsLeft = Math.ceil(remainingMs / 1000);
   updateCountdownUI();
+}
 
-  countdownTimer = setInterval(() => {
-    secondsLeft--;
-    updateCountdownUI();
-    if (secondsLeft <= 0) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-      performLogout();
-    }
-  }, 1000);
+function hideWarningModal() {
+  _isWarningActive = false;
+  const overlay = document.getElementById('session-timeout-overlay');
+  if (overlay) overlay.classList.remove('active');
 }
 
 // ─── Update Countdown Ring + Number ───────────────────────────────────────────
@@ -250,15 +239,13 @@ function updateCountdownUI() {
   const progressEl = document.getElementById('session-ring-progress');
   if (!textEl || !progressEl) return;
 
-  const mins = Math.floor(secondsLeft / 60);
-  const secs = secondsLeft % 60;
+  const mins = Math.max(0, Math.floor(secondsLeft / 60));
+  const secs = Math.max(0, secondsLeft % 60);
   textEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
 
-  // Stroke dashoffset: 251.2 = full circle circumference (2π×40)
-  const ratio = secondsLeft / WARNING_DURATION_SEC;
+  const ratio = Math.max(0, secondsLeft / WARNING_DURATION_SEC);
   progressEl.style.strokeDashoffset = 251.2 * (1 - ratio);
 
-  // Color shift: green → orange → red
   if (ratio > 0.6)      progressEl.style.stroke = '#10b981';
   else if (ratio > 0.3) progressEl.style.stroke = '#f59e0b';
   else                  progressEl.style.stroke = '#ef4444';
@@ -269,9 +256,7 @@ function updateCountdownUI() {
 
 // ─── Perform Logout ────────────────────────────────────────────────────────────
 async function performLogout() {
-  // FIX: Stop all timers before logout
-  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
-  if (inactivityTimer) { clearTimeout(inactivityTimer); inactivityTimer = null; }
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
   _isWarningActive = false;
   try {
     if (_authInstance && _signOutFn) {
@@ -285,72 +270,36 @@ async function performLogout() {
 
 // ─── Reset Session Timer (throttled, called on any user activity) ──────────────
 function resetSessionTimer() {
-  // FIX: If warning modal is active, ignore all background activity
   if (_isWarningActive) return;
 
-  // FIX: Throttle — only reset once per second to avoid performance issues
   const now = Date.now();
   if (now - _lastActivity < THROTTLE_MS) return;
   _lastActivity = now;
-
-  // Clear any stale countdown (failsafe)
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
-  }
-
-  // Reset inactivity timer
-  if (inactivityTimer) clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
 }
 
 // ─── Global: Continue Session button ──────────────────────────────────────────
 window.dismissSessionWarning = function() {
-  const overlay = document.getElementById('session-timeout-overlay');
-  if (overlay) overlay.classList.remove('active');
-
-  // FIX: Clean stop of countdown
-  if (countdownTimer) {
-    clearInterval(countdownTimer);
-    countdownTimer = null;
-  }
-  secondsLeft      = WARNING_DURATION_SEC;
-  _isWarningActive = false;       // FIX: Release the guard
-  _lastActivity    = Date.now();  // FIX: Mark as just-active
-
-  // Restart inactivity timer fresh
-  if (inactivityTimer) clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
+  hideWarningModal();
+  _lastActivity = Date.now();
 };
 
-// ─── Page Visibility API — handle tab switching ────────────────────────────────
-function handleVisibilityChange() {
-  if (document.hidden) {
-    // Tab hidden — suspend inactivity timer to avoid firing in background
-    if (inactivityTimer && !_isWarningActive) {
-      clearTimeout(inactivityTimer);
-      inactivityTimer = null;
-    }
+// ─── Main Clock Tick ───────────────────────────────────────────────────────────
+function onClockTick() {
+  const now = Date.now();
+  const idleTime = now - _lastActivity;
+
+  if (idleTime >= (INACTIVITY_LIMIT_MS + WARNING_DURATION_MS)) {
+    performLogout();
+  } else if (idleTime >= INACTIVITY_LIMIT_MS) {
+    const remainingMs = (INACTIVITY_LIMIT_MS + WARNING_DURATION_MS) - idleTime;
+    showWarningModal(remainingMs);
   } else {
-    // Tab visible again
-    if (!_isWarningActive && !inactivityTimer) {
-      const hiddenFor = Date.now() - _lastActivity;
-      if (hiddenFor >= INACTIVITY_LIMIT_MS) {
-        // Been away too long — show warning immediately
-        showWarningModal();
-      } else {
-        // Resume timer for remaining time
-        const remaining = INACTIVITY_LIMIT_MS - hiddenFor;
-        inactivityTimer = setTimeout(showWarningModal, remaining);
-      }
-    }
-    _lastActivity = Date.now();
+    if (_isWarningActive) hideWarningModal();
   }
 }
 
 // ─── Public Init Function ──────────────────────────────────────────────────────
 export function initSessionManager(authInstance, signOutFunction, redirectPath = '../index.html') {
-  // FIX: Prevent double-initialization (e.g., if called multiple times)
   if (window._sessionManagerInitialized) {
     console.warn('⚠️ Session Manager already initialized, skipping.');
     return;
@@ -361,21 +310,15 @@ export function initSessionManager(authInstance, signOutFunction, redirectPath =
   _signOutFn     = signOutFunction;
   _redirectPath  = redirectPath;
 
-  // Inject modal DOM
   injectModal();
 
-  // FIX: Track user activity — throttled events separately from instant events
   const activityEvents = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll', 'click', 'touchmove'];
   activityEvents.forEach(event => {
     document.addEventListener(event, resetSessionTimer, { passive: true });
   });
 
-  // FIX: Page visibility support (tab switching)
-  document.addEventListener('visibilitychange', handleVisibilityChange);
+  _lastActivity = Date.now();
+  clockInterval = setInterval(onClockTick, 1000);
 
-  // Start the initial inactivity timer
-  _lastActivity   = Date.now();
-  inactivityTimer = setTimeout(showWarningModal, INACTIVITY_LIMIT_MS);
-
-  console.log('✅ Session Manager initialized (v2): 7min inactivity → 3min warning → auto logout');
+  console.log('✅ Session Manager initialized (Clock-based): 7min inactivity → 3min warning → auto logout');
 }
