@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- Load Snippet Categories statically -->
+  <script src="../Quote_Bank_Resources_Manager/snippet_categories.js"></script>
+  
   <link rel="stylesheet" href="../style.css">
   <style>
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -1565,21 +1568,9 @@
 
     // Attach click listeners to sidebar categories
     document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Fetch dynamic categories from snippet_categories.js dynamically to avoid CORS
+      // 1. Fetch dynamic categories from statically loaded snippet_categories.js
       let dynamicCats = [];
       try {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          let scriptSrc = '../Quote_Bank_Resources_Manager/snippet_categories.js';
-          if (window.location.protocol !== 'file:') {
-            scriptSrc += '?t=' + new Date().getTime();
-          }
-          script.src = scriptSrc;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-        
         if(window.SNIPPET_CATEGORIES) {
           dynamicCats = window.SNIPPET_CATEGORIES.categories || [];
         }
@@ -3350,18 +3341,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     async function fetchSnippetMetadata() {
       try {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          let scriptSrc = '../Quote_Bank_Resources_Manager/snippet_categories.js';
-          if (window.location.protocol !== 'file:') {
-            scriptSrc += '?t=' + new Date().getTime();
-          }
-          script.src = scriptSrc;
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-
         const data = window.SNIPPET_CATEGORIES || {};
         
         // Populate Categories
