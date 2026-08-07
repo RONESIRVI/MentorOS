@@ -1081,7 +1081,10 @@
                   <h3 style="margin-top:0; margin-bottom:5px; color:#0f172a;">📚 Quote Bank Root</h3>
                   <p style="margin:0; font-size:0.85rem; color:#64748b;">Sync files from Quote Bank Root.</p>
                 </div>
-                <button id="btn-sync-quotebank" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load</button>
+                <div style="display:flex; gap:10px;">
+                  <button id="btn-sync-quotebank" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load</button>
+                  <button id="btn-full-sync-quotebank" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:700;" onclick="window.fullSyncQuoteBank(this)">🚀 Full Sync</button>
+                </div>
               </div>
             </div>
 
@@ -1683,6 +1686,59 @@
         `;
         container.appendChild(card);
       });
+    };
+
+    window.fullSyncQuoteBank = async function(btn) {
+      if(!confirm("This will fetch all Quote Bank files from Google Drive and may take a minute. Continue?")) return;
+      const GAS_URL = "https://script.google.com/macros/s/AKfycbx0Gg-U9MLuqE352oz9gfIYiYzqvQd3cmS6ndZ7pGd-giGHshi6I_OI1XQ_EaZ1XhHS/exec";
+      const originalText = btn.textContent;
+      btn.textContent = "⏳ Syncing...";
+      btn.disabled = true;
+      
+      try {
+        // 1. Get all category folders
+        const rootRes = await fetch(`${GAS_URL}?folderId=1TqXpQc1MPN5dgw41-X1rODhT3l71TeNB`);
+        const rootData = await rootRes.json();
+        const rootItems = Array.isArray(rootData) ? rootData : (rootData.data || []);
+        const folders = rootItems.filter(f => f.type === 'folder');
+        
+        let allQuoteFiles = [];
+        
+        // 2. Fetch files for each category folder
+        for(const folder of folders) {
+          try {
+             const folderRes = await fetch(`${GAS_URL}?folderId=${folder.id}`);
+             const folderData = await folderRes.json();
+             const items = Array.isArray(folderData) ? folderData : (folderData.data || []);
+             const files = items.filter(f => f.type !== 'folder');
+             
+             // Strip emojis from folder name to get base category name
+             let catName = folder.name;
+             
+             files.forEach(f => {
+               allQuoteFiles.push({
+                 id: f.id,
+                 name: f.name,
+                 category: catName,
+                 link: `https://drive.google.com/file/d/${f.id}/preview`
+               });
+             });
+          } catch(e) {
+            console.error("Failed to fetch folder " + folder.name, e);
+          }
+        }
+        
+        // 3. Save to localStorage
+        localStorage.setItem('quoteBankFiles', JSON.stringify(allQuoteFiles));
+        alert(`✅ Successfully synced ${allQuoteFiles.length} files from Quote Bank Drive!`);
+        window.loadQuoteBankFiles(currentQuoteBankCategory);
+        
+      } catch (err) {
+        alert("❌ Sync failed: " + err.message);
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
     };
 
     // Attach click listeners to sidebar categories
