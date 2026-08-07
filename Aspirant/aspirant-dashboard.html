@@ -1657,37 +1657,116 @@
       });
       
       container.innerHTML = '';
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
+      container.style.gap = '15px';
       
       if(filtered.length === 0) {
+        container.style.display = 'block';
         container.innerHTML = `<p style="color:#64748b; font-size:0.95rem; grid-column: 1 / -1;">No materials found for this category. Admin needs to sync files from Google Drive.</p>`;
         return;
       }
-      
-      const catEmojis = {
-        'ethics': '⚖️',
-        'thinkers': '🧠',
-        'governance': '🏛️',
-        'society': '👥',
-        'public_service': '💼'
-      };
 
       filtered.forEach(f => {
-        const emoji = catEmojis[f.category] || '📄';
-        const card = document.createElement('div');
-        card.className = 'quote-card';
-        const embedLink = f.link && f.link !== 'undefined' ? f.link : `https://drive.google.com/file/d/${f.id}/preview`;
-        const isImage = f.name.toLowerCase().endsWith('.png') || f.name.toLowerCase().endsWith('.jpg') || f.name.toLowerCase().endsWith('.jpeg');
-        const thumbnailUrl = isImage ? `https://drive.google.com/thumbnail?id=${f.id}&sz=w400` : null;
+        const item = document.createElement('div');
         
-        card.innerHTML = `
-          ${thumbnailUrl ? `<div style="width:100%; height:140px; overflow:hidden; border-radius:8px; margin-bottom:12px; background:#f1f5f9; display:flex; align-items:center; justify-content:center;"><img src="${thumbnailUrl}" style="max-width:100%; max-height:100%; object-fit:contain;"></div>` : ''}
-          <h3 class="quote-title" style="${thumbnailUrl ? 'margin-top:0;' : ''}">${emoji} ${f.name}</h3>
-          <p class="quote-desc" style="margin-bottom:12px;">Category: <span style="font-weight:600; color:#3b82f6;">${f.category}</span></p>
-          <div class="quote-card-footer" style="justify-content: flex-end;">
-            <button class="btn-read-pdf" style="background:linear-gradient(135deg, #f59e0b, #d97706); padding: 8px 12px;" onclick="openPdfModal('${f.name}', '${embedLink}', 'quote-bank', '${f.id}')">Categorize File</button>
-          </div>
+        item.style = `
+          position: relative;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px 12px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         `;
-        container.appendChild(card);
+        
+        item.onmouseover = () => { 
+            item.style.transform = 'translateY(-4px)'; 
+            item.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)'; 
+            item.style.borderColor = '#cbd5e1';
+        };
+        
+        item.onmouseout = () => { 
+            item.style.transform = 'translateY(0)'; 
+            item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; 
+            item.style.borderColor = '#e2e8f0';
+        };
+
+        const isImage = f.name.toLowerCase().endsWith('.png') || f.name.toLowerCase().endsWith('.jpg') || f.name.toLowerCase().endsWith('.jpeg');
+        const iconDiv = document.createElement('div');
+        iconDiv.style = `
+          font-size: 3rem;
+          line-height: 1;
+          margin-bottom: 12px;
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        `;
+        
+        if (isImage) {
+          iconDiv.innerHTML = `<img src="https://drive.google.com/thumbnail?id=${f.id}&sz=w400" style="width:100%; height:80px; object-fit:cover; border-radius:8px;">`;
+          iconDiv.style.width = '100%';
+          iconDiv.style.fontSize = 'initial';
+        } else {
+          iconDiv.innerHTML = '📄';
+        }
+
+        const nameDiv = document.createElement('div');
+        nameDiv.style = `
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #334155;
+          width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          word-break: break-word;
+        `;
+        nameDiv.title = f.name;
+        nameDiv.textContent = f.name;
+        
+        item.appendChild(iconDiv);
+        item.appendChild(nameDiv);
+
+        const openBtn = document.createElement('button');
+        openBtn.innerHTML = '👁️';
+        openBtn.title = 'Open Preview';
+        openBtn.style = `
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(255,255,255,0.9);
+          border: 1px solid #e2e8f0;
+          border-radius: 50%;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 0.8rem;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          transition: all 0.2s ease;
+        `;
+        openBtn.onmouseover = (e) => { e.stopPropagation(); openBtn.style.background = '#f1f5f9'; openBtn.style.transform = 'scale(1.1)'; };
+        openBtn.onmouseout = (e) => { e.stopPropagation(); openBtn.style.background = 'rgba(255,255,255,0.9)'; openBtn.style.transform = 'scale(1)'; };
+        
+        openBtn.onclick = (e) => {
+          e.stopPropagation();
+          const embedLink = f.link && f.link !== 'undefined' ? f.link : \`https://drive.google.com/file/d/\${f.id}/preview\`;
+          window.openPdfModal(f.name, embedLink, 'quote-bank', f.id);
+        };
+        
+        item.appendChild(openBtn);
+        item.onclick = openBtn.onclick;
+
+        container.appendChild(item);
       });
     };
 
