@@ -1500,6 +1500,29 @@
          const res = await fetch(`${GAS_URL}?action=categorize&fileId=${currentPhotoIdForCategorization}&categoryName=${encodeURIComponent(categoryName)}&targetRootId=${targetRootId}`);
          const data = await res.json();
          if(data.success) {
+           try {
+             let stored = localStorage.getItem('quoteBankFiles');
+             let arr = stored ? JSON.parse(stored) : [];
+             let fileIdx = arr.findIndex(f => f.id === currentPhotoIdForCategorization);
+             if (fileIdx !== -1) {
+               arr[fileIdx].category = categoryName;
+             } else {
+               if (window.selectedFileForCMS && window.selectedFileForCMS.id === currentPhotoIdForCategorization) {
+                 window.selectedFileForCMS.category = categoryName;
+                 arr.push(window.selectedFileForCMS);
+               } else {
+                 arr.push({ id: currentPhotoIdForCategorization, name: document.getElementById('pdf-modal-title').innerText, category: categoryName, link: `https://drive.google.com/file/d/${currentPhotoIdForCategorization}/preview` });
+               }
+             }
+             localStorage.setItem('quoteBankFiles', JSON.stringify(arr));
+             if (window.loadQuoteBankFiles) {
+               // Update UI for the currently selected filter (or "all" if none selected)
+               const activeFilter = document.querySelector('.btn-qb-filter[style*="background: rgb(59, 130, 246)"]');
+               const catToLoad = activeFilter ? activeFilter.getAttribute('data-cat') : 'all';
+               window.loadQuoteBankFiles(catToLoad);
+             }
+           } catch(e) { console.error("Error updating local storage:", e); }
+           
            alert("✅ " + data.message);
            closePdfModal();
          } else {
