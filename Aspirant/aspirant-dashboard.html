@@ -1452,14 +1452,18 @@
         
         // Render buttons
         const container = document.getElementById('categorize-buttons-container');
-        if(container && typeof dynamicCats !== 'undefined') {
+        const catsToUse = (window.SNIPPET_CATEGORIES && window.SNIPPET_CATEGORIES.categories) ? window.SNIPPET_CATEGORIES.categories : [];
+        if(container && catsToUse.length > 0) {
             container.innerHTML = '';
-            dynamicCats.forEach(cat => {
+            catsToUse.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'btn-cat-assign';
-                btn.setAttribute('data-cat', cat.id);
-                btn.innerHTML = `${cat.emoji} ${cat.name}`;
-                btn.onclick = () => savePhotoToQuoteBank(cat.id, btn);
+                btn.setAttribute('data-cat', cat);
+                btn.innerHTML = `📄 ${cat}`;
+                btn.style = "background:#f1f5f9; border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; color:#334155; font-weight:500; font-size:0.9rem; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px;";
+                btn.onmouseover = () => { btn.style.background = '#e2e8f0'; btn.style.borderColor = '#94a3b8'; };
+                btn.onmouseout = () => { btn.style.background = '#f1f5f9'; btn.style.borderColor = '#cbd5e1'; };
+                btn.onclick = () => savePhotoToQuoteBank(cat, btn);
                 container.appendChild(btn);
             });
         }
