@@ -1759,7 +1759,7 @@
         
         openBtn.onclick = (e) => {
           e.stopPropagation();
-          const embedLink = f.link && f.link !== 'undefined' ? f.link : \`https://drive.google.com/file/d/\${f.id}/preview\`;
+          const embedLink = f.link && f.link !== 'undefined' ? f.link : `https://drive.google.com/file/d/${f.id}/preview`;
           window.openPdfModal(f.name, embedLink, 'quote-bank', f.id);
         };
         
