@@ -1795,7 +1795,7 @@
       const targetId = rankersBreadcrumbs[rankersBreadcrumbs.length - 1].id;
 
       try {
-        const res = await fetch(`${GAS_URL}?id=${targetId}`);
+        const res = await fetch(`${GAS_URL}?folderId=${targetId}`);
         const data = await res.json();
         
         loader.style.display = 'none';
@@ -3226,7 +3226,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     }
     
     try {
-      const res = await fetch(`${GAS_URL}?id=${folderId}`);
+      const res = await fetch(`${GAS_URL}?folderId=${folderId}`);
       const data = await res.json();
       if(!data.success) throw new Error(data.error);
       
