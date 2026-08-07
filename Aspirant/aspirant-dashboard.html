@@ -1094,8 +1094,8 @@
                 <div id="cms-breadcrumb" style="display:flex; gap:6px; align-items:center; margin-bottom:12px; font-size:0.85rem; overflow-x:auto; white-space:nowrap; padding-bottom:4px;">
                   <!-- JS will populate -->
                 </div>
-                <div id="fetched-files-list" style="display:flex; flex-direction:column; gap:8px;">
-                  <p style="color:#64748b; font-size:0.9rem;">No files fetched yet.</p>
+                <div id="fetched-files-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px; padding: 10px 0;">
+                  <p style="color:#64748b; font-size:0.9rem; grid-column: 1 / -1;">No files fetched yet.</p>
                 </div>
               </div>
 
@@ -3106,47 +3106,129 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   function renderFetchedFiles() {
     const listEl = document.getElementById('fetched-files-list');
     listEl.innerHTML = '';
+    
+    // Ensure grid display is applied if it was overridden
+    listEl.style.display = 'grid';
+    listEl.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
+    listEl.style.gap = '15px';
+    listEl.style.padding = '10px 0';
+
     if(fetchedDriveFiles.length === 0) {
+      listEl.style.display = 'block'; // fallback for empty message
       listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files or folders found.</p>';
       return;
     }
+    
     fetchedDriveFiles.forEach(f => {
       const isFolder = f.type === 'folder';
       const item = document.createElement('div');
-      item.style = 'padding:10px; border:1px solid #e2e8f0; border-radius:6px; cursor:pointer; background:white; font-size:0.85rem; display:flex; justify-content:space-between; align-items:center; transition: all 0.2s ease;';
       
-      const fileNameDiv = document.createElement('div');
-      fileNameDiv.innerHTML = `${isFolder ? '📁' : '📄'} <strong>${f.name}</strong>`;
-      fileNameDiv.style.flex = "1";
-      fileNameDiv.style.overflow = "hidden";
-      fileNameDiv.style.textOverflow = "ellipsis";
-      fileNameDiv.style.whiteSpace = "nowrap";
+      // Card Style
+      item.style = `
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 12px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      `;
+      
+      item.onmouseover = () => { 
+        if(!selectedFileForCMS || selectedFileForCMS.id !== f.id) {
+          item.style.transform = 'translateY(-4px)'; 
+          item.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)'; 
+          item.style.borderColor = '#cbd5e1';
+        }
+      };
+      
+      item.onmouseout = () => { 
+        if(!selectedFileForCMS || selectedFileForCMS.id !== f.id) {
+          item.style.transform = 'translateY(0)'; 
+          item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; 
+          item.style.borderColor = '#e2e8f0';
+        }
+      };
+
+      if(selectedFileForCMS && selectedFileForCMS.id === f.id) {
+        item.style.borderColor = '#3b82f6';
+        item.style.background = '#eff6ff';
+        item.style.boxShadow = '0 0 0 2px rgba(59,130,246,0.3)';
+        item.style.transform = 'translateY(-2px)';
+      }
+
+      // Icon Wrapper
+      const iconDiv = document.createElement('div');
+      iconDiv.style = `
+        font-size: 3rem;
+        line-height: 1;
+        margin-bottom: 12px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      `;
+      iconDiv.innerHTML = isFolder ? '📁' : '📄';
+
+      // Name Wrapper
+      const nameDiv = document.createElement('div');
+      nameDiv.style = `
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        word-break: break-word;
+      `;
+      nameDiv.title = f.name;
+      nameDiv.textContent = f.name;
+      
+      item.appendChild(iconDiv);
+      item.appendChild(nameDiv);
 
       if (isFolder) {
         item.onclick = () => {
           cmsBreadcrumbs.push({ id: f.id, name: f.name });
           window.fetchCmsFolder(f.id);
         };
-        item.onmouseover = () => { item.style.background = '#f8fafc'; };
-        item.onmouseout = () => { item.style.background = 'white'; };
-        
-        item.appendChild(fileNameDiv);
-        const openBtn = document.createElement('button');
-        openBtn.textContent = '📂 Open Folder ➔';
-        openBtn.style = 'background:#eff6ff; border:1px solid #bfdbfe; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#2563eb; font-weight:700;';
-        item.appendChild(openBtn);
       } else {
         item.onclick = (e) => {
           if(e.target.tagName.toLowerCase() === 'button') return;
-          Array.from(listEl.children).forEach(c => { c.style.background = 'white'; c.style.borderColor = '#e2e8f0'; });
-          item.style.background = '#eff6ff';
-          item.style.borderColor = '#3b82f6';
           selectedFileForCMS = f;
+          renderFetchedFiles(); // re-render to highlight selection
         };
 
+        // Open Button for files (hover effect inside card)
         const openBtn = document.createElement('button');
-        openBtn.textContent = '👁️ Open';
-        openBtn.style = 'background:#f8fafc; border:1px solid #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer; margin-left:10px; color:#475569; font-weight:600;';
+        openBtn.innerHTML = '👁️';
+        openBtn.title = 'Open Preview';
+        openBtn.style = `
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(255,255,255,0.9);
+          border: 1px solid #e2e8f0;
+          border-radius: 50%;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 0.8rem;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          transition: all 0.2s ease;
+        `;
+        openBtn.onmouseover = (e) => { e.stopPropagation(); openBtn.style.background = '#f1f5f9'; openBtn.style.transform = 'scale(1.1)'; };
+        openBtn.onmouseout = (e) => { e.stopPropagation(); openBtn.style.background = 'rgba(255,255,255,0.9)'; openBtn.style.transform = 'scale(1)'; };
+        
         openBtn.onclick = (e) => {
           e.stopPropagation();
           let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
@@ -3156,8 +3238,6 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
             openPdfModal(f.name, embedLink);
           }
         };
-
-        item.appendChild(fileNameDiv);
         item.appendChild(openBtn);
       }
       
