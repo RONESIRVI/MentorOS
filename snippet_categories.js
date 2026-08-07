@@ -30,7 +30,17 @@
     "Rank 26 rupal rana",
     "Rank 36 ayushi pradhan",
     "Rank 39 deepti rohilla",
-    "RANK 51 RAJPUT NEHA UDDHAVSINGH"
+    "RANK 51 RAJPUT NEHA UDDHAVSINGH",
+    "RANK 17 SWATI SHARMA",
+    "RANK 61 KHUSHHALI SOLANKI",
+    "RANK 65 CHHAYA SINGH",
+    "RANK 80 GARIMA MUNDRA",
+    "RANK 18 WARDAH KHAN",
+    "RANK 263 Girisha Chaudhary",
+    "RANK 1 Shakti Dubey",
+    "RANK 189 ANUPRIYA RAI",
+    "RANK 40 IRAM CHOUDHARY",
+    "RANK 7 AAYUSHI BANSAL"
   ],
   "years": [
     "2021",
