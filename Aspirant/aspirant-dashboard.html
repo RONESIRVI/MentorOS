@@ -1126,21 +1126,11 @@
             </div>
           </div>
           <div class="quote-bank-layout">
-            <!-- Sidebar / Categories -->
-            <div class="qb-sidebar">
-              <ul class="qb-category-list" id="qb-categories">
-                <li class="active" data-cat="all">📚 All Materials</li>
-              </ul>
-            </div>
-            
             <!-- Main Content Area -->
-            <div class="qb-content">
+            <div class="qb-content" style="width: 100%;">
               <!-- Action Filters -->
-              <div class="qb-filters">
-                <span class="qb-badge blue">Theory Answers</span>
-                <span class="qb-badge green">Case Studies</span>
-                <span class="qb-badge amber">Introductions</span>
-                <span class="qb-badge purple">Conclusions</span>
+              <div id="qb-dynamic-filters" style="margin-bottom: 20px;">
+                <!-- Populated via JS -->
               </div>
               
               <!-- Cards Grid -->
@@ -1706,16 +1696,60 @@
         console.error("Could not load snippet_categories.js", err);
       }
 
-      // 2. Populate Sidebar Categories
-      const qbCategoriesList = document.getElementById('qb-categories');
-      if (qbCategoriesList && dynamicCats.length > 0) {
-        qbCategoriesList.innerHTML = '<li class="active" data-cat="all">📚 All Materials</li>';
-        dynamicCats.forEach(cat => {
-          const li = document.createElement('li');
-          li.setAttribute('data-cat', cat);
-          li.innerHTML = `📄 ${cat}`;
-          qbCategoriesList.appendChild(li);
+      // 2. Populate Quote Bank Dynamic Filters
+      const qbFiltersContainer = document.getElementById('qb-dynamic-filters');
+      if (qbFiltersContainer && dynamicCats.length > 0) {
+        qbFiltersContainer.innerHTML = '';
+        
+        // Primary Types (Theory, Case Studies, etc.)
+        const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
+        const primaryContainer = document.createElement('div');
+        primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0;';
+        
+        // Add "All Materials" button first
+        const allBtn = document.createElement('button');
+        allBtn.className = 'btn-qb-filter active';
+        allBtn.setAttribute('data-cat', 'all');
+        allBtn.style = `padding:8px 14px; border-radius:20px; border:1px solid #94a3b8; background:#1e293b; color:white; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 4px 6px rgba(0,0,0,0.1);`;
+        allBtn.innerHTML = `📚 All Materials`;
+        allBtn.onclick = () => window.loadQuoteBankFiles('all');
+        primaryContainer.appendChild(allBtn);
+
+        primaryTypes.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-qb-filter';
+          btn.setAttribute('data-cat', cat);
+          let bg = '#eff6ff', color = '#2563eb', border = '#bfdbfe';
+          if(cat === 'Theory Answers') { bg = '#eff6ff'; color = '#2563eb'; border = '#bfdbfe'; }
+          if(cat === 'Case Studies') { bg = '#f0fdf4'; color = '#16a34a'; border = '#bbf7d0'; }
+          if(cat === 'Introductions') { bg = '#fffbeb'; color = '#d97706'; border = '#fde68a'; }
+          if(cat === 'Conclusions') { bg = '#faf5ff'; color = '#9333ea'; border = '#e9d5ff'; }
+          btn.style = `padding:8px 14px; border-radius:20px; border:1px solid ${border}; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; };
+          btn.innerHTML = `${cat}`;
+          btn.onclick = () => window.loadQuoteBankFiles(cat);
+          primaryContainer.appendChild(btn);
         });
+        
+        // Secondary Categories (Ethics, Thinkers, etc.)
+        const secondaryContainer = document.createElement('div');
+        secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px;';
+        
+        dynamicCats.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-qb-filter';
+          btn.setAttribute('data-cat', cat);
+          btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
+          btn.innerHTML = `📄 ${cat}`;
+          btn.onclick = () => window.loadQuoteBankFiles(cat);
+          secondaryContainer.appendChild(btn);
+        });
+        
+        qbFiltersContainer.appendChild(primaryContainer);
+        qbFiltersContainer.appendChild(secondaryContainer);
       }
 
       // 3. Populate CMS Categorize Buttons (With Primary Types)
