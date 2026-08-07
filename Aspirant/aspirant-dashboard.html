@@ -1095,34 +1095,7 @@
                   <!-- JS will populate -->
                 </div>
                 <div id="fetched-files-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px; padding: 10px 0;">
-                  <p style="color:#64748b; font-size:0.9rem; grid-column: 1 / -1;">No files fetched yet.</p>
-                </div>
               </div>
-              </div>
-              <details id="categorize-accordion" style="background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
-                <summary style="padding:16px 20px; font-size:1.1rem; font-weight:700; cursor:pointer; background:linear-gradient(135deg, #1e293b, #334155); color:white; display:flex; align-items:center; list-style:none; user-select:none;">
-                  <span style="margin-right:10px;">📂</span> Categorize Selected File
-                  <span style="margin-left:auto; font-size:0.8rem; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px; font-weight:500;">Click to Expand ▼</span>
-                </summary>
-                <div style="padding:20px;">
-                  <p style="font-size:0.85rem; color:#64748b; margin-bottom: 15px; background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px solid #bfdbfe; line-height:1.5;">
-                    <strong>Step 1:</strong> Find your photos by clicking <b>"📂 Open Folder ➔"</b> above until you see files.<br>
-                    <strong>Step 2:</strong> Click on a file (📄) to select it (it will turn blue).<br>
-                    <strong>Step 3:</strong> Click a Category below to assign it to the Quote Bank.
-                  </p>
-                  
-                  <div id="dynamic-cat-buttons" style="margin-bottom:25px;">
-                    <p style="color:#64748b; font-size:0.9rem;">Loading categories...</p>
-                  </div>
-                  
-                  <h3 style="margin-top:0; padding-top:15px; border-top:1px dashed #cbd5e1; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
-                    Assigned Files
-                    <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 16px; border-radius:6px; font-size:0.85rem; cursor:pointer; font-weight:600; box-shadow:0 2px 4px rgba(59,130,246,0.2);">💾 Save to Quote Bank</button>
-                  </h3>
-                  <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
-                  </div>
-                </div>
-              </details>
             </div>
           </div>
           <div class="quote-bank-layout">
@@ -1650,7 +1623,12 @@
       const stored = localStorage.getItem('quoteBankFiles');
       const allFiles = stored ? JSON.parse(stored) : [];
       
-      const filtered = category === 'all' ? allFiles : allFiles.filter(f => f.category === category);
+      const filtered = category === 'all' ? allFiles : allFiles.filter(f => {
+        if (!f.category) return false;
+        const cleanCat1 = f.category.replace(/[\u1000-\uFFFF]/g, '').trim();
+        const cleanCat2 = category.replace(/[\u1000-\uFFFF]/g, '').trim();
+        return f.category === category || cleanCat1 === cleanCat2;
+      });
       
       container.innerHTML = '';
       
