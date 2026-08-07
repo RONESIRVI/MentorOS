@@ -1490,8 +1490,8 @@
        btnEl.innerHTML = 'Saving...';
        btnEl.disabled = true;
        
-       const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec";
-       const targetRootId = "18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ"; // Quote Bank Root ID
+       const GAS_URL = "https://script.google.com/macros/s/AKfycbzv32zgBsLEqOW3-z8ZFiGwaiv1to7HJIAOiH34sMKafjfWwHJMK4VnMjcIzqB3R3GW/exec";
+       const targetRootId = "1TqXpQc1MPN5dgw41-X1rODhT3l71TeNB"; // Quote Bank Target Root ID
        
        try {
          const res = await fetch(`${GAS_URL}?action=categorize&fileId=${currentPhotoIdForCategorization}&categoryName=${categoryName}&targetRootId=${targetRootId}`);
@@ -1732,7 +1732,7 @@
       }
     });
     // --- RONE RANKERS LOGIC ---
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec"; // User will paste this here
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzv32zgBsLEqOW3-z8ZFiGwaiv1to7HJIAOiH34sMKafjfWwHJMK4VnMjcIzqB3R3GW/exec"; // User will paste this here
     let rankersBreadcrumbs = [];
 
     window.loadRankersFolder = async function(folderId, folderName) {
@@ -3212,7 +3212,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   }
 
   window.fetchCmsFolder = async function(folderId, triggerBtn = null) {
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzv32zgBsLEqOW3-z8ZFiGwaiv1to7HJIAOiH34sMKafjfWwHJMK4VnMjcIzqB3R3GW/exec";
     
     let originalText = '';
     if(triggerBtn) {
