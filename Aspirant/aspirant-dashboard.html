@@ -1099,24 +1099,30 @@
                 </div>
               </div>
 
-              <div style="background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0;">
-                 <h3 style="margin-top:0;">Categorize File</h3>
-                 <p style="font-size:0.85rem; color:#64748b; margin-bottom: 12px; background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe;">
-                   <strong>Step 1:</strong> Find your photos by clicking <b>"📂 Open Folder ➔"</b> above until you see files.<br>
-                   <strong>Step 2:</strong> Click on a file (📄) to select it (it will turn blue).<br>
-                   <strong>Step 3:</strong> Click a Category below to assign it to the Quote Bank.
-                 </p>
-                 <div id="dynamic-cat-buttons" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-                   <p style="color:#64748b; font-size:0.9rem;">Loading categories...</p>
-                 </div>
-                 
-                 <h3 style="margin-top:0; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
-                   Assigned Files
-                   <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.85rem; cursor:pointer;">💾 Save</button>
-                 </h3>
-                 <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
-                 </div>
-              </div>
+              <details id="categorize-accordion" style="background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0; overflow:hidden;">
+                <summary style="padding:16px 20px; font-size:1.1rem; font-weight:700; cursor:pointer; background:linear-gradient(135deg, #1e293b, #334155); color:white; display:flex; align-items:center; list-style:none; user-select:none;">
+                  <span style="margin-right:10px;">📂</span> Categorize Selected File
+                  <span style="margin-left:auto; font-size:0.8rem; background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px; font-weight:500;">Click to Expand ▼</span>
+                </summary>
+                <div style="padding:20px;">
+                  <p style="font-size:0.85rem; color:#64748b; margin-bottom: 15px; background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px solid #bfdbfe; line-height:1.5;">
+                    <strong>Step 1:</strong> Find your photos by clicking <b>"📂 Open Folder ➔"</b> above until you see files.<br>
+                    <strong>Step 2:</strong> Click on a file (📄) to select it (it will turn blue).<br>
+                    <strong>Step 3:</strong> Click a Category below to assign it to the Quote Bank.
+                  </p>
+                  
+                  <div id="dynamic-cat-buttons" style="margin-bottom:25px;">
+                    <p style="color:#64748b; font-size:0.9rem;">Loading categories...</p>
+                  </div>
+                  
+                  <h3 style="margin-top:0; padding-top:15px; border-top:1px dashed #cbd5e1; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
+                    Assigned Files
+                    <button id="btn-save-cms" style="background:#3b82f6; color:white; border:none; padding:6px 16px; border-radius:6px; font-size:0.85rem; cursor:pointer; font-weight:600; box-shadow:0 2px 4px rgba(59,130,246,0.2);">💾 Save to Quote Bank</button>
+                  </h3>
+                  <div id="assigned-files-list" style="display:flex; flex-direction:column; gap:8px; max-height: 200px; overflow-y: auto;">
+                  </div>
+                </div>
+              </details>
             </div>
           </div>
           <div class="quote-bank-layout">
@@ -1455,17 +1461,43 @@
         const catsToUse = (window.SNIPPET_CATEGORIES && window.SNIPPET_CATEGORIES.categories) ? window.SNIPPET_CATEGORIES.categories : [];
         if(container && catsToUse.length > 0) {
             container.innerHTML = '';
+            
+            // Primary Types
+            const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
+            const primaryContainer = document.createElement('div');
+            primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0; width: 100%;';
+            
+            primaryTypes.forEach(cat => {
+              const btn = document.createElement('button');
+              btn.className = 'btn-cat-assign qb-badge';
+              btn.setAttribute('data-cat', cat);
+              if(cat === 'Theory Answers') btn.classList.add('blue');
+              if(cat === 'Case Studies') btn.classList.add('green');
+              if(cat === 'Introductions') btn.classList.add('amber');
+              if(cat === 'Conclusions') btn.classList.add('purple');
+              btn.innerHTML = `${cat}`;
+              btn.onclick = () => savePhotoToQuoteBank(cat, btn);
+              primaryContainer.appendChild(btn);
+            });
+            
+            // Secondary Categories
+            const secondaryContainer = document.createElement('div');
+            secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px; width: 100%;';
+            
             catsToUse.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'btn-cat-assign';
                 btn.setAttribute('data-cat', cat);
                 btn.innerHTML = `📄 ${cat}`;
-                btn.style = "background:#f1f5f9; border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; cursor:pointer; color:#334155; font-weight:500; font-size:0.9rem; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px;";
-                btn.onmouseover = () => { btn.style.background = '#e2e8f0'; btn.style.borderColor = '#94a3b8'; };
-                btn.onmouseout = () => { btn.style.background = '#f1f5f9'; btn.style.borderColor = '#cbd5e1'; };
+                btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+                btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
+                btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
                 btn.onclick = () => savePhotoToQuoteBank(cat, btn);
-                container.appendChild(btn);
+                secondaryContainer.appendChild(btn);
             });
+            
+            container.appendChild(primaryContainer);
+            container.appendChild(secondaryContainer);
         }
         
         // Show as image using thumbnail API
@@ -1682,18 +1714,46 @@
         });
       }
 
-      // 3. Populate CMS Categorize Buttons
+      // 3. Populate CMS Categorize Buttons (With Primary Types)
       const cmsButtonsContainer = document.getElementById('dynamic-cat-buttons');
       if (cmsButtonsContainer && dynamicCats.length > 0) {
         cmsButtonsContainer.innerHTML = '';
+        
+        // Primary Types (Theory, Case Studies, etc.)
+        const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
+        const primaryContainer = document.createElement('div');
+        primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0;';
+        
+        primaryTypes.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-cat-assign qb-badge';
+          btn.setAttribute('data-cat', cat);
+          // Give them specific badge colors
+          if(cat === 'Theory Answers') btn.classList.add('blue');
+          if(cat === 'Case Studies') btn.classList.add('green');
+          if(cat === 'Introductions') btn.classList.add('amber');
+          if(cat === 'Conclusions') btn.classList.add('purple');
+          btn.innerHTML = `${cat}`;
+          primaryContainer.appendChild(btn);
+        });
+        
+        // Secondary Categories (Ethics, Thinkers, etc.)
+        const secondaryContainer = document.createElement('div');
+        secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px;';
+        
         dynamicCats.forEach(cat => {
           const btn = document.createElement('button');
           btn.className = 'btn-cat-assign';
           btn.setAttribute('data-cat', cat);
-          btn.style = 'padding:10px; border-radius:6px; border:1px solid #cbd5e1; background:white; cursor:pointer; font-weight:500;';
+          btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
           btn.innerHTML = `📄 ${cat}`;
-          cmsButtonsContainer.appendChild(btn);
+          secondaryContainer.appendChild(btn);
         });
+        
+        cmsButtonsContainer.appendChild(primaryContainer);
+        cmsButtonsContainer.appendChild(secondaryContainer);
       } else if (cmsButtonsContainer) {
         cmsButtonsContainer.innerHTML = '<p style="color:#ef4444; font-size:0.9rem;">No categories found. Please run categories updater.</p>';
       }
