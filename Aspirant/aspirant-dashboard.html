@@ -1800,9 +1800,9 @@
         
         loader.style.display = 'none';
         
-        if(!data.success) throw new Error(data.error);
+        if(data.error) throw new Error(data.error);
 
-        const items = data.data || [];
+        const items = Array.isArray(data) ? data : (data.data || []);
         if(items.length === 0) {
           grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;">This folder is empty.</p>`;
           return;
@@ -3228,9 +3228,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     try {
       const res = await fetch(`${GAS_URL}?folderId=${folderId}`);
       const data = await res.json();
-      if(!data.success) throw new Error(data.error);
+      if(data.error) throw new Error(data.error);
       
-      fetchedDriveFiles = (data.data || []).sort((a, b) => {
+      const items = Array.isArray(data) ? data : (data.data || []);
+      fetchedDriveFiles = items.sort((a, b) => {
         const aFolder = a.type === 'folder';
         const bFolder = b.type === 'folder';
         if (aFolder && !bFolder) return -1;
