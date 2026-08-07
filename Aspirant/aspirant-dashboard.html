@@ -1397,19 +1397,36 @@
           <p style="text-align: center; margin-top: 50px; color: #64748b;">Loading document...</p>
         </div>
       </div>
-      <!-- Right Column: Ranker Analysis Tool -->
+      <!-- Right Column -->
       <div style="flex:1;padding:30px;display:flex;flex-direction:column;background:white;min-width:350px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h2 style="margin:0; color:#0f172a;">Ranker's Analysis</h2>
-          <div>
-            <button onclick="startScreenCutter()" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9rem; margin-right:10px; display:inline-flex; align-items:center; gap:6px; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-              ✂️ Screen Cut Tool
-            </button>
-            <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+        <!-- Ranker's Analysis View -->
+        <div id="modal-rankers-view">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2 style="margin:0; color:#0f172a;">Ranker's Analysis</h2>
+            <div>
+              <button onclick="startScreenCutter()" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9rem; margin-right:10px; display:inline-flex; align-items:center; gap:6px; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                ✂️ Screen Cut Tool
+              </button>
+              <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+            </div>
+          </div>
+          <div id="rankers-snippets-container" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
+            <!-- Saved Snippets will appear here -->
           </div>
         </div>
-        <div id="rankers-snippets-container" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
-          <!-- Saved Snippets will appear here -->
+
+        <!-- Categorize Photo View -->
+        <div id="modal-categorize-view" style="display:none; flex-direction:column; height: 100%;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2 style="margin:0; color:#0f172a;">Categorize File</h2>
+            <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto;">
+             <p style="font-size:0.95rem; color:#475569; margin-bottom: 20px;">Select a category to save this snippet into the organized Quote Bank folders.</p>
+             <div id="categorize-buttons-container" style="display:flex; flex-wrap:wrap; gap:10px;">
+                <!-- buttons injected dynamically -->
+             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1418,21 +1435,79 @@
   <script>
     let currentPdfId = null;
 
-    function openPdfModal(title, driveLink) {
+    let currentPhotoIdForCategorization = null;
+
+    function openPdfModal(title, driveLink, context = 'default', fileId = null) {
       currentPdfId = driveLink;
+      currentPhotoIdForCategorization = fileId;
       document.getElementById('pdf-modal-title').textContent = title;
       const wrapper = document.getElementById('pdf-iframe-wrapper');
       
-      // Convert standard drive link to preview link if needed
-      let embedLink = driveLink;
-      if(driveLink.includes('/view')) {
-        embedLink = driveLink.replace('/view', '/preview');
+      const rankersView = document.getElementById('modal-rankers-view');
+      const categorizeView = document.getElementById('modal-categorize-view');
+      
+      if (context === 'quote-bank') {
+        rankersView.style.display = 'none';
+        categorizeView.style.display = 'flex';
+        
+        // Render buttons
+        const container = document.getElementById('categorize-buttons-container');
+        if(container && typeof dynamicCats !== 'undefined') {
+            container.innerHTML = '';
+            dynamicCats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-cat-assign';
+                btn.setAttribute('data-cat', cat.id);
+                btn.innerHTML = `${cat.emoji} ${cat.name}`;
+                btn.onclick = () => savePhotoToQuoteBank(cat.id, btn);
+                container.appendChild(btn);
+            });
+        }
+        
+        // Show as image using thumbnail API
+        const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        wrapper.innerHTML = `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#000;"><img src="${thumbnailUrl}" style="max-width:100%; max-height:100%; object-fit:contain;"></div>`;
+      } else {
+        rankersView.style.display = 'block';
+        categorizeView.style.display = 'none';
+        
+        // Convert standard drive link to preview link if needed
+        let embedLink = driveLink;
+        if(driveLink.includes('/view')) {
+          embedLink = driveLink.replace('/view', '/preview');
+        }
+        
+        wrapper.innerHTML = `<iframe src="${embedLink}" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe>`;
+        if (typeof renderRankerSnippets === 'function') renderRankerSnippets();
       }
       
-      wrapper.innerHTML = `<iframe src="${embedLink}" allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe>`;
       document.getElementById('pdf-modal').style.display = 'flex';
-      
-      if (typeof renderRankerSnippets === 'function') renderRankerSnippets();
+    }
+
+    async function savePhotoToQuoteBank(categoryName, btnEl) {
+       if(!currentPhotoIdForCategorization) return;
+       const originalText = btnEl.innerHTML;
+       btnEl.innerHTML = 'Saving...';
+       btnEl.disabled = true;
+       
+       const GAS_URL = "https://script.google.com/macros/s/AKfycbyXKXXm5DSJACcSqFaEXnH-3hAP5HG6uu2Aqry6HFf8I9jvPdfu5uStoAV0f0Llf3E/exec";
+       const targetRootId = "18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ"; // Quote Bank Root ID
+       
+       try {
+         const res = await fetch(`${GAS_URL}?action=categorize&fileId=${currentPhotoIdForCategorization}&categoryName=${categoryName}&targetRootId=${targetRootId}`);
+         const data = await res.json();
+         if(data.success) {
+           alert("✅ " + data.message);
+           closePdfModal();
+         } else {
+           alert("❌ Error: " + data.error);
+         }
+       } catch (err) {
+         alert("Network error: " + err.message);
+       } finally {
+         btnEl.innerHTML = originalText;
+         btnEl.disabled = false;
+       }
     }
     
     function closePdfModal() {
@@ -3271,7 +3346,13 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         margin-bottom: 12px;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
       `;
-      iconDiv.innerHTML = isFolder ? '📁' : '📄';
+      if (f.mimeType && f.mimeType.startsWith('image/')) {
+        iconDiv.innerHTML = `<img src="https://drive.google.com/thumbnail?id=${f.id}&sz=w400" style="width:100%; height:80px; object-fit:cover; border-radius:8px;">`;
+        iconDiv.style.width = '100%';
+        iconDiv.style.fontSize = 'initial'; // reset
+      } else {
+        iconDiv.innerHTML = isFolder ? '📁' : '📄';
+      }
 
       // Name Wrapper
       const nameDiv = document.createElement('div');
@@ -3332,10 +3413,16 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         openBtn.onclick = (e) => {
           e.stopPropagation();
           let embedLink = `https://drive.google.com/file/d/${f.id}/preview`;
+          
+          let context = 'default';
+          if(typeof QUOTE_BANK_ROOT_ID !== 'undefined' && cmsBreadcrumbs.length > 0 && cmsBreadcrumbs[0].id === QUOTE_BANK_ROOT_ID) {
+            context = 'quote-bank';
+          }
+          
           if (typeof window.openPdfModal === 'function') {
-            window.openPdfModal(f.name, embedLink);
+            window.openPdfModal(f.name, embedLink, context, f.id);
           } else if (typeof openPdfModal === 'function') {
-            openPdfModal(f.name, embedLink);
+            openPdfModal(f.name, embedLink, context, f.id);
           }
         };
         item.appendChild(openBtn);
