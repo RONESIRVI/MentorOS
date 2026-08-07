@@ -1498,7 +1498,7 @@
        const targetRootId = "1TqXpQc1MPN5dgw41-X1rODhT3l71TeNB"; // Quote Bank Target Root ID
        
        try {
-         const res = await fetch(`${GAS_URL}?action=categorize&fileId=${currentPhotoIdForCategorization}&categoryName=${categoryName}&targetRootId=${targetRootId}`);
+         const res = await fetch(`${GAS_URL}?action=categorize&fileId=${currentPhotoIdForCategorization}&categoryName=${encodeURIComponent(categoryName)}&targetRootId=${targetRootId}`);
          const data = await res.json();
          if(data.success) {
            alert("✅ " + data.message);
