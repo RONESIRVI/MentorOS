@@ -55,26 +55,40 @@
             </div>
           </div>
 
-          <!-- Action Plan (To-Do List) -->
-          <div class="panel">
-            <div class="panel-header">
-              <h2 class="panel-title">📅 Today's Action Plan</h2>
-              <a href="#" class="panel-action">View Full Planner</a>
+          <!-- Premium Split View: Action Plan & Syllabus Progress -->
+          <div class="premium-split-view" style="grid-column: 1 / -1;">
+            
+            <!-- Left Side: Action Plan -->
+            <div class="premium-panel left-panel">
+              <div class="premium-panel-header">
+                <div class="header-title-container">
+                  <span class="header-icon">📅</span>
+                  <h2 class="premium-title">Today's<br>Action Plan</h2>
+                </div>
+                <a href="#" class="premium-action">View Full<br>Planner <span class="arrow-circle">></span></a>
+              </div>
+              <div class="premium-task-list" id="action-plan-list">
+                <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">Loading today's tasks...</p>
+              </div>
             </div>
-            <div class="task-list" id="action-plan-list">
-              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading today's tasks...</p>
-            </div>
-          </div>
 
-          <!-- Progress Panel -->
-          <div class="panel">
-            <div class="panel-header">
-              <h2 class="panel-title">📈 Syllabus Progress</h2>
-              <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" class="panel-action" title="Update Progress in Google Sheet">Update 📝</a>
+            <!-- Vertical Wavy Divider -->
+            <div class="premium-divider"></div>
+
+            <!-- Right Side: Syllabus Progress -->
+            <div class="premium-panel right-panel">
+              <div class="premium-panel-header">
+                <div class="header-title-container">
+                  <span class="header-icon">📈</span>
+                  <h2 class="premium-title">Syllabus<br>Progress</h2>
+                </div>
+                <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" class="premium-action">Update<br>Progress</a>
+              </div>
+              <div class="premium-progress-list" id="syllabus-progress-list">
+                <p style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">Loading progress...</p>
+              </div>
             </div>
-            <div class="progress-list" id="syllabus-progress-list">
-              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading progress...</p>
-            </div>
+
           </div>
 
         </div>
