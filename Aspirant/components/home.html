@@ -1,0 +1,85 @@
+<div id="section-home" class="aspirant-section">
+        
+        <!-- Header Section -->
+        <div class="dash-header">
+          <div class="welcome-text">
+            <h1 id="welcome-message">Welcome back! 👋</h1>
+            <p>📅 <span id="current-date">Loading date...</span></p>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-info">
+              <h3 id="stat-study-time">--</h3>
+              <p>Today's Study Time</p>
+            </div>
+            <div class="stat-icon">⏱️</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-info">
+              <h3 id="stat-tasks-completed">--</h3>
+              <p>Tasks Completed</p>
+            </div>
+            <div class="stat-icon">✅</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-info">
+              <h3 id="stat-batch-rank">--</h3>
+              <p>Batch Rank</p>
+            </div>
+            <div class="stat-icon">🏆</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-info">
+              <h3 id="overall-progress-stat">--%</h3>
+              <p>Overall Syllabus</p>
+            </div>
+            <div class="stat-icon">🎯</div>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+          
+          <!-- Daily Planner Panel -->
+          <div class="panel" style="grid-column: 1 / -1;">
+            <div class="panel-header">
+              <h2 class="panel-title">📅 Today's Study Planner</h2>
+              <a href="#" class="panel-action">View Previous</a>
+            </div>
+            <div id="planner-container" style="width: 100%; min-height: 200px; max-height: 700px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; overflow-y: auto; overflow-x: hidden; text-align: center; padding: 10px;">
+              <p id="planner-loading" style="color: #64748b; font-weight: 500; padding: 40px 0;">Loading latest planner from database...</p>
+              <img id="daily-planner-img" src="" alt="Daily Study Planner" style="display: none; width: 100%; height: auto; border-radius: 8px;">
+            </div>
+          </div>
+
+          <!-- Action Plan (To-Do List) -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📅 Today's Action Plan</h2>
+              <a href="#" class="panel-action">View Full Planner</a>
+            </div>
+            <div class="task-list" id="action-plan-list">
+              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading today's tasks...</p>
+            </div>
+          </div>
+
+          <!-- Progress Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">📈 Syllabus Progress</h2>
+              <a href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" class="panel-action" title="Update Progress in Google Sheet">Update 📝</a>
+            </div>
+            <div class="progress-list" id="syllabus-progress-list">
+              <p style="color: #64748b; font-weight: 500; text-align: center; padding: 20px;">Loading progress...</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+        <!-- END SECTION: HOME -->
+
+        <!-- SECTION: COURSES (PAYMENT GATEWAY) -->

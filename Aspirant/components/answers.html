@@ -1,0 +1,119 @@
+<div id="section-answers" class="aspirant-section" style="display:none;">
+          <div class="dash-header">
+            <div class="page-title">
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Answer Writing 📝</h2>
+              <p style="color: #64748b;">Submit your answer PDFs via Google Drive link for evaluation.</p>
+            </div>
+          </div>
+          
+          <div class="content-grid" style="grid-template-columns: 1fr;">
+            <!-- Upload Form -->
+            <div class="card" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+              <h3 style="margin: 0 0 20px 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 8px;"><span>📤</span> Upload New Submission</h3>
+              
+              <!-- Row 1: Subject + Topic -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">📚 Subject *</label>
+                  <select id="ans-subject" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white; color: #0f172a; cursor: pointer;">
+                    <option value="">-- Select Subject --</option>
+                    <option value="GS Paper 1">GS Paper 1 (History, Geography, Society)</option>
+                    <option value="GS Paper 2">GS Paper 2 (Governance, Polity, IR)</option>
+                    <option value="GS Paper 3">GS Paper 3 (Economy, Environment, Security)</option>
+                    <option value="GS Paper 4">GS Paper 4 (Ethics)</option>
+                    <option value="Essay">Essay</option>
+                    <option value="CSAT">CSAT</option>
+                    <option value="Optional">Optional Subject</option>
+                    <option value="Current Affairs">Current Affairs</option>
+                    <option value="Full Length Test">Full Length Test</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">🏷️ Topic *</label>
+                  <input type="text" id="ans-topic" placeholder="e.g. French Revolution, Federalism..." style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;" autocomplete="off">
+                </div>
+              </div>
+
+              <!-- Row 2: Title + PDF Upload -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">✏️ Submission Title *</label>
+                  <input type="text" id="ans-title" placeholder="e.g. GS1 Answer Set - Day 3" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;" autocomplete="off">
+                </div>
+                <div>
+                  <label style="display: block; font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 8px;">📎 Upload PDF File *</label>
+                  <input type="file" id="ans-file" accept="application/pdf" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: #f8fafc;">
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div id="upload-progress-container" style="display:none; margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:600; color:#3b82f6; margin-bottom:6px;">
+                  <span>⏫ Uploading to Google Drive...</span>
+                  <span id="upload-percent">0%</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                  <div id="upload-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 0.4s ease;"></div>
+                </div>
+              </div>
+              
+              <button id="btn-submit-ans" onclick="window.submitAnswer()" style="padding: 14px 28px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🚀 Submit for Evaluation</button>
+            </div>
+            
+            <!-- Past Submissions Table -->
+            <div class="card" style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+              <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; color: #0f172a; display: flex; align-items: center; gap: 8px;"><span>📑</span> My Submissions</h3>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                  <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">📚 Subject</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">🏷️ Topic</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">✏️ Title & PDF</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">Date</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">Status</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">Score</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">Feedback</th>
+                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #475569;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="answers-table-body">
+                    <tr><td colspan="8" style="text-align: center; padding: 20px; color: #64748b;">Loading submissions...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Top Stats Grid (Adapted for Answer Writing) -->
+          <div class="stats-grid" style="margin-top: 24px; margin-bottom: 24px;">
+            <div class="stat-card blue">
+              <div class="stat-info">
+                <h3 id="stat-ans-total">0</h3>
+                <p>Total Submissions</p>
+              </div>
+              <div class="stat-icon">📑</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-info">
+                <h3 id="stat-ans-eval">0</h3>
+                <p>Evaluated</p>
+              </div>
+              <div class="stat-icon">✅</div>
+            </div>
+            <div class="stat-card amber">
+              <div class="stat-info">
+                <h3 id="stat-ans-pend">0</h3>
+                <p>Pending</p>
+              </div>
+              <div class="stat-icon">⏳</div>
+            </div>
+          </div>
+          
+        </div>
+        <!-- END SECTION: ANSWER WRITING -->
+
+        
+        <!-- END SECTION: ANSWER WRITING -->
+
+        <!-- SECTION: QUOTE BANK -->

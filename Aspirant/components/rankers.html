@@ -1,0 +1,33 @@
+<div id="section-rankers" class="aspirant-section" style="display:none; height: 100%;">
+          <div class="dash-header" style="margin-bottom: 24px;">
+            <div class="page-title">
+              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">RONE Ranker's Hub</h2>
+              <p style="color: #64748b; font-size: 1rem; margin-top: 5px;">Access organized premium materials and nested folders directly from Drive.</p>
+            </div>
+          </div>
+          
+          <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); min-height: calc(100vh - 200px); padding: 20px;">
+            
+            <!-- Breadcrumb Navigation -->
+            <div id="rankers-breadcrumb" style="display: flex; gap: 8px; align-items: center; margin-bottom: 24px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; white-space: nowrap;">
+              <button onclick="window.loadRankersFolder('ROOT', &quot;RONE Ranker's Root&quot;)" style="background:none; border:none; color:#3b82f6; font-weight:700; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:6px;">
+                🏠 Home
+              </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="rankers-loader" style="display:none; text-align:center; padding: 40px; color: #64748b; font-size: 1.1rem;">
+              <div style="font-size: 2rem; margin-bottom: 10px; animation: spin 2s linear infinite;">⏳</div>
+              Fetching Drive Files...
+            </div>
+
+            <!-- Grid Container -->
+            <div class="content-grid" id="rankers-grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+              <!-- Cards will be injected here -->
+            </div>
+
+          </div>
+        </div>
+        <!-- END SECTION: RONE RANKERS -->
+
+        <!-- SECTION: REPORT CARD -->
