@@ -805,7 +805,7 @@
       if (!loadedComponents[sectionId]) {
         try {
           dynamicContent.innerHTML = '<div style="padding:40px; text-align:center;">Loading...</div>';
-          const response = await fetch('./components/' + sectionId + '.html');
+          const response = await fetch('./components/' + sectionId + '.html?v=' + new Date().getTime());
           if (!response.ok) throw new Error('Component not found');
           const html = await response.text();
           loadedComponents[sectionId] = html;
