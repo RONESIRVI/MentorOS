@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RONE Ticker Manager</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --primary: #38bdf8;
+      --danger: #ef4444;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header h1 {
+      margin: 0;
+      color: var(--primary);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+    }
+    .item-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+    .item button {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .add-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .add-form input {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: #fff;
+      border-radius: 6px;
+      outline: none;
+    }
+    .btn-add {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .save-section {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .btn-save {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      transition: 0.2s;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    .token-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .token-modal.active {
+      display: flex;
+    }
+    .token-box {
+      background: var(--card);
+      padding: 30px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+    }
+    .token-box input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--border);
+      color: #fff;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .token-box button {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+    }
+    #status-msg {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <script>
+    // Security Lock (Google Authenticator TOTP Support)
+    (function() {
+      if (sessionStorage.getItem('rone_authenticated') !== 'true') {
+        document.write(`
+          <div id="dashboard-lock-overlay" style="position:fixed; inset:0; background:rgba(2, 11, 24, 0.96); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:9999999; display:flex; align-items:center; justify-content:center; padding:20px; font-family:'Plus Jakarta Sans', sans-serif;">
+            <div style="background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.35); border-radius:24px; padding:40px 30px; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(56, 189, 248, 0.15); text-align:center; position:relative; animation: lockPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+              <h3 style="color:#fff; margin:0 0 10px; font-size:1.4rem; font-weight:800; letter-spacing:0.5px;">Dashboard Locked</h3>
+              <p style="color:rgba(255,255,255,0.65); margin:0 0 25px; font-size:0.9rem; line-height:1.5;">Enter the 6-digit TOTP / Passcode to unlock.</p>
+              
+              <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:25px;">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 0)">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 1)">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 2)">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 3)">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 4)">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 5)">
+              </div>
+              
+              <div id="lock-error-message" style="display:none; color:#ef4444; font-size:0.85rem; font-weight:600; margin-bottom:20px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding:10px; border-radius:8px;"></div>
+              
+              <button onclick="window.location.href='../index.html'" style="background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:0.8rem; cursor:pointer; text-decoration:underline; font-family:inherit;">← Return Home</button>
+            </div>
+            
+            <style>
+              @keyframes lockPop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+              @keyframes lockFadeOut { to { opacity: 0; transform: scale(1.05); } }
+              @keyframes lockShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
+              .lock-pin-box:focus { border-color: #38bdf8 !important; box-shadow: 0 0 8px rgba(56,189,248,0.4) !important; }
+            </style>
+          </div>
+        `);
+        
+        setTimeout(() => {
+          const overlay = document.getElementById('dashboard-lock-overlay');
+          const inputs = overlay.querySelectorAll('.lock-pin-box');
+          
+          window.handleLockPin = function(input, index) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value && index < 5) {
+              inputs[index + 1].focus();
+            }
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            if (entered.length === 6) {
+              verifyLockPin();
+            }
+          };
+          
+          window.verifyLockPin = async function() {
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            const error = document.getElementById('lock-error-message');
+            
+            async function generateTOTP(secretBase32, timeOffset = 0) {
+              const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+              let bits = 0, value = 0, index = 0;
+              const output = new Uint8Array(Math.floor(secretBase32.length * 5 / 8));
+              for (let i = 0; i < secretBase32.length; i++) {
+                const val = alphabet.indexOf(secretBase32[i].toUpperCase());
+                if (val === -1) continue;
+                value = (value << 5) | val;
+                bits += 5;
+                if (bits >= 8) { output[index++] = (value >>> (bits - 8)) & 255; bits -= 8; }
+              }
+              const key = await crypto.subtle.importKey('raw', output, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+              let timeStep = Math.floor(Date.now() / 30000) + timeOffset;
+              const timeBytes = new Uint8Array(8);
+              for (let i = 7; i >= 0; i--) { timeBytes[i] = timeStep & 0xff; timeStep = Math.floor(timeStep / 256); }
+              const signature = await crypto.subtle.sign('HMAC', key, timeBytes);
+              const hmacResult = new Uint8Array(signature);
+              const offset = hmacResult[19] & 0xf;
+              const code = (((hmacResult[offset] & 0x7f) << 24) | ((hmacResult[offset + 1] & 0xff) << 16) | ((hmacResult[offset + 2] & 0xff) << 8) | (hmacResult[offset + 3] & 0xff)) % 1000000;
+              return String(code).padStart(6, '0');
+            }
+            
+            const appOtp = await generateTOTP('RONEADMINSECRET2', 0);
+            const appOtpPrev = await generateTOTP('RONEADMINSECRET2', -1);
+            
+            if (entered === '909090' || entered === '786090' || entered === appOtp || entered === appOtpPrev) {
+              sessionStorage.setItem('rone_authenticated', 'true');
+              overlay.style.animation = 'lockFadeOut 0.3s ease forwards';
+              setTimeout(() => overlay.remove(), 300);
+            } else {
+              const card = overlay.querySelector('div');
+              card.style.animation = 'none';
+              card.offsetHeight;
+              card.style.animation = 'lockShake 0.4s ease';
+              error.textContent = '❌ Invalid Passcode / TOTP!';
+              error.style.display = 'block';
+              inputs.forEach(inp => inp.value = '');
+              inputs[0].focus();
+            }
+          };
+          
+          inputs[0].focus();
+          
+          inputs.forEach((input, index) => {
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Backspace' && !input.value && index > 0) {
+                inputs[index - 1].focus();
+                inputs[index - 1].value = '';
+              }
+            });
+          });
+        }, 50);
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Token Modal -->
+  <div class="token-modal" id="tokenModal">
+    <div class="token-box">
+      <h3>GitHub Authorization</h3>
+      <p style="font-size: 0.9rem; color: #cbd5e1;">Enter your GitHub Personal Access Token to publish directly to the portal.</p>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxx">
+      <button onclick="saveToken()">Save & Continue</button>
+      <p style="margin-top:15px; font-size: 0.8rem; color: #64748b; cursor:pointer;" onclick="closeTokenModal()">Skip (Test Mode)</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>RONE Ticker Manager</h1>
+      <p>Manage the bottom modules strip ticker. Changes will be pushed live directly.</p>
+      <a href="../index.html" style="color:var(--primary); text-decoration:none;">&larr; Back to Portal</a>
+    </div>
+
+    <!-- Bottom Ticker Manager -->
+    <div class="card">
+      <h2>Bottom Ticker (Modules Strip)</h2>
+      <ul class="item-list" id="bottomTickerList">
+        <!-- JS Render -->
+      </ul>
+      <div class="add-form">
+        <input type="text" id="newBottomItem" placeholder="e.g. 🧠 AI Mock Test">
+        <button class="btn-add" onclick="addBottomItem()">Add Module</button>
+      </div>
+    </div>
+
+    <div class="save-section">
+      <button class="btn-save" onclick="publishChanges()">🚀 Publish to Portal</button>
+      <div id="status-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    let bottomItems = [];
+    const owner = 'RONESIRVI';
+    const repo = 'MentorOS';
+    const branch = 'main';
+
+    function init() {
+      // Load current data
+      fetch('../bottom_ticker.json?t=' + Date.now())
+        .then(res => res.json())
+        .then(data => {
+          bottomItems = data;
+          renderBottom();
+        })
+        .catch(err => {
+          console.error("Error loading bottom ticker:", err);
+          bottomItems = ["📚 LMS", "✍️ Answer Writing", "📊 AI Analytics"];
+          renderBottom();
+        });
+    }
+
+    function renderBottom() {
+      const list = document.getElementById('bottomTickerList');
+      list.innerHTML = '';
+      bottomItems.forEach((item, idx) => {
+        const li = document.createElement('li');
+        li.className = 'item';
+        li.innerHTML = `
+          <span>${item}</span>
+          <button onclick="removeBottomItem(${idx})">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function addBottomItem() {
+      const inp = document.getElementById('newBottomItem');
+      if(inp.value.trim()){
+        bottomItems.push(inp.value.trim());
+        inp.value = '';
+        renderBottom();
+      }
+    }
+
+    function removeBottomItem(idx) {
+      bottomItems.splice(idx, 1);
+      renderBottom();
+    }
+
+    function openTokenModal() {
+      document.getElementById('tokenModal').classList.add('active');
+    }
+    function closeTokenModal() {
+      document.getElementById('tokenModal').classList.remove('active');
+    }
+    function saveToken() {
+      const val = document.getElementById('ghToken').value.trim();
+      if(val) {
+        localStorage.setItem('rone_gh_token', val);
+        closeTokenModal();
+      }
+    }
+
+    async function publishChanges() {
+      const token = localStorage.getItem('rone_gh_token');
+      if(!token) {
+        openTokenModal();
+        return;
+      }
+
+      const status = document.getElementById('status-msg');
+      status.style.color = '#38bdf8';
+      status.textContent = 'Publishing to GitHub...';
+
+      try {
+        await updateFileOnGitHub('bottom_ticker.json', JSON.stringify(bottomItems, null, 2), token);
+        
+        status.style.color = '#10b981';
+        status.textContent = '✅ Published Successfully! Portal will update in ~30 seconds.';
+      } catch (err) {
+        status.style.color = 'var(--danger)';
+        status.textContent = '❌ Error: ' + err.message;
+        if(err.message.includes('Bad credentials')) {
+          localStorage.removeItem('rone_gh_token');
+          openTokenModal();
+        }
+      }
+    }
+
+    async function updateFileOnGitHub(path, content, token) {
+      const url = \`https://api.github.com/repos/\${owner}/\${repo}/contents/\${path}\`;
+      
+      // 1. Get current SHA
+      let sha = null;
+      try {
+        const res = await fetch(url, {
+          headers: { 'Authorization': \`token \${token}\` }
+        });
+        if(res.ok) {
+          const data = await res.json();
+          sha = data.sha;
+        }
+      } catch (e) {
+        // file might not exist, which is fine
+      }
+
+      // 2. Put new content
+      const base64Content = btoa(unescape(encodeURIComponent(content)));
+      
+      const body = {
+        message: 'feat: Update ticker via Web Manager',
+        content: base64Content,
+        branch: branch
+      };
+      if (sha) body.sha = sha;
+
+      const putRes = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': \`token \${token}\`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!putRes.ok) {
+        const errData = await putRes.json();
+        throw new Error(errData.message);
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

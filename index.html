@@ -111,7 +111,7 @@
         </nav>
 
         <div class="nav-cta">
-          <a href="javascript:void(0)" onclick="openTotpModal('aspirant')" class="btn-outline" id="nav-login-btn">Student Login</a>
+          <a href="Admin/bottom-ticker-manager.html" class="btn-outline" id="nav-login-btn">RONE Ticker Manager</a>
           <a href="Other_Projects/pdf_to_jpg_tool.html" class="btn-primary" id="nav-enroll-btn" target="_blank"
             title="PDF to JPG Converter Tool" style="display:inline-flex;align-items:center;gap:7px;">
             <svg viewBox="0 0 24 24" fill="white" width="15" height="15">
@@ -362,21 +362,8 @@
     <!-- ===== PLATFORM MODULES STRIP ===== -->
     <section class="modules-strip">
       <div class="container">
-        <div class="modules-scroll">
-          <div class="module-chip">📚 LMS</div>
-          <div class="module-chip">✍️ Answer Writing</div>
-          <div class="module-chip">🤝 Mentorship</div>
-          <div class="module-chip">📊 AI Analytics</div>
-          <div class="module-chip">📅 Daily Planner</div>
-          <div class="module-chip">📰 Current Affairs</div>
-          <div class="module-chip">🗓️ Study Planner</div>
-          <div class="module-chip">📈 Report Card</div>
-          <div class="module-chip">🔔 Smart Alerts</div>
-          <div class="module-chip">💰 Finance ERP</div>
-          <div class="module-chip">🏅 Leaderboard</div>
-          <div class="module-chip">💬 Mentor Chat</div>
-          <div class="module-chip">🎥 Video Classes</div>
-          <div class="module-chip">🤖 AI Rank Predictor</div>
+        <div class="modules-scroll" id="bottomTickerScroll">
+          <div class="module-chip">Loading...</div>
         </div>
       </div>
     </section>
@@ -740,7 +727,46 @@
     }
 
     // Call loadTicker when DOM is ready
-    document.addEventListener('DOMContentLoaded', loadTicker);
+    
+    // Fetch and render the bottom modules strip ticker
+    async function loadBottomTicker() {
+      const scrollDiv = document.getElementById('bottomTickerScroll');
+      if (!scrollDiv) return;
+      try {
+        const res = await fetch(`bottom_ticker.json?t=${new Date().getTime()}`);
+        if (!res.ok) throw new Error('Failed to load bottom_ticker.json');
+
+        const data = await res.json();
+        if (data && data.length > 0) {
+          let html = '';
+          // Duplicate items to ensure smooth infinite scrolling
+          for (let i = 0; i < 4; i++) {
+            data.forEach(item => {
+              html += `<div class="module-chip">${item}</div>`;
+            });
+          }
+          scrollDiv.innerHTML = html;
+        } else {
+          scrollDiv.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('Error loading bottom ticker:', e);
+        // Fallback static items
+        let html = '';
+        const fallbackItems = ["📚 LMS", "✍️ Answer Writing", "🤝 Mentorship", "📊 AI Analytics", "📅 Daily Planner", "📰 Current Affairs", "🗓️ Study Planner", "📈 Report Card", "🔔 Smart Alerts", "💰 Finance ERP"];
+        for (let i = 0; i < 4; i++) {
+          fallbackItems.forEach(item => {
+            html += `<div class="module-chip">${item}</div>`;
+          });
+        }
+        scrollDiv.innerHTML = html;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadTicker();
+      loadBottomTicker();
+    });
   </script>
 
   <!-- ===== SECURE TOTP/PASSCODE MODAL ===== -->
