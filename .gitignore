@@ -1,4 +1,4 @@
 RONE_Ticker_Manager/
 node_modules/
-Other_Projects/
+# Other_Projects/ (unignored to allow PDF tool deployment)
 Quote_Bank_Resources_Manager/~$categories.xlsx

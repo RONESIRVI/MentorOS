@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF to JPG Converter — Multi-PDF & Google Drive</title>
+  <meta name="description" content="Convert multiple PDFs or Google Drive links to high-quality JPG images instantly in your browser. 100% private, no upload needed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- FileSaver -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <style>
+    /* ── DESIGN TOKENS ──────────────────────────────── */
+    :root {
+      --bg-base:        #020b18;
+      --bg-card:        rgba(255,255,255,0.04);
+      --bg-card-hover:  rgba(255,255,255,0.07);
+      --border:         rgba(255,255,255,0.08);
+      --accent-1:       #06b6d4;
+      --accent-2:       #0891b2;
+      --accent-3:       #67e8f9;
+      --gdrive:         #34a853;
+      --gdrive-bg:      rgba(52,168,83,0.1);
+      --gdrive-border:  rgba(52,168,83,0.3);
+      --accent-glow:    rgba(6,182,212,0.35);
+      --success:        #34d399;
+      --warning:        #fbbf24;
+      --danger:         #f87171;
+      --text-primary:   #e2f8ff;
+      --text-secondary: #94a3b8;
+      --text-muted:     #475569;
+      --radius-sm:      8px;
+      --radius-md:      14px;
+      --radius-lg:      22px;
+      --radius-xl:      32px;
+      --transition:     all 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── RESET ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATED CANVAS BACKGROUND ──────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────── */
+    .app {
+      position: relative; z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Full-height two-column split */
+    .app-body {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      flex: 1;
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      margin-top: 0;
+    }
+
+    /* LEFT PANEL — independent scroll */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 100%;
+      border-right: 1px solid var(--border);
+      padding: 20px 18px 120px;
+      scrollbar-width: thin;
+    }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.25); border-radius: 4px; }
+    .sidebar > * + * { margin-top: 18px; }
+
+    /* RIGHT PANEL — independent scroll */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      height: 100%;
+      padding: 20px 24px 120px;
+      min-width: 0;
+      scrollbar-width: thin;
+    }
+    .main-content::-webkit-scrollbar { width: 4px; }
+    .main-content::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.25); border-radius: 4px; }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 14px; }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .logo-icon svg { width: 22px; height: 22px; fill: white; }
+    .logo-text h1 {
+      font-size: 20px; font-weight: 700;
+      background: linear-gradient(135deg, #fff 40%, var(--accent-3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo-text span { font-size: 12px; color: var(--text-muted); }
+    .header-badges { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    /* ── HEADER SETTINGS (inline sliders) ────────────────── */
+    .header-settings {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      flex-shrink: 0;
+    }
+    .header-settings-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-settings-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .header-settings-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-3);
+      background: rgba(6,182,212,0.1);
+      border-radius: 6px;
+      padding: 2px 8px;
+      min-width: 52px;
+      text-align: center;
+    }
+    .header-settings input[type="range"] {
+      width: 100px;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+    }
+    .header-settings input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 50%;
+      border: 2px solid var(--bg-base);
+      box-shadow: 0 0 8px var(--accent-glow);
+      cursor: pointer;
+    }
+    .header-divider {
+      width: 1px; height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 999px;
+      font-size: 12px; font-weight: 500;
+    }
+    .badge-green {
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.25);
+      color: var(--success);
+    }
+    .badge-green::before {
+      content: ''; width: 7px; height: 7px;
+      background: var(--success); border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .badge-purple {
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.25);
+      color: var(--accent-3);
+    }
+    .badge-gdrive {
+      background: var(--gdrive-bg);
+      border: 1px solid var(--gdrive-border);
+      color: var(--gdrive);
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    /* ── SECTION TITLE ──────────────────────────────── */
+    .section-title {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── SIDEBAR PANELS ──────────────────────────────── */
+    .upload-area {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--bg-card);
+      position: relative; overflow: hidden;
+    }
+    .drop-zone::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .drop-zone:hover::before,
+    .drop-zone.drag-over::before { opacity: 1; }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent-1);
+      background: rgba(99,102,241,0.04);
+      box-shadow: 0 0 40px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+    .drop-zone.drag-over {
+      border-style: solid;
+      animation: zone-pulse 0.9s ease-in-out infinite alternate;
+    }
+    @keyframes zone-pulse {
+      from { box-shadow: 0 0 20px var(--accent-glow); }
+      to   { box-shadow: 0 0 60px var(--accent-glow), 0 0 100px rgba(139,92,246,0.15); }
+    }
+    .drop-icon {
+      width: 48px; height: 48px; margin: 0 auto 14px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+      border: 1px solid rgba(99,102,241,0.3); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .drop-zone:hover .drop-icon { transform: scale(1.08); }
+    .drop-icon svg { width: 24px; height: 24px; }
+    .drop-zone h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .drop-zone p { color: var(--text-secondary); font-size: 12px; margin-bottom: 14px; }
+    .btn-upload {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white; font-weight: 600; font-size: 13px;
+      border: none; border-radius: var(--radius-md);
+      cursor: pointer; transition: var(--transition);
+      box-shadow: 0 4px 20px var(--accent-glow);
+      position: relative; overflow: hidden;
+    }
+    .btn-upload::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-upload:hover::before { left: 100%; }
+    .btn-upload:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+    .upload-hint { margin-top: 10px; font-size: 11px; color: var(--text-muted); }
+    #file-input { display: none; }
+
+    /* Google Drive Panel */
+    .gdrive-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex; flex-direction: column;
+      transition: var(--transition);
+    }
+    .gdrive-panel:hover {
+      border-color: var(--gdrive-border);
+      background: rgba(52,168,83,0.03);
+    }
+    .gdrive-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .gdrive-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: var(--gdrive-bg);
+      border: 1px solid var(--gdrive-border);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gdrive-icon svg { width: 20px; height: 20px; }
+    .gdrive-header-text h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .gdrive-header-text p { font-size: 11px; color: var(--text-secondary); }
+
+    .gdrive-input-row {
+      display: flex; gap: 10px;
+      margin-bottom: 12px;
+    }
+    .gdrive-input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-size: 13px; font-family: inherit;
+      outline: none; transition: var(--transition);
+    }
+    .gdrive-input::placeholder { color: var(--text-muted); }
+    .gdrive-input:focus {
+      border-color: var(--gdrive);
+      box-shadow: 0 0 0 3px rgba(52,168,83,0.1);
+      background: rgba(52,168,83,0.05);
+    }
+    .btn-gdrive {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; white-space: nowrap;
+      background: linear-gradient(135deg, #34a853, #1e8e3e);
+      color: white; font-weight: 600; font-size: 13px;
+      border: none; border-radius: var(--radius-md);
+      cursor: pointer; transition: var(--transition);
+      box-shadow: 0 4px 16px rgba(52,168,83,0.3);
+    }
+    .btn-gdrive:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(52,168,83,0.4); }
+    .btn-gdrive:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-gdrive svg { width: 15px; height: 15px; fill: white; }
+
+    .gdrive-hint {
+      font-size: 11px; color: var(--text-muted); line-height: 1.6;
+    }
+    .gdrive-hint code {
+      font-family: 'Courier New', monospace;
+      background: rgba(255,255,255,0.06);
+      padding: 1px 6px; border-radius: 4px;
+      font-size: 10px; color: var(--text-secondary);
+    }
+    .gdrive-loading {
+      display: none;
+      align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: var(--gdrive-bg);
+      border: 1px solid var(--gdrive-border);
+      border-radius: var(--radius-sm);
+      font-size: 12px; color: var(--gdrive);
+      margin-top: 10px;
+    }
+    .gdrive-loading.show { display: flex; }
+
+    /* ── PDF QUEUE CARDS ──────────────────────────────── */
+    .queue-section {
+      display: none; margin-bottom: 24px;
+    }
+    .queue-section.visible { display: block; }
+
+    /* Card grid — single column inside sidebar */
+    .queue-scroll {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .pdf-tab {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: card-in 0.35s ease backwards;
+    }
+    .pdf-tab::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .pdf-tab:hover {
+      border-color: rgba(6,182,212,0.4);
+      background: rgba(6,182,212,0.04);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(6,182,212,0.12);
+    }
+    .pdf-tab:hover::before { opacity: 1; }
+    .pdf-tab.active {
+      border-color: var(--accent-1);
+      background: rgba(6,182,212,0.07);
+      box-shadow: 0 0 0 1px var(--accent-1), 0 8px 28px rgba(6,182,212,0.2);
+    }
+    .pdf-tab.active::before { opacity: 1; }
+
+    /* Card header band */
+    .pdf-tab-header {
+      padding: 16px 16px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .pdf-tab-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+    }
+    .pdf-tab-icon.local {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+    .pdf-tab-icon.gdrive {
+      background: var(--gdrive-bg);
+      border: 1px solid var(--gdrive-border);
+      color: var(--gdrive);
+    }
+
+    .pdf-tab-remove {
+      width: 22px; height: 22px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-muted);
+      font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .pdf-tab-remove:hover {
+      background: rgba(248,113,113,0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    /* Card body */
+    .pdf-tab-body {
+      padding: 0 16px 14px;
+    }
+    .pdf-tab-info { display: flex; flex-direction: column; gap: 4px; }
+    .pdf-tab-name {
+      font-size: 13px; font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .pdf-tab-pages {
+      font-size: 11px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pdf-tab.active .pdf-tab-pages { color: var(--accent-3); }
+    .pdf-tab-pages::before {
+      content: '';
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--text-muted); flex-shrink: 0;
+    }
+    .pdf-tab.active .pdf-tab-pages::before { background: var(--accent-1); }
+
+    /* Card footer strip */
+    .pdf-tab-footer {
+      border-top: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(0,0,0,0.1);
+    }
+    .pdf-tab-badge {
+      font-size: 10px; font-weight: 600;
+      padding: 2px 8px; border-radius: 99px;
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.2);
+      color: var(--accent-3);
+    }
+    .pdf-tab.active .pdf-tab-badge {
+      background: rgba(6,182,212,0.2);
+      border-color: var(--accent-1);
+    }
+    .pdf-tab-source-label {
+      font-size: 10px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    .add-more-btn {
+      display: flex; flex-direction: row; align-items: center; justify-content: center;
+      gap: 8px; padding: 14px 16px;
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-muted); font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: var(--transition);
+      width: 100%;
+    }
+    .add-more-btn:hover { border-color: var(--accent-1); color: var(--accent-3); background: rgba(99,102,241,0.05); }
+
+    /* ── CONTROLS ────────────────────────────────────── */
+    .controls-section { display: none; }
+    .controls-section.visible { display: block; }
+
+    .controls-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .control-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 18px;
+      transition: var(--transition);
+    }
+    .control-card:hover { border-color: rgba(99,102,241,0.3); background: var(--bg-card-hover); }
+    .control-label {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .control-label span:first-child {
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .control-value {
+      font-size: 14px; font-weight: 700; color: var(--accent-3);
+      background: rgba(99,102,241,0.1); border-radius: 6px;
+      padding: 2px 10px; min-width: 60px; text-align: center;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 5px;
+      background: rgba(255,255,255,0.08); border-radius: 99px; outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      border-radius: 50%; border: 3px solid var(--bg-base);
+      box-shadow: 0 0 10px var(--accent-glow); cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 0 20px var(--accent-glow); }
+    .slider-ticks { display: flex; justify-content: space-between; margin-top: 7px; }
+    .slider-ticks span { font-size: 10px; color: var(--text-muted); }
+
+    /* ── PAGES SECTION ───────────────────────────────── */
+    .pages-section { display: none; margin-bottom: 28px; }
+    .pages-section.visible { display: block; }
+
+    .pages-toolbar {
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+      gap: 10px; margin-bottom: 18px;
+    }
+    .pages-toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .page-count-badge {
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 99px; padding: 4px 14px;
+      font-size: 12px; font-weight: 600; color: var(--accent-3);
+    }
+    .btn-sm {
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      transition: var(--transition); border: 1px solid var(--border);
+      background: transparent; color: var(--text-secondary);
+    }
+    .btn-sm:hover { background: var(--bg-card-hover); border-color: var(--accent-1); color: var(--text-primary); }
+
+    .page-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+    }
+    .page-card {
+      position: relative; border-radius: var(--radius-md); overflow: hidden;
+      cursor: pointer; border: 2px solid var(--border);
+      transition: var(--transition);
+      animation: card-in 0.35s ease backwards;
+      background: rgba(255,255,255,0.02);
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .page-card:hover { border-color: var(--accent-1); box-shadow: 0 0 18px var(--accent-glow); transform: translateY(-3px); }
+    .page-card.selected { border-color: var(--accent-1); box-shadow: 0 0 0 1px var(--accent-1), 0 0 22px var(--accent-glow); }
+
+    .page-thumbnail { width: 100%; aspect-ratio: 210/297; display: block; background: #fff; }
+    .page-overlay {
+      position: absolute; top: 8px; left: 8px; right: 8px;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      pointer-events: none;
+    }
+    .page-checkbox {
+      width: 20px; height: 20px; border-radius: 5px;
+      border: 2px solid rgba(255,255,255,0.4);
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); pointer-events: all; cursor: pointer;
+    }
+    .page-card.selected .page-checkbox { background: var(--accent-1); border-color: var(--accent-1); }
+    .page-checkbox svg {
+      width: 12px; height: 12px; fill: white;
+      opacity: 0; transform: scale(0.5); transition: var(--transition);
+    }
+    .page-card.selected .page-checkbox svg { opacity: 1; transform: scale(1); }
+    .page-num {
+      font-size: 10px; font-weight: 600; color: white;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      border-radius: 5px; padding: 2px 7px;
+    }
+    .page-footer {
+      padding: 8px 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(0,0,0,0.25);
+    }
+    .page-label { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+    .btn-dl-single {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 9px;
+      background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 5px; color: var(--accent-3);
+      font-size: 10px; font-weight: 600;
+      cursor: pointer; transition: var(--transition);
+    }
+    .btn-dl-single:hover { background: rgba(99,102,241,0.3); transform: scale(1.05); }
+    .btn-dl-single svg { width: 10px; height: 10px; fill: currentColor; }
+
+    .thumb-skeleton {
+      width: 100%; aspect-ratio: 210/297;
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ── PROGRESS ────────────────────────────────────── */
+    .progress-section { display: none; margin-bottom: 28px; animation: slide-down 0.3s ease; }
+    .progress-section.visible { display: block; }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .progress-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px;
+    }
+    .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .progress-header span { font-size: 13px; font-weight: 600; }
+    .progress-pct { font-size: 12px; color: var(--accent-3); font-weight: 700; }
+    .progress-bar-bg { height: 7px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+      background-size: 200% 100%;
+      border-radius: 99px; width: 0%; transition: width 0.3s ease;
+      animation: bar-flow 2s linear infinite;
+    }
+    @keyframes bar-flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+    .progress-log {
+      margin-top: 10px; font-size: 11px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid rgba(99,102,241,0.2); border-top-color: var(--accent-1);
+      border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ACTION BAR ──────────────────────────────────── */
+    .action-bar {
+      display: none;
+      position: sticky; bottom: 20px;
+      background: rgba(8,11,20,0.88);
+      backdrop-filter: blur(24px) saturate(1.5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 14px 22px;
+      align-items: center; justify-content: space-between; flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
+      z-index: 100;
+      animation: bar-rise 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes bar-rise {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .action-bar.visible { display: flex; }
+    .action-info { display: flex; flex-direction: column; gap: 2px; }
+    .action-info strong { font-size: 13px; font-weight: 600; }
+    .action-info span { font-size: 11px; color: var(--text-secondary); }
+    .action-buttons { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: var(--radius-md);
+      font-weight: 600; font-size: 13px; cursor: pointer;
+      transition: var(--transition); border: none; white-space: nowrap;
+    }
+    .btn-action svg { width: 15px; height: 15px; }
+    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+    .btn-convert {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: white; box-shadow: 0 4px 20px var(--accent-glow);
+      position: relative; overflow: hidden;
+    }
+    .btn-convert::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-convert:hover::before { left: 100%; }
+    .btn-convert:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--accent-glow); }
+    .btn-convert svg { fill: white; }
+
+    .btn-zip {
+      background: transparent;
+      border: 1px solid var(--border) !important;
+      color: var(--text-secondary);
+    }
+    .btn-zip:not(:disabled):hover { border-color: var(--accent-1) !important; color: var(--text-primary); background: rgba(99,102,241,0.08); }
+
+    .btn-all {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      border: none !important;
+      color: white;
+      box-shadow: 0 4px 16px rgba(22,163,74,0.35);
+    }
+    .btn-all:not(:disabled):hover { background: linear-gradient(135deg, #15803d, #166534); box-shadow: 0 8px 24px rgba(22,163,74,0.45); transform: translateY(-2px); }
+
+    /* ── TOAST ───────────────────────────────────────── */
+    .toast-container {
+      position: fixed; bottom: 85px; right: 22px;
+      display: flex; flex-direction: column-reverse; gap: 8px; z-index: 9999;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      background: rgba(12,15,28,0.97);
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      font-size: 13px; font-weight: 500; max-width: 340px;
+      animation: toast-in 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      backdrop-filter: blur(12px);
+    }
+    .toast.toast-out { animation: toast-out 0.3s ease forwards; }
+    @keyframes toast-in  { from { opacity: 0; transform: translateX(24px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+    @keyframes toast-out { to   { opacity: 0; transform: translateX(24px) scale(0.9); } }
+    .toast-icon { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .toast.success .toast-icon { background: rgba(52,211,153,0.15); color: var(--success); border: 1px solid rgba(52,211,153,0.3); }
+    .toast.error   .toast-icon { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+    .toast.info    .toast-icon { background: rgba(99,102,241,0.15); color: var(--accent-3); border: 1px solid rgba(99,102,241,0.3); }
+    .toast.warning .toast-icon { background: rgba(251,191,36,0.12); color: var(--warning); border: 1px solid rgba(251,191,36,0.3); }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 24px 0 0;
+      border-top: 1px solid var(--border); margin-top: 40px;
+      color: var(--text-muted); font-size: 12px; line-height: 1.8;
+    }
+    footer span { color: var(--accent-3); }
+
+    /* ── SCROLLBAR ───────────────────────────────────── */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .app-body { grid-template-columns: 280px 1fr; }
+    }
+    @media (max-width: 780px) {
+      .app {
+        height: auto; overflow: visible;
+      }
+      .app-body {
+        grid-template-columns: 1fr;
+        overflow: visible;
+        height: auto;
+      }
+      .sidebar {
+        height: auto; overflow: visible;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 16px 16px 24px;
+      }
+      .main-content {
+        height: auto; overflow: visible;
+        padding: 16px;
+      }
+      header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .page-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .action-bar { flex-direction: column; align-items: stretch; }
+      .action-buttons { flex-direction: column; }
+      .btn-action { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="app">
+
+  <!-- ══════════ HEADER ══════════ -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8L14 2zm-1 1.5L18.5 9H13V3.5zM6 4h5v7h7v9H6V4z"/><rect x="8" y="14" width="8" height="1.5" rx=".75"/><rect x="8" y="17" width="5" height="1.5" rx=".75"/></svg>
+      </div>
+      <div class="logo-text">
+        <h1>PDF → JPG Converter</h1>
+        <span>Multi-PDF · Google Drive · 100% Private</span>
+      </div>
+    </div>
+
+    <!-- Inline Settings in header -->
+    <div class="header-settings">
+      <div class="header-settings-group">
+        <span class="header-settings-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 12h2v5H7v-5zm4-7h2v12h-2V5zm4 4h2v8h-2V9z"/></svg>
+          DPI
+        </span>
+        <input type="range" id="dpi-slider" min="72" max="1200" value="150" step="1" />
+        <span class="header-settings-value" id="dpi-value">150</span>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-settings-group">
+        <span class="header-settings-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:3px;"><path d="M21 6.5l-4-4-8.5 8.5-2 4.5 4.5-2L21 6.5z"/></svg>
+          Quality
+        </span>
+        <input type="range" id="quality-slider" min="50" max="100" value="85" step="1" />
+        <span class="header-settings-value" id="quality-value">85%</span>
+      </div>
+    </div>
+
+    <div class="header-badges">
+      <span class="badge badge-green">Runs Locally</span>
+      <span class="badge badge-purple">Multi-PDF</span>
+      <span class="badge badge-gdrive">Google Drive ✓</span>
+    </div>
+  </header>
+
+  <!-- ══════════ APP BODY (sidebar + main) ══════════ -->
+  <div class="app-body">
+
+    <!-- ─── LEFT SIDEBAR ─── -->
+    <aside class="sidebar">
+
+      <!-- Upload Panel -->
+      <div class="upload-area">
+        <p class="section-title">Add PDFs</p>
+
+        <!-- Local Drop Zone -->
+        <div class="drop-zone" id="drop-zone">
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <defs>
+                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <h2>Drop PDFs here</h2>
+          <p>Drag &amp; drop one or multiple PDF files</p>
+          <button class="btn-upload" id="btn-browse">
+            <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+            Browse Files
+          </button>
+          <p class="upload-hint">Multiple PDFs · Any size</p>
+        </div>
+        <input type="file" id="file-input" accept="application/pdf" multiple />
+
+        <!-- Google Drive -->
+        <div class="gdrive-panel">
+          <div class="gdrive-header">
+            <div class="gdrive-icon">
+              <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                <path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 48.5A9.06 9.06 0 0 0 0 53h27.5z" fill="#00ac47"/>
+                <path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8L73.55 76.8z" fill="#ea4335"/>
+                <path d="M43.65 25L57.4 1.2C56.05.4 54.5 0 52.9 0H34.4c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                <path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                <path d="M73.4 26.5l-13.25-23c-.8-1.4-1.95-2.5-3.3-3.3L43.6 25 59.8 53h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+              </svg>
+            </div>
+            <div class="gdrive-header-text">
+              <h3>Google Drive</h3>
+              <p>Paste a public share link</p>
+            </div>
+          </div>
+          <div class="gdrive-input-row" style="flex-direction:column; gap:8px;">
+            <input
+              type="text"
+              class="gdrive-input"
+              id="gdrive-input"
+              placeholder="https://drive.google.com/file/d/…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="btn-gdrive" id="btn-gdrive-load" style="width:100%; justify-content:center;">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14l-4-4 1.41-1.41L11 13.17l6.59-6.59L19 8l-8 8z"/></svg>
+              Load PDF from Drive
+            </button>
+          </div>
+          <div class="gdrive-loading" id="gdrive-loading">
+            <div class="spinner"></div>
+            <span id="gdrive-loading-text">Fetching…</span>
+          </div>
+          <p class="gdrive-hint" style="margin-top:10px;">
+            Set sharing to <strong>"Anyone with the link"</strong>.
+          </p>
+        </div>
+      </div><!-- end upload-area -->
+
+      <!-- PDF Queue Cards (in sidebar) -->
+      <section class="queue-section" id="queue-section">
+        <p class="section-title">Loaded PDFs</p>
+        <div class="queue-scroll" id="queue-scroll">
+          <button class="add-more-btn" id="btn-add-more">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Add More PDFs
+          </button>
+        </div>
+      </section>
+
+      <!-- Controls Panel removed from sidebar — now in header -->
+
+    </aside><!-- end sidebar -->
+
+    <!-- ─── RIGHT MAIN CONTENT ─── -->
+    <div class="main-content">
+
+  <!-- ══════════ PROGRESS ══════════ -->
+  <section class="progress-section" id="progress-section">
+    <div class="progress-card">
+      <div class="progress-header">
+        <span id="progress-label">Converting…</span>
+        <span class="progress-pct" id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+      <div class="progress-log">
+        <div class="spinner"></div>
+        <span id="progress-log">Initializing…</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ PAGE GRID ══════════ -->
+  <section class="pages-section" id="pages-section">
+    <p class="section-title" id="pages-section-title">Pages</p>
+    <div class="pages-toolbar">
+      <div class="pages-toolbar-left">
+        <span class="page-count-badge" id="page-count-badge">0 pages</span>
+        <button class="btn-sm" id="btn-select-all">Select All</button>
+        <button class="btn-sm" id="btn-deselect-all">Deselect All</button>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);" id="selected-label">0 selected</span>
+    </div>
+    <div class="page-grid" id="page-grid"></div>
+  </section>
+
+  <footer>
+    <p>Built with <span>PDF.js</span> · <span>JSZip</span> · <span>FileSaver.js</span></p>
+    <p style="margin-top:4px;">Files are processed entirely in your browser — nothing is uploaded to any server.</p>
+  </footer>
+
+    </div><!-- end .main-content -->
+  </div><!-- end .app-body -->
+
+</div><!-- end .app -->
+
+<!-- ══════════ ACTION BAR ══════════ -->
+<div class="action-bar" id="action-bar">
+  <div class="action-info">
+    <strong id="action-title">Ready to convert</strong>
+    <span id="action-subtitle">Select pages and adjust settings above</span>
+  </div>
+  <div class="action-buttons">
+    <button class="btn-action btn-all" id="btn-convert-all" disabled>
+      <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.34C18 2.534 15.466.0 12.338 0 10.706 0 9.218.65 8.122 1.7L7 2.82 5.878 1.698C4.782.65 3.294 0 1.662 0-.742 0 0 .742 0 1.662v.01C0 2.572.742 3.314 1.662 3.314c.892 0 1.688-.37 2.268-.952L5 1.296l1.07 1.066C6.65 2.944 7.446 3.314 8.338 3.314c1.782 0 3.23-1.448 3.23-3.23 0-.276-.048-.536-.108-.788h.878C13.556-.704 15 .748 15 2.666c0 .456-.11.9-.308 1.334H9c-.552 0-1 .448-1 1v1c0 .552.448 1 1 1h11c.552 0 1-.448 1-1V7c0-.552-.448-1-1-1z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      All PDFs → ZIP
+    </button>
+    <button class="btn-action btn-zip" id="btn-download-zip" disabled>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M20 6h-2v2h2v2h-2v2h2v2h-2v2h2c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 10H4V4h11v2h2V4c0-1.1-.9-2-2-2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h11v-2zm-6-4l-4-5h8l-4 5z"/></svg>
+      Download ZIP
+    </button>
+    <button class="btn-action btn-convert" id="btn-convert" disabled>
+      <svg viewBox="0 0 24 24" fill="white"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Convert &amp; Download
+    </button>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // ── State ─────────────────────────────────────────────────────────
+  // pdfQueue: Array of { id, name, source, pdfDoc, totalPages, selectedPages: Set }
+  let pdfQueue    = [];
+  let activePdfId = null;
+  let nextId      = 1;
+
+  // ── DOM ──────────────────────────────────────────────────────────
+  const dropZone        = document.getElementById('drop-zone');
+  const fileInput       = document.getElementById('file-input');
+  const btnBrowse       = document.getElementById('btn-browse');
+  const btnAddMore      = document.getElementById('btn-add-more');
+  const gdriveInput     = document.getElementById('gdrive-input');
+  const btnGdriveLoad   = document.getElementById('btn-gdrive-load');
+  const gdriveLoading   = document.getElementById('gdrive-loading');
+  const gdriveLoadingTxt= document.getElementById('gdrive-loading-text');
+  const queueSection    = document.getElementById('queue-section');
+  const queueScroll     = document.getElementById('queue-scroll');
+  const pagesSection    = document.getElementById('pages-section');
+  const pagesSectionTitle = document.getElementById('pages-section-title');
+  const pageGrid        = document.getElementById('page-grid');
+  const pageCountBadge  = document.getElementById('page-count-badge');
+  const selectedLabel   = document.getElementById('selected-label');
+  const btnSelectAll    = document.getElementById('btn-select-all');
+  const btnDeselectAll  = document.getElementById('btn-deselect-all');
+  const dpiSlider       = document.getElementById('dpi-slider');
+  const dpiValue        = document.getElementById('dpi-value');
+  const qualitySlider   = document.getElementById('quality-slider');
+  const qualityValue    = document.getElementById('quality-value');
+  const progressSection = document.getElementById('progress-section');
+  const progressBar     = document.getElementById('progress-bar');
+  const progressPct     = document.getElementById('progress-pct');
+  const progressLabel   = document.getElementById('progress-label');
+  const progressLog     = document.getElementById('progress-log');
+  const actionBar       = document.getElementById('action-bar');
+  const actionTitle     = document.getElementById('action-title');
+  const actionSubtitle  = document.getElementById('action-subtitle');
+  const btnConvert      = document.getElementById('btn-convert');
+  const btnZip          = document.getElementById('btn-download-zip');
+  const btnAllZip       = document.getElementById('btn-convert-all');
+  const toastContainer  = document.getElementById('toast-container');
+
+  // ── Toast ─────────────────────────────────────────────────────────
+  function showToast(msg, type = 'info', dur = 3500) {
+    const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<div class="toast-icon">${icons[type]}</div><span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('toast-out');
+      el.addEventListener('animationend', () => el.remove());
+    }, dur);
+  }
+
+  // ── Slider labels ─────────────────────────────────────────────────
+  dpiSlider.addEventListener('input', () => {
+    const v = parseInt(dpiSlider.value);
+    let label = '';
+    if (v <= 96)       label = ' (Screen)';
+    else if (v <= 200) label = ' (Standard)';
+    else if (v <= 400) label = ' (Print)';
+    else if (v <= 700) label = ' (High)';
+    else               label = ' (Ultra)';
+    dpiValue.textContent = v + ' DPI' + label;
+  });
+  qualitySlider.addEventListener('input', () => qualityValue.textContent = qualitySlider.value + '%');
+
+  // ── Drag & Drop ───────────────────────────────────────────────────
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  ['dragleave','dragend'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('drag-over')));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    const files = [...e.dataTransfer.files].filter(f => f.type === 'application/pdf');
+    if (!files.length) { showToast('Please drop PDF files only.', 'error'); return; }
+    files.forEach(f => queueLocalFile(f));
+  });
+  dropZone.addEventListener('click', e => { if (!btnBrowse.contains(e.target)) fileInput.click(); });
+  btnBrowse.addEventListener('click', () => fileInput.click());
+  btnAddMore.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    [...fileInput.files].forEach(f => queueLocalFile(f));
+    fileInput.value = '';
+  });
+
+  // ── Google Drive ──────────────────────────────────────────────────
+  function extractGDriveId(url) {
+    // Formats: /file/d/ID/view  OR  ?id=ID  OR  /d/ID
+    const m1 = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+    return (m1 && m1[1]) || (m2 && m2[1]) || null;
+  }
+
+  btnGdriveLoad.addEventListener('click', () => loadGDriveLink(gdriveInput.value.trim()));
+  gdriveInput.addEventListener('keydown', e => { if (e.key === 'Enter') loadGDriveLink(gdriveInput.value.trim()); });
+
+  async function loadGDriveLink(url) {
+    if (!url) { showToast('Please paste a Google Drive link first.', 'warning'); return; }
+    const fileId = extractGDriveId(url);
+    if (!fileId) { showToast('Could not find a valid Google Drive file ID in that URL.', 'error'); return; }
+
+    const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    const proxyUrl    = `https://corsproxy.io/?${encodeURIComponent(downloadUrl)}`;
+
+    gdriveLoading.classList.add('show');
+    gdriveLoadingTxt.textContent = 'Connecting to Google Drive…';
+    btnGdriveLoad.disabled = true;
+
+    try {
+      gdriveLoadingTxt.textContent = 'Downloading PDF…';
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const contentType = response.headers.get('content-type') || '';
+      // Google sometimes returns HTML for large-file confirmation
+      if (contentType.includes('text/html')) {
+        throw new Error('large_file');
+      }
+
+      gdriveLoadingTxt.textContent = 'Parsing PDF…';
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Validate it's a PDF
+      const header = new Uint8Array(arrayBuffer.slice(0, 4));
+      const isPdf  = header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46;
+      if (!isPdf) throw new Error('not_pdf');
+
+      const name = `gdrive_${fileId.slice(0, 8)}`;
+      await queueArrayBuffer(arrayBuffer, name, 'gdrive');
+      gdriveInput.value = '';
+      showToast('Google Drive PDF loaded!', 'success');
+    } catch (err) {
+      console.error(err);
+      if (err.message === 'large_file') {
+        showToast('File too large for direct download — Google needs confirmation. Try downloading manually and uploading here.', 'error', 7000);
+      } else if (err.message === 'not_pdf') {
+        showToast('The link did not return a PDF. Make sure sharing is set to "Anyone with the link".', 'error', 5000);
+      } else {
+        showToast('Could not fetch the file. Ensure it is publicly shared and try again.', 'error', 5000);
+      }
+    } finally {
+      gdriveLoading.classList.remove('show');
+      btnGdriveLoad.disabled = false;
+    }
+  }
+
+  // ── Queue helpers ─────────────────────────────────────────────────
+  async function queueLocalFile(file) {
+    const buf  = await file.arrayBuffer();
+    const name = file.name.replace(/\.pdf$/i, '');
+    await queueArrayBuffer(buf, name, 'local');
+  }
+
+  async function queueArrayBuffer(arrayBuffer, name, source) {
+    try {
+      const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+      const totalPages = pdfDoc.numPages;
+      const id = nextId++;
+      const entry = { id, name, source, pdfDoc, totalPages, selectedPages: new Set() };
+      // Select all by default
+      for (let i = 1; i <= totalPages; i++) entry.selectedPages.add(i);
+      pdfQueue.push(entry);
+      renderQueueTabs();
+      setActivePdf(id);
+      showUI();
+    } catch (e) {
+      console.error(e);
+      showToast(`Failed to load "${name}". File may be corrupted or password-protected.`, 'error');
+    }
+  }
+
+  function removePdf(id) {
+    pdfQueue = pdfQueue.filter(p => p.id !== id);
+    if (!pdfQueue.length) {
+      hideUI(); return;
+    }
+    if (activePdfId === id) setActivePdf(pdfQueue[pdfQueue.length - 1].id);
+    else renderQueueTabs();
+  }
+
+  function getActive() { return pdfQueue.find(p => p.id === activePdfId); }
+
+  // ── Queue Cards ───────────────────────────────────────────────────
+  function renderQueueTabs() {
+    queueScroll.querySelectorAll('.pdf-tab').forEach(t => t.remove());
+
+    pdfQueue.forEach((p, idx) => {
+      const tab = document.createElement('div');
+      tab.className = `pdf-tab${p.id === activePdfId ? ' active' : ''}`;
+      tab.dataset.id = p.id;
+      tab.style.animationDelay = `${idx * 60}ms`;
+
+      const gdriveIcon = `<svg viewBox="0 0 87.3 78" width="22" height="22"><path d="M6.6 66.85l3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3L27.5 53H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="M43.65 25L29.9 1.2c-1.35.8-2.5 1.9-3.3 3.3L1.2 48.5A9.06 9.06 0 0 0 0 53h27.5z" fill="#00ac47"/><path d="M73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75L86.1 57.5c.8-1.4 1.2-2.95 1.2-4.5H59.8z" fill="#ea4335"/><path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="M73.4 26.5l-13.25-23c-.8-1.4-1.95-2.5-3.3-3.3L43.6 25 59.8 53h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>`;
+      const localIcon  = `<svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8L14 2zm-1 1.5L18.5 9H13V3.5zM6 4h5v7h7v9H6V4z"/></svg>`;
+
+      tab.innerHTML = `
+        <div class="pdf-tab-header">
+          <div class="pdf-tab-icon ${p.source}">
+            ${p.source === 'gdrive' ? gdriveIcon : localIcon}
+          </div>
+          <button class="pdf-tab-remove" data-remove="${p.id}" title="Remove PDF">✕</button>
+        </div>
+        <div class="pdf-tab-body">
+          <div class="pdf-tab-info">
+            <span class="pdf-tab-name" title="${p.name}">${p.name}</span>
+            <span class="pdf-tab-pages">${p.totalPages} page${p.totalPages !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+        <div class="pdf-tab-footer">
+          <span class="pdf-tab-badge">${p.selectedPages.size} selected</span>
+          <span class="pdf-tab-source-label">
+            ${p.source === 'gdrive'
+              ? `<svg viewBox="0 0 24 24" fill="#34a853" width="10" height="10"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Drive`
+              : `<svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Local`
+            }
+          </span>
+        </div>
+      `;
+      tab.addEventListener('click', e => {
+        if (e.target.closest('.pdf-tab-remove')) {
+          removePdf(parseInt(e.target.closest('.pdf-tab-remove').dataset.remove));
+          return;
+        }
+        setActivePdf(p.id);
+      });
+      queueScroll.insertBefore(tab, btnAddMore);
+    });
+  }
+
+  // ── Set active PDF & render pages ────────────────────────────────
+  function setActivePdf(id) {
+    activePdfId = id;
+    renderQueueTabs();
+    renderPages();
+  }
+
+  async function renderPages() {
+    const entry = getActive();
+    if (!entry) return;
+
+    pagesSectionTitle.textContent = `Pages — ${entry.name}`;
+    pageCountBadge.textContent = `${entry.totalPages} page${entry.totalPages !== 1 ? 's' : ''}`;
+    pageGrid.innerHTML = '';
+
+    for (let i = 1; i <= entry.totalPages; i++) {
+      const isSelected = entry.selectedPages.has(i);
+      const card = document.createElement('div');
+      card.className = `page-card${isSelected ? ' selected' : ''}`;
+      card.dataset.page = i;
+      card.style.animationDelay = `${(i - 1) * 35}ms`;
+      card.innerHTML = `
+        <div class="thumb-skeleton" id="sk-${entry.id}-${i}"></div>
+        <div class="page-overlay">
+          <div class="page-checkbox">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </div>
+          <span class="page-num">Page ${i}</span>
+        </div>
+        <div class="page-footer">
+          <span class="page-label">Page ${i}</span>
+          <button class="btn-dl-single" data-page="${i}" title="Download this page">
+            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            JPG
+          </button>
+        </div>
+      `;
+      card.addEventListener('click', e => {
+        if (e.target.closest('.btn-dl-single')) return;
+        togglePage(entry, i, card);
+      });
+      card.querySelector('.btn-dl-single').addEventListener('click', e => {
+        e.stopPropagation();
+        downloadSinglePage(entry, parseInt(e.currentTarget.dataset.page));
+      });
+      pageGrid.appendChild(card);
+    }
+
+    updateSelectionUI();
+
+    // Render low-res thumbnails progressively
+    for (let i = 1; i <= entry.totalPages; i++) {
+      const sk = document.getElementById(`sk-${entry.id}-${i}`);
+      if (!sk) continue; // user may have switched PDF
+      try {
+        const page     = await entry.pdfDoc.getPage(i);
+        const viewport = page.getViewport({ scale: 0.5 });
+        const canvas   = document.createElement('canvas');
+        canvas.width   = viewport.width; canvas.height = viewport.height;
+        canvas.className = 'page-thumbnail';
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        const curSk = document.getElementById(`sk-${entry.id}-${i}`);
+        if (curSk) curSk.replaceWith(canvas);
+      } catch (_) {}
+    }
+  }
+
+  // ── Page toggle ───────────────────────────────────────────────────
+  function togglePage(entry, num, card) {
+    if (entry.selectedPages.has(num)) { entry.selectedPages.delete(num); card.classList.remove('selected'); }
+    else { entry.selectedPages.add(num); card.classList.add('selected'); }
+    updateSelectionUI();
+    renderQueueTabs(); // update badge count
+  }
+
+  function selectAllPages() {
+    const e = getActive(); if (!e) return;
+    for (let i = 1; i <= e.totalPages; i++) e.selectedPages.add(i);
+    document.querySelectorAll('.page-card').forEach(c => c.classList.add('selected'));
+    updateSelectionUI(); renderQueueTabs();
+  }
+  function deselectAllPages() {
+    const e = getActive(); if (!e) return;
+    e.selectedPages.clear();
+    document.querySelectorAll('.page-card').forEach(c => c.classList.remove('selected'));
+    updateSelectionUI(); renderQueueTabs();
+  }
+  btnSelectAll.addEventListener('click',   selectAllPages);
+  btnDeselectAll.addEventListener('click', deselectAllPages);
+
+  function updateSelectionUI() {
+    const e = getActive();
+    const n = e ? e.selectedPages.size : 0;
+    selectedLabel.textContent  = `${n} selected`;
+    actionTitle.textContent    = n === 0 ? 'No pages selected' : `${n} page${n !== 1 ? 's' : ''} selected`;
+    actionSubtitle.textContent = n === 0
+      ? 'Select at least one page to convert'
+      : `DPI: ${dpiSlider.value} · Quality: ${qualitySlider.value}% · PDF: ${e?.name}`;
+    btnConvert.disabled  = n === 0;
+    btnZip.disabled      = n === 0;
+    // All-PDF ZIP is enabled as long as any PDF is loaded
+    btnAllZip.disabled   = pdfQueue.length === 0;
+  }
+
+  // ── Show / hide UI ────────────────────────────────────────────────
+  function showUI() {
+    queueSection.classList.add('visible');
+    controlsSection.classList.add('visible');
+    pagesSection.classList.add('visible');
+    actionBar.classList.add('visible');
+  }
+  function hideUI() {
+    queueSection.classList.remove('visible');
+    controlsSection.classList.remove('visible');
+    pagesSection.classList.remove('visible');
+    actionBar.classList.remove('visible');
+    progressSection.classList.remove('visible');
+    pageGrid.innerHTML = '';
+    activePdfId = null;
+    renderQueueTabs();
+  }
+
+  // ── Render page at full quality ────────────────────────────────────
+  async function renderPageToDataURL(pdfDoc, pageNum, dpi, quality) {
+    const page     = await pdfDoc.getPage(pageNum);
+    const scale    = dpi / 72;
+    const viewport = page.getViewport({ scale });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = Math.floor(viewport.width);
+    canvas.height  = Math.floor(viewport.height);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL('image/jpeg', quality / 100);
+  }
+
+  // ── Convert active PDF → individual downloads ─────────────────────
+  btnConvert.addEventListener('click', async () => {
+    const entry = getActive(); if (!entry || entry.selectedPages.size === 0) return;
+    await convertAndDownload([entry], false);
+  });
+
+  // ── Convert active PDF → ZIP ──────────────────────────────────────
+  btnZip.addEventListener('click', async () => {
+    const entry = getActive(); if (!entry || entry.selectedPages.size === 0) return;
+    await convertAndDownload([entry], true);
+  });
+
+  // ── Convert ALL PDFs → ZIP (PDF-wise folders, ALL pages) ───────────
+  btnAllZip.addEventListener('click', async () => {
+    if (!pdfQueue.length) return;
+    await convertAllPdfsFolderZip();
+  });
+
+  async function convertAllPdfsFolderZip() {
+    const dpi     = parseInt(dpiSlider.value);
+    const quality = parseInt(qualitySlider.value);
+
+    // Count total pages across all PDFs
+    const totalOps = pdfQueue.reduce((s, p) => s + p.totalPages, 0);
+
+    progressSection.classList.add('visible');
+    progressBar.style.width = '0%'; progressPct.textContent = '0%';
+    progressLabel.textContent = `Converting ${pdfQueue.length} PDF${pdfQueue.length !== 1 ? 's' : ''} → ZIP…`;
+    [btnConvert, btnZip, btnAllZip].forEach(b => b.disabled = true);
+
+    const zip = new JSZip();
+    let doneOps = 0;
+
+    for (const entry of pdfQueue) {
+      // Create a subfolder named after the PDF
+      const folder = zip.folder(entry.name);
+
+      for (let num = 1; num <= entry.totalPages; num++) {
+        progressLog.textContent = `📄 ${entry.name} — Page ${num} / ${entry.totalPages}…`;
+        const dataURL = await renderPageToDataURL(entry.pdfDoc, num, dpi, quality);
+        const base64  = dataURL.split(',')[1];
+        const fname   = `page_${String(num).padStart(3, '0')}.jpg`;
+        folder.file(fname, base64, { base64: true });
+
+        doneOps++;
+        const pct = Math.round((doneOps / totalOps) * 100);
+        progressBar.style.width = pct + '%';
+        progressPct.textContent = pct + '%';
+      }
+    }
+
+    progressLog.textContent = '🗜️ Compressing ZIP…';
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+    const timestamp = new Date().toISOString().slice(0, 10);
+    saveAs(blob, `PDFs_converted_${timestamp}.zip`);
+
+    progressLabel.textContent = '✅ ZIP Downloaded!';
+    progressLog.textContent   = `${pdfQueue.length} PDF folder${pdfQueue.length !== 1 ? 's' : ''} · ${totalOps} images`;
+    [btnConvert, btnZip, btnAllZip].forEach(b => b.disabled = false);
+    updateSelectionUI();
+    showToast(`ZIP downloaded! ${pdfQueue.length} PDF folders · ${totalOps} images`, 'success', 5000);
+    setTimeout(() => progressSection.classList.remove('visible'), 5000);
+  }
+
+  async function convertAndDownload(entries, asZip, allPdfs = false) {
+    const dpi     = parseInt(dpiSlider.value);
+    const quality = parseInt(qualitySlider.value);
+    const totalOps = entries.reduce((s, e) => s + e.selectedPages.size, 0);
+
+    progressSection.classList.add('visible');
+    progressBar.style.width = '0%'; progressPct.textContent = '0%';
+    progressLabel.textContent = asZip ? 'Building ZIP…' : 'Converting pages…';
+    [btnConvert, btnZip, btnAllZip].forEach(b => b.disabled = true);
+
+    const zip  = asZip ? new JSZip() : null;
+    let doneOps = 0;
+
+    for (const entry of entries) {
+      const pages = [...entry.selectedPages].sort((a, b) => a - b);
+      const folderName = allPdfs ? entry.name : null;
+
+      for (const num of pages) {
+        progressLog.textContent = `${allPdfs ? entry.name + ' · ' : ''}Rendering page ${num}/${entry.totalPages}…`;
+        const dataURL = await renderPageToDataURL(entry.pdfDoc, num, dpi, quality);
+        const fname   = `${entry.name}_page${String(num).padStart(3,'0')}.jpg`;
+
+        if (asZip) {
+          const base64 = dataURL.split(',')[1];
+          const target = allPdfs ? zip.folder(folderName) : zip;
+          target.file(fname, base64, { base64: true });
+        } else {
+          downloadDataURL(dataURL, fname);
+          await sleep(70);
+        }
+
+        doneOps++;
+        const pct = Math.round((doneOps / totalOps) * 100);
+        progressBar.style.width = pct + '%'; progressPct.textContent = pct + '%';
+      }
+    }
+
+    if (asZip) {
+      progressLog.textContent = 'Compressing ZIP…';
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+      const zipName = allPdfs ? 'all_pdfs_converted.zip' : `${entries[0].name}_pages.zip`;
+      saveAs(blob, zipName);
+      showToast(`ZIP with ${doneOps} image${doneOps !== 1 ? 's' : ''} downloaded!`, 'success');
+    } else {
+      showToast(`${doneOps} JPG${doneOps !== 1 ? 's' : ''} downloaded!`, 'success');
+    }
+
+    progressLabel.textContent = 'Done!';
+    progressLog.textContent   = `${doneOps} image${doneOps !== 1 ? 's' : ''} processed.`;
+    [btnConvert, btnZip, btnAllZip].forEach(b => b.disabled = false);
+    updateSelectionUI();
+    setTimeout(() => progressSection.classList.remove('visible'), 4000);
+  }
+
+  // ── Single-page download ──────────────────────────────────────────
+  async function downloadSinglePage(entry, num) {
+    const dpi     = parseInt(dpiSlider.value);
+    const quality = parseInt(qualitySlider.value);
+    showToast(`Rendering page ${num}…`, 'info', 1500);
+    const dataURL = await renderPageToDataURL(entry.pdfDoc, num, dpi, quality);
+    downloadDataURL(dataURL, `${entry.name}_page${String(num).padStart(3,'0')}.jpg`);
+    showToast(`Page ${num} downloaded!`, 'success');
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  function downloadDataURL(dataURL, filename) {
+    const a = document.createElement('a');
+    a.href = dataURL; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+</script>
+
+<!-- ══════════ ANIMATED BACKGROUND ══════════ -->
+<script>
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  // ── Colors palette (cycles) ──────────────────────────────────────
+  const PALETTE = [
+    { r: 6,   g: 182, b: 212 },   // cyan
+    { r: 16,  g: 185, b: 129 },   // emerald
+    { r: 99,  g: 102, b: 241 },   // indigo
+    { r: 236, g: 72,  b: 153 },   // pink
+    { r: 251, g: 191, b: 36  },   // amber
+  ];
+
+  // ── Particle class ───────────────────────────────────────────────
+  class Particle {
+    constructor(W, H) { this.init(W, H); }
+    init(W, H) {
+      this.x    = Math.random() * W;
+      this.y    = Math.random() * H;
+      this.vx   = (Math.random() - 0.5) * 0.6;
+      this.vy   = (Math.random() - 0.5) * 0.6;
+      this.r    = Math.random() * 2.2 + 0.6;
+      this.col  = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      this.alpha = Math.random() * 0.6 + 0.2;
+      this.pulse = Math.random() * Math.PI * 2;
+      this.pulseSpeed = Math.random() * 0.03 + 0.01;
+    }
+    update(W, H) {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.pulse += this.pulseSpeed;
+      if (this.x < 0) this.x = W;
+      if (this.x > W) this.x = 0;
+      if (this.y < 0) this.y = H;
+      if (this.y > H) this.y = 0;
+    }
+    draw(ctx) {
+      const a = this.alpha * (0.7 + 0.3 * Math.sin(this.pulse));
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r + Math.sin(this.pulse) * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${this.col.r},${this.col.g},${this.col.b},${a})`;
+      ctx.fill();
+    }
+  }
+
+  // ── Orb (large soft glow) ────────────────────────────────────────
+  class Orb {
+    constructor(W, H, idx) {
+      this.W = W; this.H = H;
+      this.col = PALETTE[idx % PALETTE.length];
+      this.reset();
+    }
+    reset() {
+      this.x  = Math.random() * this.W;
+      this.y  = Math.random() * this.H;
+      this.tx = Math.random() * this.W;
+      this.ty = Math.random() * this.H;
+      this.speed = 0.003 + Math.random() * 0.003;
+      this.size = 250 + Math.random() * 300;
+      this.t = 0;
+    }
+    update() {
+      this.t += this.speed;
+      this.x += (this.tx - this.x) * 0.008;
+      this.y += (this.ty - this.y) * 0.008;
+      if (this.t > 1) this.reset();
+    }
+    draw(ctx) {
+      const alpha = 0.055 + 0.025 * Math.sin(this.t * Math.PI * 2);
+      const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+      grad.addColorStop(0, `rgba(${this.col.r},${this.col.g},${this.col.b},${alpha})`);
+      grad.addColorStop(1, `rgba(${this.col.r},${this.col.g},${this.col.b},0)`);
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+  }
+
+  // ── Setup ────────────────────────────────────────────────────────
+  let W, H, particles = [], orbs = [];
+  const PARTICLE_COUNT = 90;
+  const ORB_COUNT      = 4;
+  const CONNECT_DIST   = 130;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle(W, H));
+    orbs      = Array.from({ length: ORB_COUNT },      (_, i) => new Orb(W, H, i));
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── Draw grid ────────────────────────────────────────────────────
+  function drawGrid() {
+    const step = 60;
+    ctx.strokeStyle = 'rgba(6,182,212,0.025)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += step) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += step) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+  }
+
+  // ── Draw connections ─────────────────────────────────────────────
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < CONNECT_DIST) {
+          const alpha = (1 - d / CONNECT_DIST) * 0.25;
+          const c = particles[i].col;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(${c.r},${c.g},${c.b},${alpha})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  // ── Draw scanning line ───────────────────────────────────────────
+  let scanY = 0;
+  function drawScanLine() {
+    scanY = (scanY + 0.4) % H;
+    const grad = ctx.createLinearGradient(0, scanY - 40, 0, scanY + 40);
+    grad.addColorStop(0,   'rgba(6,182,212,0)');
+    grad.addColorStop(0.5, 'rgba(6,182,212,0.04)');
+    grad.addColorStop(1,   'rgba(6,182,212,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, scanY - 40, W, 80);
+  }
+
+  // ── Main loop ────────────────────────────────────────────────────
+  function loop() {
+    // Deep background fill with slight trail (motion blur effect)
+    ctx.fillStyle = 'rgba(2,11,24,0.18)';
+    ctx.fillRect(0, 0, W, H);
+
+    drawGrid();
+
+    orbs.forEach(o => { o.update(); o.draw(ctx); });
+    drawScanLine();
+    drawConnections();
+    particles.forEach(p => { p.update(W, H); p.draw(ctx); });
+
+    requestAnimationFrame(loop);
+  }
+
+  // First full clear then start
+  ctx.fillStyle = '#020b18';
+  ctx.fillRect(0, 0, W, H);
+  loop();
+})();
+</script>
+
+</body>
+</html>
