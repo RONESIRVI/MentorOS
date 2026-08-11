@@ -1203,8 +1203,41 @@
 
   // ── Queue helpers ─────────────────────────────────────────────────
   async function queueLocalFile(file) {
-    const buf  = await file.arrayBuffer();
     const name = file.name.replace(/\.pdf$/i, '');
+
+    // 1. MIME type check
+    if (file.type && !file.type.includes('pdf')) {
+      if (file.type.startsWith('image/')) {
+        showToast(`"${file.name}" ek IMAGE file hai, PDF nahi! Sirf PDF upload karen.`, 'error', 6000);
+      } else {
+        showToast(`"${file.name}" PDF nahi hai (Type: ${file.type}). Sirf .pdf files supported hain.`, 'error', 6000);
+      }
+      return;
+    }
+
+    // 2. Extension check
+    const ext = file.name.split('.').pop().toLowerCase();
+    const imageExts = ['jpg','jpeg','png','heic','heif','gif','bmp','webp','tiff','tif','svg'];
+    if (imageExts.includes(ext)) {
+      showToast(`"${file.name}" ek image file hai (.${ext.toUpperCase()}). PDF chahiye, image nahi!`, 'error', 6000);
+      return;
+    }
+
+    // 3. Magic bytes check (%PDF header)
+    const buf = await file.arrayBuffer();
+    const magic = new Uint8Array(buf.slice(0, 5));
+    const isPdf = magic[0] === 0x25 && magic[1] === 0x50 && magic[2] === 0x44 && magic[3] === 0x46;
+    if (!isPdf) {
+      const isJpeg = magic[0] === 0xFF && magic[1] === 0xD8;
+      const isPng  = magic[0] === 0x89 && magic[1] === 0x50;
+      if (isJpeg || isPng) {
+        showToast(`"${file.name}" ek image file hai. Sirf PDF files upload karen.`, 'error', 6000);
+      } else {
+        showToast(`"${file.name}" valid PDF nahi hai. File corrupt ya damaged ho sakta hai.`, 'error', 6000);
+      }
+      return;
+    }
+
     await queueArrayBuffer(buf, name, 'local');
   }
 
@@ -1214,17 +1247,22 @@
       const totalPages = pdfDoc.numPages;
       const id = nextId++;
       const entry = { id, name, source, pdfDoc, totalPages, selectedPages: new Set() };
-      // Select all by default
       for (let i = 1; i <= totalPages; i++) entry.selectedPages.add(i);
       pdfQueue.push(entry);
       renderQueueTabs();
       setActivePdf(id);
       showUI();
+      showToast(`✅ "${name}" load hua — ${totalPages} page${totalPages !== 1 ? 's' : ''}`, 'success', 3000);
     } catch (e) {
       console.error(e);
-      showToast(`Failed to load "${name}". File may be corrupted or password-protected.`, 'error');
+      if (e.name === 'PasswordException' || (e.message && e.message.toLowerCase().includes('password'))) {
+        showToast(`"${name}" password-protected hai! Pehle password hatao, phir upload karo.`, 'error', 7000);
+      } else {
+        showToast(`"${name}" load nahi hua. PDF corrupt ya damaged ho sakta hai.`, 'error', 5000);
+      }
     }
   }
+
 
   function removePdf(id) {
     pdfQueue = pdfQueue.filter(p => p.id !== id);
