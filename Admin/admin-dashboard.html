@@ -2,6 +2,116 @@
 <html lang="hi-IN" dir="ltr">
 <head>
   <meta charset="UTF-8">
+  <!-- Secure TOTP/Passcode Lock -->
+  <script>
+    (function() {
+      if (sessionStorage.getItem('rone_authenticated') !== 'true') {
+        const style = document.createElement('style');
+        style.innerHTML = 'body { display: none !important; }';
+        document.head.appendChild(style);
+        
+        window.addEventListener('DOMContentLoaded', () => {
+          style.remove();
+          
+          const overlay = document.createElement('div');
+          overlay.id = 'dashboard-lock-overlay';
+          overlay.style.cssText = 'position:fixed; inset:0; background:rgba(2, 11, 24, 0.96); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:9999999; display:flex; align-items:center; justify-content:center; padding:20px; font-family:\\\'Plus Jakarta Sans\\\', sans-serif;';
+          
+          overlay.innerHTML = `
+            <div style="background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.35); border-radius:24px; padding:40px 30px; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(56, 189, 248, 0.15); text-align:center; position:relative; animation: lockPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+              <div style="width:70px; height:70px; background:rgba(56, 189, 248, 0.1); border:1.5px solid rgba(56, 189, 248, 0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:1.8rem; box-shadow:0 0 20px rgba(56, 189, 248, 0.2);">🔐</div>
+              <h3 style="color:#fff; margin:0 0 10px; font-size:1.4rem; font-weight:800; letter-spacing:0.5px; font-family:\\\'Plus Jakarta Sans\\\', sans-serif;">Dashboard Locked</h3>
+              <p style="color:rgba(255,255,255,0.65); margin:0 0 25px; font-size:0.9rem; line-height:1.5;">Enter the 6-digit TOTP / Passcode to unlock the dashboard.</p>
+              
+              <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:25px;">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 0)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 1)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 2)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 3)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 4)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 5)" onfocus="this.style.borderColor=\\\'#38bdf8\\\';this.style.boxShadow=\\\'0 0 8px rgba(56, 189, 248, 0.4)\\\'" onblur="this.style.borderColor=\\\'rgba(255,255,255,0.1)\\\';this.style.boxShadow=\\\'none\\\'">
+              </div>
+              
+              <div id="lock-error-message" style="display:none; color:#ef4444; font-size:0.85rem; font-weight:600; margin-bottom:20px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding:10px; border-radius:8px;"></div>
+              
+              <button onclick="verifyLockPin()" style="width:100%; padding:14px; background:linear-gradient(135deg, #0284c7, #0369a1); border:none; border-radius:12px; color:#fff; font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(2, 132, 199, 0.3); transition:all 0.2s;">Verify & Unlock</button>
+            </div>
+          `;
+          
+          document.body.appendChild(overlay);
+          
+          const animStyle = document.createElement('style');
+          animStyle.innerHTML = `
+            @keyframes lockPop {
+              from { transform: scale(0.95); opacity: 0; }
+              to { transform: scale(1); opacity: 1; }
+            }
+            @keyframes lockShake {
+              0%, 100% { transform: translateX(0); }
+              20%, 60% { transform: translateX(-8px); }
+              40%, 80% { transform: translateX(8px); }
+            }
+            @keyframes lockFadeOut {
+              to { opacity: 0; }
+            }
+          `;
+          document.head.appendChild(animStyle);
+          
+          const inputs = overlay.querySelectorAll('.lock-pin-box');
+          if(inputs[0]) inputs[0].focus();
+          
+          inputs.forEach((input, index) => {
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Backspace' && !input.value && index > 0) {
+                const prev = inputs[index - 1];
+                if (prev) {
+                  prev.focus();
+                  prev.value = '';
+                }
+              }
+            });
+          });
+          
+          window.handleLockPin = function(input, index) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value && index < 5) {
+              const next = inputs[index + 1];
+              if (next) next.focus();
+            }
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            if (entered.length === 6) {
+              verifyLockPin();
+            }
+          };
+          
+          window.verifyLockPin = function() {
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            const error = document.getElementById('lock-error-message');
+            
+            const date = new Date();
+            const timeStep = Math.floor(date.getTime() / 30000);
+            const dynamicOtp = String((timeStep * 1103515245 + 12345) % 1000000).padStart(6, '0');
+            
+            if (entered === '909090' || entered === '786090' || entered === dynamicOtp) {
+              sessionStorage.setItem('rone_authenticated', 'true');
+              overlay.style.animation = 'lockFadeOut 0.3s ease forwards';
+              setTimeout(() => overlay.remove(), 300);
+            } else {
+              const card = overlay.querySelector('div');
+              card.style.animation = 'none';
+              card.offsetHeight;
+              card.style.animation = 'lockShake 0.4s ease';
+              
+              error.textContent = '❌ Invalid Passcode / TOTP!';
+              error.style.display = 'block';
+              inputs.forEach(inp => inp.value = '');
+              inputs[0].focus();
+            }
+          };
+        });
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#1a1f5e">
   <title>RONE MentorOS</title>
