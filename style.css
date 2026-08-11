@@ -5,31 +5,38 @@
 
 /* --- CSS Variables (Design Tokens) --- */
 :root {
-  --navy: #1E40AF;
-  --navy-dark: #1E3A8A;
-  --navy-light: #3B82F6;
-  --navy-50: #EFF6FF;
-  --amber: #D97706;
-  --amber-dark: #B45309;
-  --amber-light: #FBBF24;
-  --gold: #F59E0B;
+  --navy: #0f172a;
+  --navy-dark: #020617;
+  --navy-light: #1e293b;
+  --navy-50: rgba(30, 41, 59, 0.5);
+  
+  --amber: #d4af37;
+  --amber-dark: #bba06b;
+  --amber-light: #fbf7e6;
+  --gold: #d4af37;
+  
   --white: #ffffff;
-  --ink: #0f172a;
-  --ink-soft: #334155;
-  --mute: #64748b;
-  --border: #e2e8f0;
-  --bg: #f8fafc;
+  --ink: #f8fafc;
+  --ink-soft: #cbd5e1;
+  --mute: #94a3b8;
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --bg: #020617;
+  
   --green: #10b981;
   --red: #ef4444;
   --purple: #8b5cf6;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.14);
-  --shadow-lift: 0 20px 60px rgba(0,0,0,0.12);
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  --shadow-lift: 0 20px 60px rgba(0,0,0,0.6);
+  
   --radius-sm: 8px;
   --radius: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
+  
   --font-main: 'Plus Jakarta Sans', sans-serif;
   --font-alt: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
@@ -83,17 +90,18 @@ img { max-width: 100%; display: block; }
    ANNOUNCEMENT BAR
    ============================================ */
 .announcement-bar {
-  background: var(--navy-dark);
-  color: white;
+  background: linear-gradient(90deg, #bba06b, #d4af37, #bba06b);
+  color: #020617;
   overflow: hidden;
   position: relative;
+  font-weight: 700;
 }
 
 .marquee-wrap {
   width: 100%;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .marquee-track {
@@ -112,18 +120,17 @@ img { max-width: 100%; display: block; }
   display: inline-flex;
   align-items: center;
   padding: 0.6rem 1.5rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(2, 6, 23, 0.8);
   letter-spacing: 0.01em;
   transition: color 0.2s;
 }
 
-.marquee-item:hover { color: var(--amber); }
+.marquee-item:hover { color: #000; }
 
 .marquee-dot {
-  color: var(--amber);
-  opacity: 0.5;
+  color: rgba(2, 6, 23, 0.5);
   font-size: 0.6rem;
   padding: 0 0.25rem;
 }
@@ -140,11 +147,11 @@ img { max-width: 100%; display: block; }
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255,255,255,0.97);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .nav-inner {
@@ -247,10 +254,11 @@ img { max-width: 100%; display: block; }
   top: calc(100% + 0.5rem);
   left: 0;
   min-width: 280px;
-  background: white;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(0,0,0,0.08);
-  box-shadow: var(--shadow-lift);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   padding: 1rem;
   opacity: 0;
   visibility: hidden;
@@ -400,7 +408,7 @@ img { max-width: 100%; display: block; }
    HERO SECTION
    ============================================ */
 .hero-section {
-  background: linear-gradient(135deg, var(--bg) 0%, #f0f2ff 50%, #fef9ee 100%);
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
   padding: 4rem 0 5rem;
   position: relative;
   overflow: hidden;
@@ -413,7 +421,7 @@ img { max-width: 100%; display: block; }
   right: -200px;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(26,31,94,0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -426,17 +434,18 @@ img { max-width: 100%; display: block; }
 
 /* Login Card */
 .login-card {
-  background: white;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
   border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lift);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .login-tabs {
   display: flex;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(2, 6, 23, 0.4);
 }
 
 .login-tab {
@@ -456,9 +465,9 @@ img { max-width: 100%; display: block; }
 }
 
 .login-tab.active {
-  color: var(--navy);
-  border-bottom-color: var(--navy);
-  background: white;
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+  background: rgba(255,255,255,0.03);
 }
 
 .login-tab:hover:not(.active) {
@@ -481,7 +490,7 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-alt);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--navy);
+  color: white;
   margin-bottom: 0.3rem;
 }
 
@@ -520,18 +529,18 @@ img { max-width: 100%; display: block; }
   padding: 0.75rem 1rem 0.75rem 2.75rem;
   font-size: 0.9rem;
   font-family: var(--font-body);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px;
-  background: var(--bg);
-  color: var(--ink);
+  background: rgba(2, 6, 23, 0.5);
+  color: white;
   transition: all 0.2s;
   outline: none;
 }
 
 .input-wrap input:focus {
-  border-color: var(--navy);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(26,31,94,0.08);
+  border-color: var(--amber);
+  background: rgba(2, 6, 23, 0.8);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .input-wrap input::placeholder { color: #94a3b8; }
@@ -590,8 +599,8 @@ img { max-width: 100%; display: block; }
   padding: 0.9rem 1.5rem;
   font-size: 0.95rem;
   font-weight: 700;
-  color: white;
-  background: linear-gradient(135deg, var(--navy), var(--navy-light));
+  background: linear-gradient(135deg, #d4af37, #bba06b);
+  color: #020617;
   border-radius: 12px;
   border: none;
   cursor: pointer;
@@ -637,10 +646,10 @@ img { max-width: 100%; display: block; }
   padding: 0.7rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--navy);
-  border: 1.5px solid var(--navy);
+  color: var(--amber);
+  border: 1.5px solid var(--amber);
   border-radius: 10px;
-  background: white;
+  background: rgba(212, 175, 55, 0.1);
   cursor: pointer;
   transition: all 0.2s;
   font-family: var(--font-body);
@@ -657,10 +666,10 @@ img { max-width: 100%; display: block; }
   padding: 0.7rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--ink-soft);
-  border: 1.5px solid var(--border);
+  color: white;
+  border: 1.5px solid rgba(255,255,255,0.2);
   border-radius: 10px;
-  background: white;
+  background: rgba(255,255,255,0.05);
   cursor: pointer;
   transition: all 0.2s;
   font-family: var(--font-body);
@@ -702,7 +711,7 @@ img { max-width: 100%; display: block; }
   font-size: 3rem;
   font-weight: 800;
   line-height: 1.15;
-  color: var(--navy);
+  color: white;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
 }
@@ -730,12 +739,14 @@ img { max-width: 100%; display: block; }
 }
 
 .stat-item {
-  background: white;
-  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: var(--radius);
   padding: 1rem 0.5rem;
   text-align: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  color: white;
 }
 
 .stat-number {
