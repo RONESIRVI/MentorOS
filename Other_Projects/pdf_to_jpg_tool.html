@@ -1210,7 +1210,7 @@
       if (file.type.startsWith('image/')) {
         showToast(`"${file.name}" ek IMAGE file hai, PDF nahi! Sirf PDF upload karen.`, 'error', 6000);
       } else {
-        showToast(`"${file.name}" PDF nahi hai (Type: ${file.type}). Sirf .pdf files supported hain.`, 'error', 6000);
+        showToast(`"${file.name}" PDF nahi hai (Type: ${file.type}).`, 'error', 6000);
       }
       return;
     }
@@ -1219,7 +1219,7 @@
     const ext = file.name.split('.').pop().toLowerCase();
     const imageExts = ['jpg','jpeg','png','heic','heif','gif','bmp','webp','tiff','tif','svg'];
     if (imageExts.includes(ext)) {
-      showToast(`"${file.name}" ek image file hai (.${ext.toUpperCase()}). PDF chahiye, image nahi!`, 'error', 6000);
+      showToast(`"${file.name}" ek image file hai (.${ext.toUpperCase()}). PDF chahiye!`, 'error', 6000);
       return;
     }
 
@@ -1231,9 +1231,9 @@
       const isJpeg = magic[0] === 0xFF && magic[1] === 0xD8;
       const isPng  = magic[0] === 0x89 && magic[1] === 0x50;
       if (isJpeg || isPng) {
-        showToast(`"${file.name}" ek image file hai. Sirf PDF files upload karen.`, 'error', 6000);
+        showToast(`"${file.name}" ek image file hai. Sirf PDF upload karen.`, 'error', 6000);
       } else {
-        showToast(`"${file.name}" valid PDF nahi hai. File corrupt ya damaged ho sakta hai.`, 'error', 6000);
+        showToast(`"${file.name}" valid PDF nahi hai (wrong file type).`, 'error', 6000);
       }
       return;
     }
@@ -1242,27 +1242,71 @@
   }
 
   async function queueArrayBuffer(arrayBuffer, name, source) {
+    const showErr = (msg, dur) => showToast(msg, 'error', dur || 10000);
+    let pdfDoc = null;
+
+    // Attempt 1: Strict
     try {
-      const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
-      const totalPages = pdfDoc.numPages;
-      const id = nextId++;
-      const entry = { id, name, source, pdfDoc, totalPages, selectedPages: new Set() };
-      for (let i = 1; i <= totalPages; i++) entry.selectedPages.add(i);
-      pdfQueue.push(entry);
-      renderQueueTabs();
-      setActivePdf(id);
-      showUI();
-      showToast(`✅ "${name}" load hua — ${totalPages} page${totalPages !== 1 ? 's' : ''}`, 'success', 3000);
-    } catch (e) {
-      console.error(e);
-      if (e.name === 'PasswordException' || (e.message && e.message.toLowerCase().includes('password'))) {
-        showToast(`"${name}" password-protected hai! Pehle password hatao, phir upload karo.`, 'error', 7000);
-      } else {
-        showToast(`"${name}" load nahi hua. PDF corrupt ya damaged ho sakta hai.`, 'error', 5000);
+      pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+    } catch (e1) {
+      console.error('[PDF strict]', e1.name, e1.message);
+      if (e1.name === 'PasswordException') {
+        showErr(`🔒 "${name}" password-protected hai!\nTip: ilovepdf.com se password hatao.`, 12000);
+        return;
+      }
+
+      // Attempt 2: Lenient
+      try {
+        pdfDoc = await pdfjsLib.getDocument({
+          data: arrayBuffer.slice(0),
+          stopAtErrors: false,
+          isEvalSupported: false
+        }).promise;
+        showToast(`⚠️ "${name}" load hua (minor issues ke saath).`, 'warning', 5000);
+      } catch (e2) {
+        console.error('[PDF lenient]', e2.name, e2.message);
+
+        // Attempt 3: Maximum compatibility
+        try {
+          pdfDoc = await pdfjsLib.getDocument({
+            data: arrayBuffer.slice(0),
+            stopAtErrors: false,
+            isEvalSupported: false,
+            disableRange: true,
+            disableStream: true,
+            disableAutoFetch: true
+          }).promise;
+          showToast(`⚠️ "${name}" compatibility mode mein load hua.`, 'warning', 5000);
+        } catch (e3) {
+          console.error('[PDF max-compat]', e3.name, e3.message);
+          const n   = (e3.name    || '').toLowerCase();
+          const msg = (e3.message || '').toLowerCase();
+          if (n.includes('password') || msg.includes('password')) {
+            showErr(`🔒 "${name}" password-protected hai! ilovepdf.com se password hatao.`, 12000);
+          } else if (n === 'invalidpdfexception' || msg.includes('invalid pdf') || msg.includes('not a pdf')) {
+            showErr(`❌ "${name}" valid PDF nahi hai. File rename ki gayi ho sakti hai.`, 10000);
+          } else if (msg.includes('xfa') || msg.includes('acroform')) {
+            showErr(`❌ "${name}" XFA form hai. Adobe Acrobat mein "Print to PDF" karo.`, 10000);
+          } else {
+            const raw = `${e3.name || ''}: ${e3.message || 'Unknown error'}`;
+            showErr(`❌ "${name}" load nahi hua.\n🔍 ${raw}\n(Yeh copy karke batao)`, 15000);
+          }
+          return;
+        }
       }
     }
-  }
 
+    // Success
+    const totalPages = pdfDoc.numPages;
+    const id = nextId++;
+    const entry = { id, name, source, pdfDoc, totalPages, selectedPages: new Set() };
+    for (let i = 1; i <= totalPages; i++) entry.selectedPages.add(i);
+    pdfQueue.push(entry);
+    renderQueueTabs();
+    setActivePdf(id);
+    showUI();
+    showToast(`✅ "${name}" load hua — ${totalPages} page${totalPages !== 1 ? 's' : ''}`, 'success', 3000);
+  }
 
   function removePdf(id) {
     pdfQueue = pdfQueue.filter(p => p.id !== id);
@@ -1429,13 +1473,11 @@
   // ── Show / hide UI ────────────────────────────────────────────────
   function showUI() {
     queueSection.classList.add('visible');
-    controlsSection.classList.add('visible');
     pagesSection.classList.add('visible');
     actionBar.classList.add('visible');
   }
   function hideUI() {
     queueSection.classList.remove('visible');
-    controlsSection.classList.remove('visible');
     pagesSection.classList.remove('visible');
     actionBar.classList.remove('visible');
     progressSection.classList.remove('visible');
