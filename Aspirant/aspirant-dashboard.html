@@ -2975,10 +2975,10 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     });
   });
   // --- QUOTE BANK CMS LOGIC (Shifted from Admin) ---
-  const toggleCmsBtn = document.getElementById('btn-toggle-cms');
   let cmsAutoLoaded = false; // Flag to prevent duplicate auto-load
-  if(toggleCmsBtn) {
-    toggleCmsBtn.addEventListener('click', () => {
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'btn-toggle-cms') {
+      const toggleCmsBtn = e.target;
       const configPanel = document.getElementById('aspirant-cms-config');
       if(configPanel.style.display === 'none') {
         configPanel.style.display = 'block';
@@ -2995,8 +2995,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         toggleCmsBtn.textContent = '⚙️ Manage Quote Bank Sync';
         if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
       }
-    });
-  }
+    }
+  });
 
   let fetchedDriveFiles = [];
   let selectedFileForCMS = null;
