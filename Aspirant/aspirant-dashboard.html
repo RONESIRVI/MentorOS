@@ -1509,8 +1509,9 @@
       btn.disabled = true;
       
       try {
-        // 1. Get all category folders
-        const rootRes = await fetch(`${GAS_URL}?folderId=1TqXpQc1MPN5dgw41-X1rODhT3l71TeNB`);
+        // 1. Get all category folders from QUOTE BANK root (not Rankers root)
+        const QB_ROOT = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ'; // Quote Bank Root
+        const rootRes = await fetch(`${GAS_URL}?folderId=${QB_ROOT}`);
         const rootData = await rootRes.json();
         const rootItems = Array.isArray(rootData) ? rootData : (rootData.data || []);
         const folders = rootItems.filter(f => f.type === 'folder');
@@ -3053,12 +3054,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         configPanel.style.display = 'block';
         toggleCmsBtn.textContent = '⚙️ Hide Manage Sync';
         window.loadAssignedCMS();
-        // Auto-load files from Ranker's Root initially if not already loaded
-        if(!cmsAutoLoaded) {
-          cmsAutoLoaded = true;
-          cmsBreadcrumbs = [{ id: RANKERS_ROOT_ID, name: '🏠 Root' }];
-          window.fetchCmsFolder(RANKERS_ROOT_ID);
-        }
+        // NOTE: User must click Load button to fetch from a specific root
       } else {
         configPanel.style.display = 'none';
         toggleCmsBtn.textContent = '⚙️ Manage Quote Bank Sync';
