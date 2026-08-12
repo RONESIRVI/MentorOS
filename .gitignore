@@ -2,3 +2,8 @@ RONE_Ticker_Manager/
 node_modules/
 # Other_Projects/ (unignored to allow PDF tool deployment)
 Quote_Bank_Resources_Manager/~$categories.xlsx
+# Ignore embedded git repos (separate projects, not submodules)
+Other_Projects/RAS-Study-Planner/
+Other_Projects/RAS_Planner_Check/
+# Ignore temp debug files
+.gemini-tmp-old-dash.html
