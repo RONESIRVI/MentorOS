@@ -896,241 +896,360 @@
     }
 
 
-    /* Premium Redesign for Action Plan & Syllabus Progress */
+    /* ============================================================
+       PREMIUM SPLIT PANEL — Today's Action Plan + Syllabus Progress
+       ============================================================ */
     .premium-split-view {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 10px;
-      background: linear-gradient(to bottom, #1a1e3a, #0d1126);
-      border-radius: 20px;
+      grid-template-columns: 1fr 2px 1fr;
+      gap: 0;
+      background: linear-gradient(145deg, #0d1126 0%, #1a1e3a 50%, #0d1126 100%);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,175,55,0.15);
+      padding: 0;
+      margin-bottom: 28px;
+      position: relative;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      padding: 15px 10px;
-      margin-bottom: 24px;
-      position: relative;
-    }
-    
-    .premium-divider {
-      width: 2px;
-      background: linear-gradient(to bottom, transparent, #c7a962 20%, #e2cd8c 50%, #c7a962 80%, transparent);
-      opacity: 0.7;
-      margin: 0;
-      position: relative;
     }
 
+    /* Decorative glowing orbs */
+    .premium-split-view::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(212,175,55,0.12), transparent 70%);
+      pointer-events: none;
+    }
+    .premium-split-view::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(56,189,248,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Golden vertical divider */
+    .premium-divider {
+      background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(212,175,55,0.3) 15%,
+        rgba(226,205,140,0.8) 50%,
+        rgba(212,175,55,0.3) 85%,
+        transparent 100%);
+      width: 2px;
+      min-height: 200px;
+      z-index: 2;
+    }
+
+    /* Individual panel */
     .premium-panel {
-      padding: 5px;
+      padding: 24px 20px;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
+    .premium-panel.left-panel { border-radius: 24px 0 0 24px; }
+    .premium-panel.right-panel { border-radius: 0 24px 24px 0; }
 
+    /* Panel Header */
     .premium-panel-header {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      margin-bottom: 20px;
-      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
     }
 
     .header-title-container {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 10px;
     }
 
     .header-icon {
-      font-size: 1.8rem;
-      filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.5));
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,0.6));
+      flex-shrink: 0;
     }
 
     .premium-title {
       color: #fdfbf7;
-      font-size: 1.05rem;
-      line-height: 1.3;
+      font-size: 1rem;
+      line-height: 1.25;
       font-weight: 700;
-      text-shadow: 0 0 10px rgba(255,255,255,0.2);
       margin: 0;
       font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.3px;
     }
 
     .premium-action {
-      color: #d4af37;
-      font-size: 0.75rem;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 600;
-    }
-    .premium-action .arrow-circle {
       display: inline-flex;
-      justify-content: center;
       align-items: center;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #d4af37;
-      color: #1a1e3a;
-      font-weight: bold;
-      font-size: 0.7rem;
+      gap: 6px;
+      background: rgba(212,175,55,0.12);
+      border: 1px solid rgba(212,175,55,0.3);
+      color: #d4af37;
+      font-size: 0.72rem;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .premium-action:hover {
+      background: rgba(212,175,55,0.22);
+      color: #f0d060;
+      transform: translateY(-1px);
     }
 
-    /* Premium Golden Cards */
+    /* Task list scroll area */
+    .premium-task-list {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 420px;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(212,175,55,0.3) transparent;
+    }
+    .premium-task-list::-webkit-scrollbar { width: 4px; }
+    .premium-task-list::-webkit-scrollbar-track { background: transparent; }
+    .premium-task-list::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+
+    /* ---- TASK CARDS ---- */
     .premium-card {
-      background: linear-gradient(135deg, #fbf7e6 0%, #ecdcb0 100%);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
       display: flex;
-      align-items: stretch;
-      gap: 8px;
-      box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), inset 0 -2px 5px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.2);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212,175,55,0.18);
+      border-radius: 14px;
+      padding: 11px 12px;
+      margin-bottom: 9px;
+      cursor: pointer;
+      transition: all 0.25s ease;
       position: relative;
-      transition: transform 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+    .premium-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: #d4af37;
+      border-radius: 3px 0 0 3px;
+      opacity: 0.6;
+      transition: opacity 0.2s;
     }
     .premium-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(212,175,55,0.35);
+      transform: translateX(3px);
     }
-    
-    .premium-card-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-width: 0; /* Prevents text overflow breaking flexbox */
+    .premium-card:hover::before { opacity: 1; }
+
+    /* Completed state */
+    .premium-card.completed {
+      background: rgba(21,128,61,0.12);
+      border-color: rgba(21,128,61,0.3);
     }
-    .premium-card h4 {
-      margin: 0 0 4px 0;
-      font-size: 0.85rem;
-      color: #1a1e3a;
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .premium-card p {
-      margin: 0;
-      font-size: 0.7rem;
-      color: #334155;
-      font-weight: 600;
-      line-height: 1.2;
+    .premium-card.completed::before { background: #10b981; opacity: 1; }
+    .premium-card.completed .premium-card-content h4 {
+      text-decoration: line-through;
+      opacity: 0.6;
     }
 
-    /* Circular Checkbox (Glowing on Active) */
+    /* Circular checkbox */
     .premium-checkbox {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      border: 2px solid #bba06b;
+      border: 2px solid rgba(212,175,55,0.5);
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
       background: transparent;
-      cursor: pointer;
+      color: transparent;
+      font-size: 12px;
+      font-weight: bold;
     }
     .premium-card.completed .premium-checkbox {
-      border-color: #38bdf8;
-      background: #1e3a8a;
-      box-shadow: 0 0 10px #38bdf8;
-      color: #38bdf8;
-      font-size: 14px;
-      font-weight: bold;
-      text-shadow: 0 0 5px #38bdf8;
+      border-color: #10b981;
+      background: #10b981;
+      color: white;
+      box-shadow: 0 0 10px rgba(16,185,129,0.5);
     }
 
-    /* Actions Container (Right side of the card) */
+    /* Card content */
+    .premium-card-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .premium-card-content h4 {
+      margin: 0 0 3px 0;
+      font-size: 0.82rem;
+      color: #f0ead0;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .premium-card-content p {
+      margin: 0;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 500;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Actions column */
     .premium-card-actions {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       align-items: flex-end;
+      justify-content: space-between;
+      gap: 6px;
       flex-shrink: 0;
-      width: 60px;
     }
 
-    /* Tags on Action Plan */
+    /* Tags */
     .premium-tag {
-      font-size: 0.55rem;
-      font-weight: 700;
-      padding: 3px 6px;
-      border-radius: 10px;
+      font-size: 0.52rem;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 8px;
       color: white;
       text-transform: uppercase;
-      text-align: center;
-      width: 100%;
-      box-sizing: border-box;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
     }
-    .premium-tag.classes { background: #15803d; }
-    .premium-tag.revision { background: #b45309; }
-    .premium-tag.test { background: #4338ca; }
-    
-    /* Edit Note icon */
+    .premium-tag.classes  { background: linear-gradient(135deg, #15803d, #16a34a); }
+    .premium-tag.revision { background: linear-gradient(135deg, #b45309, #d97706); }
+    .premium-tag.test     { background: linear-gradient(135deg, #4338ca, #6366f1); }
+    .premium-tag.analysis { background: linear-gradient(135deg, #0e7490, #0891b2); }
+
+    /* Note icon */
     .premium-note-icon {
-      font-size: 1.4rem;
-      opacity: 0.8;
+      font-size: 1.1rem;
+      opacity: 0.6;
       text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      display: block;
+    }
+    .premium-note-icon:hover { opacity: 1; transform: scale(1.2); }
+
+    /* ---- PROGRESS LIST (Right Panel) ---- */
+    .premium-progress-list {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 420px;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(212,175,55,0.3) transparent;
+    }
+    .premium-progress-list::-webkit-scrollbar { width: 4px; }
+    .premium-progress-list::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+
+    /* Syllabus subject card */
+    .syllabus-progress-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212,175,55,0.18);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      transition: all 0.2s ease;
+    }
+    .syllabus-progress-card:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(212,175,55,0.3);
     }
 
-    /* Syllabus Progress specific */
-    .syllabus-progress-card {
-      background: linear-gradient(135deg, #fbf7e6 0%, #ecdcb0 100%);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      box-shadow: inset 0 2px 5px rgba(255,255,255,0.8), inset 0 -2px 5px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.2);
-    }
     .syllabus-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .syllabus-header-row h4 {
       margin: 0;
-      color: #1a1e3a;
+      color: #f0ead0;
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.82rem;
+      font-family: 'Space Grotesk', sans-serif;
     }
     .syllabus-edit-icon {
-      background: #d4af37;
-      color: #1a1e3a;
-      width: 22px;
-      height: 22px;
-      border-radius: 5px;
+      background: rgba(212,175,55,0.2);
+      color: #d4af37;
+      width: 22px; height: 22px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
+      text-decoration: none;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .syllabus-edit-icon:hover { background: rgba(212,175,55,0.35); }
+
+    /* Progress bar row */
+    .syllabus-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .premium-progress-bar-container {
-      height: 8px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 4px;
-      width: 70%;
-      position: relative;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      flex: 1;
+      height: 7px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
     }
     .premium-progress-bar-fill {
       height: 100%;
-      border-radius: 4px;
-      background: #15803d;
-      box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
+      border-radius: 10px;
+      background: linear-gradient(90deg, #15803d, #22c55e);
+      box-shadow: 0 0 8px rgba(34,197,94,0.4);
+      transition: width 1s ease-out;
     }
     .premium-progress-text {
-      position: absolute;
-      right: -30px;
-      top: -4px;
-      font-size: 0.65rem;
-      font-weight: bold;
-      color: #1a1e3a;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #d4af37;
+      white-space: nowrap;
+      min-width: 32px;
+      text-align: right;
     }
-    /* Removed media query so they stay side-by-side on mobile */
+
+    /* Mobile responsiveness */
+    @media (max-width: 640px) {
+      .premium-split-view {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 2px auto;
+      }
+      .premium-divider {
+        width: 100%; height: 2px; min-height: unset;
+        background: linear-gradient(to right,
+          transparent 0%,
+          rgba(212,175,55,0.5) 20%,
+          rgba(226,205,140,0.8) 50%,
+          rgba(212,175,55,0.5) 80%,
+          transparent 100%);
+      }
+      .premium-panel.left-panel  { border-radius: 24px 24px 0 0; }
+      .premium-panel.right-panel { border-radius: 0 0 24px 24px; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -2949,8 +3068,10 @@ async function fetchProgress() {
                   <h4>${subject}</h4>
                   <a class="syllabus-edit-icon" href="https://docs.google.com/spreadsheets/d/1Zo81TfPcU09ErH7g-bj-4TksqceuBmiL/edit" target="_blank" title="Update ${subject} in Google Sheet" style="text-decoration: none;">📝</a>
                 </div>
-                <div class="premium-progress-bar-container">
-                  <div class="premium-progress-bar-fill" style="width: ${percent}%; ${percent === 0 ? 'background: transparent; box-shadow: none;' : ''}"></div>
+                <div class="syllabus-progress-row">
+                  <div class="premium-progress-bar-container">
+                    <div class="premium-progress-bar-fill" style="width: ${percent}%; background: linear-gradient(90deg, ${color}, ${color}aa);"></div>
+                  </div>
                   <div class="premium-progress-text">${percent}%</div>
                 </div>
               </div>
