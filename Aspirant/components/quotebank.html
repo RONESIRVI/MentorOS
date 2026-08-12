@@ -1,23 +1,36 @@
-<div id="section-quotebank" class="aspirant-section" style="display:none;">
-          <div class="dash-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
-            <div class="page-title">
-              <h2 style="margin: 0; font-size: 1.8rem; background: linear-gradient(90deg, #1e293b, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Quote Bank & Resources</h2>
-              <p style="color: #64748b; font-size: 1rem; margin-top: 5px; margin-bottom: 20px;">Direct access to premium PDFs synced from Google Drive.</p>
-              <button id="btn-toggle-cms" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 24px; cursor: pointer; font-weight: 600; box-shadow: 0 0 0 6px rgba(59,130,246,0.15), 0 4px 10px rgba(59,130,246,0.25); display: flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: all 0.2s;">⚙️ Manage Quote Bank Sync</button>
+<div id="section-quotebank" class="aspirant-section" style="display:none; padding-bottom: 50px;">
+          
+          <!-- TOP HEADER SECTION -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; flex-wrap: wrap; gap: 20px;">
+            <div style="max-width: 600px;">
+              <h2 style="margin: 0 0 8px 0; font-size: 2.2rem; font-weight: 800; color: #111827; letter-spacing: -0.5px;">Quote Bank & Resources</h2>
+              <p style="color: #475569; font-size: 1.05rem; margin: 0 0 24px 0;">Direct access to premium PDFs synced from Google Drive.</p>
+              
+              <!-- Ripple Button Wrapper -->
+              <div style="position: relative; display: inline-block;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; padding: 12px; border-radius: 9999px; border: 1px solid rgba(59, 130, 246, 0.4); box-sizing: content-box; pointer-events: none;"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; padding: 24px; border-radius: 9999px; border: 1px solid rgba(59, 130, 246, 0.15); box-sizing: content-box; pointer-events: none;"></div>
+                
+                <button id="btn-toggle-cms" style="position: relative; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 12px 24px; border-radius: 9999px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59,130,246,0.3); z-index: 2; transition: all 0.2s;">
+                  <span style="font-size: 1.1rem;">⚙️</span> Manage Quote Bank Sync
+                </button>
+              </div>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 5px;">
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">🎓</div>
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">💖</div>
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">👤</div>
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">🏛️</div>
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">👥</div>
-              <div style="width: 52px; height: 52px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.03);">💼</div>
+            
+            <!-- 3x2 Icon Grid -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-right: 10px;">
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">🎓</div>
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">💖</div>
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">👤</div>
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">🏛️</div>
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">👥</div>
+              <div style="width: 56px; height: 56px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.5); border: 1px solid #f1f5f9; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.02));">💼</div>
             </div>
           </div>
           
-          <div id="aspirant-cms-config" style="display:none; background:white; padding:24px; border-radius:16px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #e2e8f0;">
+          <!-- ADMIN CMS CONFIG PANEL (Hidden by default) -->
+          <div id="aspirant-cms-config" style="display:none; background:white; padding:24px; border-radius:16px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.05); border:1px solid #e2e8f0; margin-top: 30px;">
             <div style="display:flex; gap:20px; margin-bottom:20px; flex-wrap:wrap;">
-              <!-- Card 1 -->
               <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
                 <div>
                   <h3 style="margin-top:0; margin-bottom:5px; color:#0f172a;">🏠 RONE Ranker's Root</h3>
@@ -25,8 +38,6 @@
                 </div>
                 <button id="btn-sync-rankers" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:700;">🔄 Load</button>
               </div>
-              
-              <!-- Card 2 -->
               <div style="flex:1; min-width:300px; background:#f8fafc; padding:20px; border-radius:12px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
                 <div>
                   <h3 style="margin-top:0; margin-bottom:5px; color:#0f172a;">📚 Quote Bank Root</h3>
@@ -38,33 +49,108 @@
                 </div>
               </div>
             </div>
-
             <div style="display:flex; flex-direction:column; gap:20px;">
               <div style="background:#f8fafc; padding:20px; border-radius:12px; max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0;">
                 <h3 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
                   Fetched Files 
                   <span id="fetched-count" style="background:#e2e8f0; padding:2px 8px; border-radius:10px; font-size:0.8rem; color:#0f172a;">0</span>
                 </h3>
-                <div id="cms-breadcrumb" style="display:flex; gap:6px; align-items:center; margin-bottom:12px; font-size:0.85rem; overflow-x:auto; white-space:nowrap; padding-bottom:4px;">
-                  <!-- JS will populate -->
-                </div>
-                <div id="fetched-files-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px; padding: 10px 0;">
+                <div id="cms-breadcrumb" style="display:flex; gap:6px; align-items:center; margin-bottom:12px; font-size:0.85rem; overflow-x:auto; white-space:nowrap; padding-bottom:4px;"></div>
+                <div id="fetched-files-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px; padding: 10px 0;"></div>
               </div>
             </div>
           </div>
-          </div>
+          
           <div class="quote-bank-layout">
-            <!-- Main Content Area -->
             <div class="qb-content" style="width: 100%;">
-              <!-- Action Filters -->
-              <div id="qb-dynamic-filters" style="margin-bottom: 20px;">
-                <!-- Populated via JS -->
+              <!-- Action Filters (Populated via JS) -->
+              <div id="qb-dynamic-filters" style="margin-bottom: 25px; margin-top: 30px;">
               </div>
               
-              <!-- Cards Grid -->
-              <div class="content-grid" id="qb-cards-container" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-top: 20px;">
-                <p style="color:#64748b; font-size:0.95rem;">Loading files from Drive...</p>
+              <!-- Cards Grid (Populated via JS) -->
+              <div class="content-grid" id="qb-cards-container" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-top: 10px;">
+                <p style="color:#64748b; font-size:0.95rem; margin-left: 10px;">Loading materials...</p>
               </div>
+
+              <!-- BOTTOM WIDGETS SECTION (Static to match UI Mockup) -->
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 25px;">
+                <!-- Left Column -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  
+                  <!-- Recently Updated Carousel -->
+                  <div style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative;">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #111827;">Recently Updated</h3>
+                    <button style="position:absolute; right:15px; top: 50%; transform:translateY(-50%); background:white; border:none; border-radius:50%; width:32px; height:32px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer;">❯</button>
+                    <button style="position:absolute; left:15px; top: 50%; transform:translateY(-50%); background:white; border:none; border-radius:50%; width:32px; height:32px; box-shadow:0 2px 8px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer;">❮</button>
+                    <div style="display: flex; gap: 12px; overflow: hidden; padding: 5px 30px;">
+                      <div style="min-width: 80px; height: 110px; background: #1e293b; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                      <div style="min-width: 80px; height: 110px; background: #334155; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                      <div style="min-width: 80px; height: 110px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; display:flex; flex-direction:column; padding:8px;">
+                        <div style="width:100%; height:4px; background:#e2e8f0; margin-bottom:4px; border-radius:2px;"></div>
+                        <div style="width:80%; height:4px; background:#e2e8f0; margin-bottom:4px; border-radius:2px;"></div>
+                        <div style="width:90%; height:4px; background:#e2e8f0; margin-bottom:4px; border-radius:2px;"></div>
+                      </div>
+                      <div style="min-width: 80px; height: 110px; background: #fdba74; border-radius: 12px;"></div>
+                      <div style="min-width: 80px; height: 110px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Network Graph Card -->
+                  <div style="background: #0b1121; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display:flex; align-items:center; justify-content:center; min-height: 250px; position:relative; overflow:hidden;">
+                    <!-- Fake Network Graph Nodes -->
+                    <div style="position:absolute; width:100%; height:100%; top:0; left:0; background: radial-gradient(circle at center, rgba(59,130,246,0.1) 0%, transparent 70%);"></div>
+                    <div style="text-align: center; z-index: 1;">
+                       <div style="width: 50px; height: 50px; background:rgba(255,255,255,0.1); border-radius:12px; margin: 0 auto 10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; border:1px solid rgba(255,255,255,0.2);">📄</div>
+                       <div style="color:white; font-weight:600;">Ethics</div>
+                       <div style="display:flex; justify-content:center; gap: 40px; margin-top:20px;">
+                          <div style="color:#94a3b8; font-size:0.8rem;">Thinkers</div>
+                          <div style="color:#94a3b8; font-size:0.8rem;">Gov</div>
+                          <div style="color:#94a3b8; font-size:0.8rem;">Society</div>
+                       </div>
+                    </div>
+                  </div>
+                  
+                </div>
+
+                <!-- Right Column -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  
+                  <!-- Smart Recommendations -->
+                  <div style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                    <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #111827;">Smart Recommendations</h3>
+                    <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                      <div style="width:48px; height:48px; background:#eff6ff; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">📚</div>
+                      <div>
+                        <div style="font-weight:700; color:#111827; font-size:0.95rem;">Related to Ethics...</div>
+                        <div style="color:#64748b; font-size:0.8rem;">Recommendations related by ethic...</div>
+                      </div>
+                    </div>
+                    <div style="color:#475569; font-size:0.9rem; font-weight:500;">Related to Ethics... <span style="color:#3b82f6; cursor:pointer;">See Gov</span></div>
+                  </div>
+
+                  <!-- Usage Analytics -->
+                  <div style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                    <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; color: #111827;">Usage Analytics Sparkline</h3>
+                    <p style="margin: 0 0 15px 0; font-size: 0.8rem; color: #64748b;">Content Accessed Over Time</p>
+                    <div style="width: 100%; height: 60px; border-bottom: 2px solid #e2e8f0; position:relative;">
+                       <svg width="100%" height="100%" viewBox="0 0 200 60" preserveAspectRatio="none">
+                          <path d="M0,50 Q40,10 80,40 T160,20 T200,10" fill="none" stroke="#3b82f6" stroke-width="3" />
+                          <path d="M0,50 Q40,10 80,40 T160,20 T200,10 L200,60 L0,60 Z" fill="rgba(59,130,246,0.1)" stroke="none" />
+                       </svg>
+                    </div>
+                  </div>
+
+                  <!-- Your Reading Goal -->
+                  <div style="background: white; border-radius: 24px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align:center;">
+                    <h3 style="margin: 0 0 20px 0; font-size: 1.1rem; color: #111827; text-align:left;">Your Reading Goal</h3>
+                    <div style="width: 120px; height: 120px; border-radius: 50%; border: 12px solid #eff6ff; border-top-color: #3b82f6; margin: 0 auto; display:flex; align-items:center; justify-content:center;">
+                       <span style="font-size:1.5rem; font-weight:800; color:#111827;">100%</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              
             </div>
           </div>
         </div>

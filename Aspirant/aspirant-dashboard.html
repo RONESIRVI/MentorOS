@@ -1560,11 +1560,11 @@
 
       // 2. Populate Quote Bank Dynamic Filters
       const qbFiltersContainer = document.getElementById('qb-dynamic-filters');
-      if (qbFiltersContainer && dynamicCats.length > 0) {
+      if (qbFiltersContainer) {
         qbFiltersContainer.innerHTML = '';
         
-        // Primary Types (Theory, Case Studies, etc.)
-        const primaryTypes = ['Theory', 'Case Studies', 'Introductions', 'Conclusions'];
+        // --- Primary Types (Top Row) ---
+        const primaryTypes = ['Theory', 'Case Studies', 'Case Studies', 'Introductions', 'Conclusions'];
         const primaryContainer = document.createElement('div');
         primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;';
         
@@ -1572,30 +1572,49 @@
         const allBtn = document.createElement('button');
         allBtn.className = 'btn-qb-filter active';
         allBtn.setAttribute('data-cat', 'all');
-        allBtn.style = `padding:8px 16px; border-radius:24px; border:none; background:#111827; color:white; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:flex; align-items:center; gap:6px;`;
+        allBtn.style = `padding:8px 16px; border-radius:24px; border:none; background:#111827; color:white; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; align-items:center; gap:6px;`;
         allBtn.innerHTML = `📚 All`;
         allBtn.onclick = () => window.loadQuoteBankFiles('all');
         primaryContainer.appendChild(allBtn);
 
+        let caseStudyCount = 0;
         primaryTypes.forEach(cat => {
           const btn = document.createElement('button');
           btn.className = 'btn-qb-filter';
           btn.setAttribute('data-cat', cat);
-          let bg = '#f3e8ff', color = '#9333ea', icon = '🧠'; // Default/Theory (Purple)
-          if(cat === 'Theory') { bg = '#f3e8ff'; color = '#9333ea'; icon = '📍'; }
-          if(cat === 'Case Studies') { bg = '#e0f2fe'; color = '#0284c7'; icon = '📊'; }
-          if(cat === 'Introductions') { bg = '#fef3c7'; color = '#b45309'; icon = '✨'; }
-          if(cat === 'Conclusions') { bg = '#fce7f3'; color = '#be185d'; icon = '🎯'; }
           
-          btn.style = `padding:8px 16px; border-radius:24px; border:none; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px;`;
+          let bg = '#f3e8ff', color = '#9333ea', iconHTML = ''; 
+          if(cat === 'Theory') { 
+              bg = '#f3e8ff'; color = '#7e22ce'; iconHTML = '💖 '; 
+          }
+          else if(cat === 'Case Studies') { 
+              caseStudyCount++;
+              if(caseStudyCount === 1) { bg = '#e0f2fe'; color = '#0369a1'; } // Blue one
+              else { bg = '#dcfce7'; color = '#15803d'; } // Green one
+          }
+          else if(cat === 'Introductions') { 
+              bg = '#fef08a'; color = '#a16207'; 
+          }
+          else if(cat === 'Conclusions') { 
+              bg = '#fce7f3'; color = '#be185d'; 
+          }
+          
+          btn.style = `padding:8px 16px; border-radius:24px; border:none; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);`;
           btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = 'none'; };
-          btn.innerHTML = `${icon} ${cat}`;
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; };
+          btn.innerHTML = `${iconHTML}${cat}`;
           btn.onclick = () => window.loadQuoteBankFiles(cat);
           primaryContainer.appendChild(btn);
         });
         
-        // Secondary Categories (Ethics, Thinkers, etc.)
+        qbFiltersContainer.appendChild(primaryContainer);
+        
+        // --- Secondary Categories (Bottom Row) ---
+        // If snippet_categories hasn't loaded, fallback to default photo categories
+        if (!dynamicCats || dynamicCats.length === 0) {
+            dynamicCats = ['Ethics', 'Thinkers', 'Gov', 'Society', 'Public Service'];
+        }
+
         const secondaryContainer = document.createElement('div');
         secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;';
         
@@ -1609,17 +1628,16 @@
           else if(cat.toLowerCase().includes('thinker')) icon = '❤️';
           else if(cat.toLowerCase().includes('gov')) icon = '🏛️';
           else if(cat.toLowerCase().includes('soci')) icon = '👥';
-          else if(cat.toLowerCase().includes('service')) icon = '💼';
+          else if(cat.toLowerCase().includes('public') || cat.toLowerCase().includes('service')) icon = '💼';
           
-          btn.style = `padding:8px 16px; border-radius:24px; border:1px solid #e2e8f0; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
-          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; btn.style.borderColor = '#cbd5e1'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#e2e8f0'; };
+          btn.style = `padding:8px 16px; border-radius:24px; border:1px solid #f1f5f9; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 2px 5px rgba(0,0,0,0.04); display:flex; align-items:center; gap:6px;`;
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.08)'; btn.style.borderColor = '#e2e8f0'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.04)'; btn.style.borderColor = '#f1f5f9'; };
           btn.innerHTML = `${icon} ${cat}`;
           btn.onclick = () => window.loadQuoteBankFiles(cat);
           secondaryContainer.appendChild(btn);
         });
         
-        qbFiltersContainer.appendChild(primaryContainer);
         qbFiltersContainer.appendChild(secondaryContainer);
       }
 
