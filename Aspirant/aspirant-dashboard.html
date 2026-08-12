@@ -896,206 +896,214 @@
     }
 
 
+
     /* ============================================================
-       PREMIUM SPLIT PANEL — Today's Action Plan + Syllabus Progress
+       TODAY'S ACTION PLAN + SYLLABUS PROGRESS — Photo-Matched Design
        ============================================================ */
+
+    /* Outer container */
     .premium-split-view {
       display: grid;
-      grid-template-columns: 1fr 2px 1fr;
+      grid-template-columns: 1fr 1px 1fr;
       gap: 0;
-      background: linear-gradient(145deg, #0d1126 0%, #1a1e3a 50%, #0d1126 100%);
-      border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,175,55,0.15);
+      background: linear-gradient(160deg, #111528 0%, #1e2346 40%, #111528 100%);
+      border-radius: 20px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,170,80,0.2);
       padding: 0;
       margin-bottom: 28px;
       position: relative;
       overflow: hidden;
     }
 
-    /* Decorative glowing orbs */
+    /* Subtle shimmer overlay */
     .premium-split-view::before {
       content: '';
       position: absolute;
-      top: -80px; left: -80px;
-      width: 220px; height: 220px;
-      background: radial-gradient(circle, rgba(212,175,55,0.12), transparent 70%);
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 25% 10%, rgba(200,160,60,0.07), transparent),
+        radial-gradient(ellipse 40% 50% at 80% 90%, rgba(30,100,200,0.06), transparent);
       pointer-events: none;
-    }
-    .premium-split-view::after {
-      content: '';
-      position: absolute;
-      bottom: -80px; right: -80px;
-      width: 220px; height: 220px;
-      background: radial-gradient(circle, rgba(56,189,248,0.08), transparent 70%);
-      pointer-events: none;
+      z-index: 0;
     }
 
-    /* Golden vertical divider */
+    /* Wavy golden vertical divider */
     .premium-divider {
+      width: 1px;
       background: linear-gradient(to bottom,
         transparent 0%,
-        rgba(212,175,55,0.3) 15%,
-        rgba(226,205,140,0.8) 50%,
-        rgba(212,175,55,0.3) 85%,
+        rgba(200,165,60,0.25) 10%,
+        rgba(226,205,140,0.7) 30%,
+        #d4af37 50%,
+        rgba(226,205,140,0.7) 70%,
+        rgba(200,165,60,0.25) 90%,
         transparent 100%);
-      width: 2px;
-      min-height: 200px;
       z-index: 2;
+      position: relative;
     }
 
-    /* Individual panel */
+    /* Panel wrapper */
     .premium-panel {
-      padding: 24px 20px;
+      padding: 20px 16px 16px 16px;
       display: flex;
       flex-direction: column;
       min-width: 0;
+      position: relative;
+      z-index: 1;
     }
-    .premium-panel.left-panel { border-radius: 24px 0 0 24px; }
-    .premium-panel.right-panel { border-radius: 0 24px 24px 0; }
 
-    /* Panel Header */
+    /* ---- PANEL HEADER ---- */
     .premium-panel-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 18px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid rgba(212,175,55,0.2);
+      margin-bottom: 14px;
+      gap: 8px;
     }
 
     .header-title-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .header-icon {
-      font-size: 1.5rem;
-      filter: drop-shadow(0 0 8px rgba(212,175,55,0.6));
+      font-size: 1.4rem;
+      filter: drop-shadow(0 0 6px rgba(212,175,55,0.7));
       flex-shrink: 0;
+      line-height: 1;
     }
 
     .premium-title {
-      color: #fdfbf7;
-      font-size: 1rem;
-      line-height: 1.25;
-      font-weight: 700;
+      color: #f0e6c0;
+      font-size: 0.92rem;
+      line-height: 1.2;
+      font-weight: 800;
       margin: 0;
       font-family: 'Space Grotesk', sans-serif;
-      letter-spacing: 0.3px;
     }
 
+    /* "View Full Planner >" button */
     .premium-action {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(212,175,55,0.12);
-      border: 1px solid rgba(212,175,55,0.3);
-      color: #d4af37;
-      font-size: 0.72rem;
-      text-decoration: none;
+      gap: 5px;
+      background: rgba(212,175,55,0.15);
+      border: 1px solid rgba(212,175,55,0.35);
+      color: #e2c060;
+      font-size: 0.65rem;
       font-weight: 700;
-      padding: 5px 10px;
+      text-decoration: none;
+      padding: 4px 9px;
       border-radius: 20px;
       transition: all 0.2s ease;
       white-space: nowrap;
       flex-shrink: 0;
+      line-height: 1.4;
     }
     .premium-action:hover {
-      background: rgba(212,175,55,0.22);
-      color: #f0d060;
+      background: rgba(212,175,55,0.28);
+      color: #f5d060;
       transform: translateY(-1px);
     }
+    .premium-action-arrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      background: #d4af37;
+      color: #1a1e3a;
+      border-radius: 50%;
+      font-size: 0.6rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
 
-    /* Task list scroll area */
+    /* ---- TASK LIST SCROLL AREA ---- */
     .premium-task-list {
       flex: 1;
       overflow-y: auto;
-      max-height: 420px;
-      padding-right: 4px;
+      max-height: 480px;
+      padding-right: 2px;
       scrollbar-width: thin;
-      scrollbar-color: rgba(212,175,55,0.3) transparent;
+      scrollbar-color: rgba(212,175,55,0.25) transparent;
     }
-    .premium-task-list::-webkit-scrollbar { width: 4px; }
+    .premium-task-list::-webkit-scrollbar { width: 3px; }
     .premium-task-list::-webkit-scrollbar-track { background: transparent; }
-    .premium-task-list::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+    .premium-task-list::-webkit-scrollbar-thumb {
+      background: rgba(212,175,55,0.3);
+      border-radius: 3px;
+    }
 
-    /* ---- TASK CARDS ---- */
+    /* ---- TASK CARD (Cream/Parchment — matching photo) ---- */
     .premium-card {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(212,175,55,0.18);
-      border-radius: 14px;
-      padding: 11px 12px;
-      margin-bottom: 9px;
+      gap: 9px;
+      background: linear-gradient(135deg, #f5e9c8 0%, #edd9a0 100%);
+      border: 1px solid rgba(180,140,50,0.4);
+      border-radius: 12px;
+      padding: 10px 10px 10px 10px;
+      margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25),
+                  inset 0 1px 0 rgba(255,255,255,0.6),
+                  inset 0 -1px 0 rgba(0,0,0,0.05);
       position: relative;
-      overflow: hidden;
-    }
-    .premium-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: #d4af37;
-      border-radius: 3px 0 0 3px;
-      opacity: 0.6;
-      transition: opacity 0.2s;
     }
     .premium-card:hover {
-      background: rgba(255,255,255,0.09);
-      border-color: rgba(212,175,55,0.35);
-      transform: translateX(3px);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 18px rgba(0,0,0,0.35),
+                  inset 0 1px 0 rgba(255,255,255,0.6);
     }
-    .premium-card:hover::before { opacity: 1; }
-
-    /* Completed state */
+    /* Completed card style */
     .premium-card.completed {
-      background: rgba(21,128,61,0.12);
-      border-color: rgba(21,128,61,0.3);
+      background: linear-gradient(135deg, #c8e6d4 0%, #a8d5b8 100%);
+      border-color: rgba(21,128,61,0.4);
     }
-    .premium-card.completed::before { background: #10b981; opacity: 1; }
     .premium-card.completed .premium-card-content h4 {
       text-decoration: line-through;
-      opacity: 0.6;
+      color: #4a7a5a;
+    }
+    .premium-card.completed .premium-card-content p {
+      color: #5a8a6a;
     }
 
-    /* Circular checkbox */
+    /* ---- CIRCULAR CHECKBOX (Left) ---- */
     .premium-checkbox {
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      border: 2px solid rgba(212,175,55,0.5);
+      border: 2px solid #9a7d40;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
-      background: transparent;
+      background: rgba(255,255,255,0.4);
       color: transparent;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 11px;
+      font-weight: 900;
     }
     .premium-card.completed .premium-checkbox {
-      border-color: #10b981;
-      background: #10b981;
+      border-color: #1a56a0;
+      background: #1e4fa0;
       color: white;
-      box-shadow: 0 0 10px rgba(16,185,129,0.5);
+      box-shadow: 0 0 8px rgba(30,80,160,0.6);
     }
 
-    /* Card content */
+    /* ---- CARD CONTENT (Middle) ---- */
     .premium-card-content {
       flex: 1;
       min-width: 0;
     }
     .premium-card-content h4 {
-      margin: 0 0 3px 0;
-      font-size: 0.82rem;
-      color: #f0ead0;
-      font-weight: 700;
+      margin: 0 0 2px 0;
+      font-size: 0.78rem;
+      color: #1a1e3a;
+      font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1103,8 +1111,8 @@
     }
     .premium-card-content p {
       margin: 0;
-      font-size: 0.68rem;
-      color: rgba(255,255,255,0.5);
+      font-size: 0.66rem;
+      color: #4a4030;
       font-weight: 500;
       line-height: 1.3;
       display: -webkit-box;
@@ -1113,143 +1121,158 @@
       overflow: hidden;
     }
 
-    /* Actions column */
+    /* ---- ACTIONS COLUMN (Right — Tag on top, icon below) ---- */
     .premium-card-actions {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 6px;
+      gap: 4px;
       flex-shrink: 0;
+      min-width: 58px;
+      align-self: stretch;
     }
 
-    /* Tags */
+    /* Task type tags */
     .premium-tag {
-      font-size: 0.52rem;
-      font-weight: 800;
+      font-size: 0.5rem;
+      font-weight: 900;
       padding: 3px 7px;
-      border-radius: 8px;
+      border-radius: 10px;
       color: white;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.5px;
       white-space: nowrap;
+      display: inline-block;
     }
-    .premium-tag.classes  { background: linear-gradient(135deg, #15803d, #16a34a); }
-    .premium-tag.revision { background: linear-gradient(135deg, #b45309, #d97706); }
-    .premium-tag.test     { background: linear-gradient(135deg, #4338ca, #6366f1); }
-    .premium-tag.analysis { background: linear-gradient(135deg, #0e7490, #0891b2); }
+    .premium-tag.classes  { background: linear-gradient(135deg, #166534, #16a34a); }
+    .premium-tag.revision { background: linear-gradient(135deg, #92400e, #d97706); }
+    .premium-tag.test     { background: linear-gradient(135deg, #3730a3, #6366f1); }
+    .premium-tag.analysis { background: linear-gradient(135deg, #075985, #0891b2); }
+    .premium-tag.mock     { background: linear-gradient(135deg, #7c2d12, #ea580c); }
 
-    /* Note icon */
+    /* Edit/Note icon */
     .premium-note-icon {
-      font-size: 1.1rem;
-      opacity: 0.6;
+      font-size: 1.3rem;
+      opacity: 0.75;
       text-decoration: none;
       transition: opacity 0.2s, transform 0.2s;
       display: block;
+      line-height: 1;
     }
-    .premium-note-icon:hover { opacity: 1; transform: scale(1.2); }
+    .premium-note-icon:hover {
+      opacity: 1;
+      transform: scale(1.15) rotate(-5deg);
+    }
 
-    /* ---- PROGRESS LIST (Right Panel) ---- */
+    /* ---- PROGRESS LIST (Right Panel Scroll) ---- */
     .premium-progress-list {
       flex: 1;
       overflow-y: auto;
-      max-height: 420px;
-      padding-right: 4px;
+      max-height: 480px;
+      padding-right: 2px;
       scrollbar-width: thin;
-      scrollbar-color: rgba(212,175,55,0.3) transparent;
+      scrollbar-color: rgba(212,175,55,0.25) transparent;
     }
-    .premium-progress-list::-webkit-scrollbar { width: 4px; }
-    .premium-progress-list::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 4px; }
+    .premium-progress-list::-webkit-scrollbar { width: 3px; }
+    .premium-progress-list::-webkit-scrollbar-thumb {
+      background: rgba(212,175,55,0.3);
+      border-radius: 3px;
+    }
 
-    /* Syllabus subject card */
+    /* Syllabus subject card (Cream — matching photo) */
     .syllabus-progress-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(212,175,55,0.18);
-      border-radius: 14px;
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      transition: all 0.2s ease;
+      background: linear-gradient(135deg, #f5e9c8 0%, #edd9a0 100%);
+      border: 1px solid rgba(180,140,50,0.35);
+      border-radius: 12px;
+      padding: 9px 11px 10px 11px;
+      margin-bottom: 8px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.22),
+                  inset 0 1px 0 rgba(255,255,255,0.6);
+      transition: transform 0.2s ease;
     }
     .syllabus-progress-card:hover {
-      background: rgba(255,255,255,0.08);
-      border-color: rgba(212,175,55,0.3);
+      transform: translateY(-1px);
     }
 
     .syllabus-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 7px;
     }
     .syllabus-header-row h4 {
       margin: 0;
-      color: #f0ead0;
-      font-weight: 700;
-      font-size: 0.82rem;
+      color: #1a1e3a;
+      font-weight: 800;
+      font-size: 0.76rem;
       font-family: 'Space Grotesk', sans-serif;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .syllabus-edit-icon {
-      background: rgba(212,175,55,0.2);
-      color: #d4af37;
-      width: 22px; height: 22px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
+      color: #7a6030;
+      font-size: 0.85rem;
       text-decoration: none;
-      transition: background 0.2s;
+      opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
       flex-shrink: 0;
+      margin-left: 6px;
+      display: inline-block;
     }
-    .syllabus-edit-icon:hover { background: rgba(212,175,55,0.35); }
+    .syllabus-edit-icon:hover {
+      opacity: 1;
+      transform: scale(1.15);
+    }
 
     /* Progress bar row */
     .syllabus-progress-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .premium-progress-bar-container {
       flex: 1;
-      height: 7px;
-      background: rgba(255,255,255,0.08);
+      height: 6px;
+      background: rgba(0,0,0,0.12);
       border-radius: 10px;
       overflow: hidden;
     }
     .premium-progress-bar-fill {
       height: 100%;
       border-radius: 10px;
-      background: linear-gradient(90deg, #15803d, #22c55e);
-      box-shadow: 0 0 8px rgba(34,197,94,0.4);
-      transition: width 1s ease-out;
+      background: linear-gradient(90deg, #166534, #22c55e);
+      box-shadow: 0 0 6px rgba(34,197,94,0.5);
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
     }
     .premium-progress-text {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 800;
-      color: #d4af37;
+      color: #7a6030;
       white-space: nowrap;
-      min-width: 32px;
+      min-width: 28px;
       text-align: right;
     }
 
-    /* Mobile responsiveness */
+    /* Mobile: stack vertically */
     @media (max-width: 640px) {
       .premium-split-view {
         grid-template-columns: 1fr;
-        grid-template-rows: auto 2px auto;
+        grid-template-rows: auto 1px auto;
       }
       .premium-divider {
-        width: 100%; height: 2px; min-height: unset;
+        width: 100%; height: 1px; min-height: unset;
         background: linear-gradient(to right,
           transparent 0%,
-          rgba(212,175,55,0.5) 20%,
-          rgba(226,205,140,0.8) 50%,
-          rgba(212,175,55,0.5) 80%,
+          rgba(212,175,55,0.4) 15%,
+          #d4af37 50%,
+          rgba(212,175,55,0.4) 85%,
           transparent 100%);
       }
-      .premium-panel.left-panel  { border-radius: 24px 24px 0 0; }
-      .premium-panel.right-panel { border-radius: 0 0 24px 24px; }
-    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
