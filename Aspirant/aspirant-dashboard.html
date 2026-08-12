@@ -1360,8 +1360,8 @@
       
       container.innerHTML = '';
       container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
-      container.style.gap = '15px';
+      container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+      container.style.gap = '20px';
       
       if(filtered.length === 0) {
         container.style.display = 'block';
@@ -1375,89 +1375,110 @@
         item.style = `
           position: relative;
           background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 16px 12px;
+          border-radius: 24px;
+          padding: 24px;
           cursor: pointer;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
+          align-items: flex-start;
+          justify-content: flex-start;
+          text-align: left;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+          border: 1px solid rgba(0,0,0,0.02);
         `;
         
         item.onmouseover = () => { 
             item.style.transform = 'translateY(-4px)'; 
-            item.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)'; 
-            item.style.borderColor = '#cbd5e1';
+            item.style.boxShadow = '0 10px 25px rgba(0,0,0,0.08)'; 
         };
         
         item.onmouseout = () => { 
             item.style.transform = 'translateY(0)'; 
-            item.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; 
-            item.style.borderColor = '#e2e8f0';
+            item.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04)'; 
         };
 
         const isImage = f.name.toLowerCase().endsWith('.png') || f.name.toLowerCase().endsWith('.jpg') || f.name.toLowerCase().endsWith('.jpeg');
         const iconDiv = document.createElement('div');
-        iconDiv.style = `
-          font-size: 3rem;
-          line-height: 1;
-          margin-bottom: 12px;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        `;
+        
+        let iconBg = '#f3f4f6';
+        let avatarIcon = '📄';
+        if(f.category && f.category.toLowerCase().includes('ethic')) { iconBg = '#e0f2fe'; avatarIcon = '👨‍⚕️'; } 
+        else if(f.category && f.category.toLowerCase().includes('thinker')) { iconBg = '#f3e8ff'; avatarIcon = '🏛️'; }
         
         if (isImage) {
-          iconDiv.innerHTML = `<img src="https://drive.google.com/thumbnail?id=${f.id}&sz=w400" style="width:100%; height:80px; object-fit:cover; border-radius:8px;">`;
+          iconDiv.innerHTML = `<img src="https://drive.google.com/thumbnail?id=${f.id}&sz=w400" style="width:100%; height:120px; object-fit:cover; border-radius:12px;">`;
           iconDiv.style.width = '100%';
-          iconDiv.style.fontSize = 'initial';
+          iconDiv.style.marginBottom = '16px';
         } else {
-          iconDiv.innerHTML = '📄';
+          iconDiv.style = `
+            width: 50px;
+            height: 50px;
+            background: ${iconBg};
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+          `;
+          iconDiv.innerHTML = avatarIcon;
         }
 
         const nameDiv = document.createElement('div');
         nameDiv.style = `
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: #334155;
+          font-size: 1.05rem;
+          font-weight: 700;
+          color: #111827;
           width: 100%;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          word-break: break-word;
+          line-height: 1.3;
+          margin-bottom: 8px;
         `;
         nameDiv.title = f.name;
-        nameDiv.textContent = f.name;
+        let cleanName = f.name.replace(/\.pdf$/i, '');
+        nameDiv.textContent = cleanName;
+
+        const tagsDiv = document.createElement('div');
+        tagsDiv.style = `display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;`;
+        if(f.category) {
+            tagsDiv.innerHTML = `<span style="background:#f1f5f9; padding:4px 8px; border-radius:8px; font-size:0.75rem; color:#475569; font-weight:500;">${f.category}</span>`;
+        }
+        
+        const descDiv = document.createElement('div');
+        descDiv.style = `
+          font-size: 0.8rem;
+          color: #64748b;
+          line-height: 1.5;
+          margin-top: auto;
+        `;
+        descDiv.textContent = 'Learn more concepts and understanding of this document...';
         
         item.appendChild(iconDiv);
         item.appendChild(nameDiv);
+        item.appendChild(tagsDiv);
+        item.appendChild(descDiv);
 
         const openBtn = document.createElement('button');
-        openBtn.innerHTML = '👁️';
-        openBtn.title = 'Open Preview';
+        openBtn.innerHTML = '⋮';
+        openBtn.title = 'More Options';
         openBtn.style = `
           position: absolute;
-          top: 8px;
-          right: 8px;
-          background: rgba(255,255,255,0.9);
-          border: 1px solid #e2e8f0;
-          border-radius: 50%;
-          width: 28px;
-          height: 28px;
+          top: 16px;
+          right: 16px;
+          background: transparent;
+          border: none;
+          color: #cbd5e1;
+          width: 24px;
+          height: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 0.8rem;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-          transition: all 0.2s ease;
+          font-size: 1.2rem;
+          font-weight: bold;
         `;
-        openBtn.onmouseover = (e) => { e.stopPropagation(); openBtn.style.background = '#f1f5f9'; openBtn.style.transform = 'scale(1.1)'; };
-        openBtn.onmouseout = (e) => { e.stopPropagation(); openBtn.style.background = 'rgba(255,255,255,0.9)'; openBtn.style.transform = 'scale(1)'; };
+        openBtn.onmouseover = (e) => { e.stopPropagation(); openBtn.style.color = '#94a3b8'; };
+        openBtn.onmouseout = (e) => { e.stopPropagation(); openBtn.style.color = '#cbd5e1'; };
         
         openBtn.onclick = (e) => {
           e.stopPropagation();
@@ -1543,16 +1564,16 @@
         qbFiltersContainer.innerHTML = '';
         
         // Primary Types (Theory, Case Studies, etc.)
-        const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
+        const primaryTypes = ['Theory', 'Case Studies', 'Introductions', 'Conclusions'];
         const primaryContainer = document.createElement('div');
-        primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0;';
+        primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;';
         
-        // Add "All Materials" button first
+        // Add "All" button first
         const allBtn = document.createElement('button');
         allBtn.className = 'btn-qb-filter active';
         allBtn.setAttribute('data-cat', 'all');
-        allBtn.style = `padding:8px 14px; border-radius:20px; border:1px solid #94a3b8; background:#1e293b; color:white; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 4px 6px rgba(0,0,0,0.1);`;
-        allBtn.innerHTML = `📚 All Materials`;
+        allBtn.style = `padding:8px 16px; border-radius:24px; border:none; background:#111827; color:white; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 4px 6px rgba(0,0,0,0.1); display:flex; align-items:center; gap:6px;`;
+        allBtn.innerHTML = `📚 All`;
         allBtn.onclick = () => window.loadQuoteBankFiles('all');
         primaryContainer.appendChild(allBtn);
 
@@ -1560,31 +1581,40 @@
           const btn = document.createElement('button');
           btn.className = 'btn-qb-filter';
           btn.setAttribute('data-cat', cat);
-          let bg = '#eff6ff', color = '#2563eb', border = '#bfdbfe';
-          if(cat === 'Theory Answers') { bg = '#eff6ff'; color = '#2563eb'; border = '#bfdbfe'; }
-          if(cat === 'Case Studies') { bg = '#f0fdf4'; color = '#16a34a'; border = '#bbf7d0'; }
-          if(cat === 'Introductions') { bg = '#fffbeb'; color = '#d97706'; border = '#fde68a'; }
-          if(cat === 'Conclusions') { bg = '#faf5ff'; color = '#9333ea'; border = '#e9d5ff'; }
-          btn.style = `padding:8px 14px; border-radius:20px; border:1px solid ${border}; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
-          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; };
-          btn.innerHTML = `${cat}`;
+          let bg = '#f3e8ff', color = '#9333ea', icon = '🧠'; // Default/Theory (Purple)
+          if(cat === 'Theory') { bg = '#f3e8ff'; color = '#9333ea'; icon = '📍'; }
+          if(cat === 'Case Studies') { bg = '#e0f2fe'; color = '#0284c7'; icon = '📊'; }
+          if(cat === 'Introductions') { bg = '#fef3c7'; color = '#b45309'; icon = '✨'; }
+          if(cat === 'Conclusions') { bg = '#fce7f3'; color = '#be185d'; icon = '🎯'; }
+          
+          btn.style = `padding:8px 16px; border-radius:24px; border:none; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px;`;
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = 'none'; };
+          btn.innerHTML = `${icon} ${cat}`;
           btn.onclick = () => window.loadQuoteBankFiles(cat);
           primaryContainer.appendChild(btn);
         });
         
         // Secondary Categories (Ethics, Thinkers, etc.)
         const secondaryContainer = document.createElement('div');
-        secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px;';
+        secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;';
         
         dynamicCats.forEach(cat => {
           const btn = document.createElement('button');
           btn.className = 'btn-qb-filter';
           btn.setAttribute('data-cat', cat);
-          btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
-          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
-          btn.innerHTML = `📄 ${cat}`;
+          
+          let icon = '📄';
+          if(cat.toLowerCase().includes('ethic')) icon = '📄';
+          else if(cat.toLowerCase().includes('thinker')) icon = '❤️';
+          else if(cat.toLowerCase().includes('gov')) icon = '🏛️';
+          else if(cat.toLowerCase().includes('soci')) icon = '👥';
+          else if(cat.toLowerCase().includes('service')) icon = '💼';
+          
+          btn.style = `padding:8px 16px; border-radius:24px; border:1px solid #e2e8f0; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
+          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; btn.style.borderColor = '#cbd5e1'; };
+          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#e2e8f0'; };
+          btn.innerHTML = `${icon} ${cat}`;
           btn.onclick = () => window.loadQuoteBankFiles(cat);
           secondaryContainer.appendChild(btn);
         });
