@@ -1509,14 +1509,26 @@
       btn.disabled = true;
       
       try {
-        // 1. Get all category folders from QUOTE BANK root (not Rankers root)
+        // 1. Get all items from QUOTE BANK root
         const QB_ROOT = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ'; // Quote Bank Root
         const rootRes = await fetch(`${GAS_URL}?folderId=${QB_ROOT}`);
         const rootData = await rootRes.json();
         const rootItems = Array.isArray(rootData) ? rootData : (rootData.data || []);
+        
         const folders = rootItems.filter(f => f.type === 'folder');
+        const rootFiles = rootItems.filter(f => f.type !== 'folder');
         
         let allQuoteFiles = [];
+        
+        // 1a. Add files that are directly in the root folder
+        rootFiles.forEach(f => {
+          allQuoteFiles.push({
+            id: f.id,
+            name: f.name,
+            category: 'General', // Default category for root files
+            link: `https://drive.google.com/file/d/${f.id}/preview`
+          });
+        });
         
         // 2. Fetch files for each category folder
         for(const folder of folders) {
