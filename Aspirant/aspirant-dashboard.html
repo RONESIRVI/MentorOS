@@ -1368,10 +1368,13 @@
       container.style.gap = '20px';
       
       if(filtered.length === 0) {
-        // Fallback to fake mockup data to match the UI photo exactly if empty
-        filtered.push({ id: 'fake1', name: 'Ethics Case Study: AI in Healthcare', category: 'Ethics' });
-        filtered.push({ id: 'fake2', name: 'Key Thinkers: Locke', category: 'Thinkers' });
-        filtered.push({ id: 'fake3', name: 'Key Thinkers: Locke', category: 'Thinkers' });
+        container.style.display = 'block';
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color:#64748b; font-size:1rem; grid-column: 1 / -1; background: white; border-radius: 24px; border: 1px dashed #cbd5e1;">
+          <div style="font-size:3rem; margin-bottom:10px;">📭</div>
+          <p>No materials found for this category.</p>
+          <p style="font-size:0.85rem; margin-top:5px;">Admin needs to sync files from Google Drive or try another filter.</p>
+        </div>`;
+        return;
       }
 
       filtered.forEach(f => {
