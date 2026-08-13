@@ -2302,15 +2302,15 @@
             actionBtn = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center;">${actionBtn}</div>`;
           }
 
-          html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.08); transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-            <td style="padding:12px; font-size:0.85rem; font-weight:600; color: #f8fafc;">${ev.subject || '-'}</td>
-            <td style="padding:12px; font-size:0.85rem; color: #cbd5e1;">${ev.topic || '-'}</td>
-            <td style="padding:12px;"><a href="${ev.link}" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:500; display:flex; align-items:center; gap:4px;">📄 ${ev.title}</a></td>
-            <td style="padding:12px; font-size:0.82rem; color: #94a3b8;">${dStr}</td>
-            <td style="padding:12px;"><span style="padding:4px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; ${badgeStyle};">${ev.status}</span></td>
-            <td style="padding:12px; font-weight:700; color: #f8fafc;">${ev.marks ? ev.marks+'/100' : '-'}</td>
-            <td style="padding:12px; font-size:0.82rem; color: #94a3b8; max-width:180px;">${ev.feedback || '-'}</td>
-            <td style="padding:12px;">${actionBtn}</td>
+          html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease-in-out;" onmouseover="this.style.background='rgba(59,130,246,0.1)'" onmouseout="this.style.background='transparent'">
+            <td style="padding:16px 12px; font-size:0.9rem; font-weight:600; color: #f8fafc; font-family:'Inter', sans-serif;">${ev.subject || '-'}</td>
+            <td style="padding:16px 12px; font-size:0.9rem; color: #cbd5e1;">${ev.topic || '-'}</td>
+            <td style="padding:16px 12px;"><a href="${ev.link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600; display:flex; align-items:center; gap:6px; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'">📄 ${ev.title}</a></td>
+            <td style="padding:16px 12px; font-size:0.85rem; color: #94a3b8;">${dStr}</td>
+            <td style="padding:16px 12px;"><span style="padding:6px 12px; border-radius:8px; font-size:0.75rem; font-weight:700; letter-spacing:0.5px; ${badgeStyle};">${ev.status}</span></td>
+            <td style="padding:16px 12px; font-weight:700; color: #f8fafc;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:16px 12px; font-size:0.85rem; color: #94a3b8; max-width:180px;">${ev.feedback || '-'}</td>
+            <td style="padding:16px 12px;">${actionBtn}</td>
           </tr>`;
         });
         tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center; padding:30px; color: #94a3b8;">No submissions yet. Upload your first answer above! 📝</td></tr>';

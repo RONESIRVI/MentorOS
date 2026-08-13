@@ -84,24 +84,29 @@
             </div>
             
             <!-- Past Submissions Table -->
-            <div class="card" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.08);">
-              <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; color: #f8fafc; display: flex; align-items: center; gap: 8px;"><span>📑</span> My Submissions</h3>
+            <div class="card" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 16px; padding: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); position: relative; overflow: hidden;">
+              <!-- Top Glow Line -->
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), transparent);"></div>
+              
+              <h3 style="margin: 0 0 20px 0; font-size: 1.2rem; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
+                <span>📑</span> My Submissions
+              </h3>
               <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: 'Inter', sans-serif;">
                   <thead>
-                    <tr style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-bottom: 2px solid #e2e8f0;">
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">📚 Subject</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">🏷️ Topic</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">✏️ Title & PDF</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Date</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Score</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Feedback</th>
-                      <th style="padding: 12px; font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Action</th>
+                    <tr style="background: rgba(30, 41, 59, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">📚 Subject</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">🏷️ Topic</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">✏️ Title & PDF</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Date</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Score</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Feedback</th>
+                      <th style="padding: 16px 12px; font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Action</th>
                     </tr>
                   </thead>
                   <tbody id="answers-table-body">
-                    <tr><td colspan="8" style="text-align: center; padding: 20px; color: #94a3b8;">Loading submissions...</td></tr>
+                    <tr><td colspan="8" style="text-align: center; padding: 30px; color: #94a3b8; font-size: 0.95rem;">Loading submissions...</td></tr>
                   </tbody>
                 </table>
               </div>
