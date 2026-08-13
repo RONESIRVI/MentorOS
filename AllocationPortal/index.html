@@ -328,7 +328,7 @@ Aarav Sharma,2025,Hindi,History,UPSC CSE,Jaipur</code>
     overlay.style.color = '#fff';
     overlay.style.fontFamily = 'sans-serif';
     overlay.style.fontSize = '1.2rem';
-    overlay.innerHTML = 'Verifying Admin Access...<br><br><span style="font-size:0.9rem;color:#64748b;">Please wait</span>';
+    overlay.innerHTML = 'Verifying Admin Access...<br><br><span style="font-size:0.9rem;color: #94a3b8;">Please wait</span>';
     document.body.appendChild(overlay);
 
     onAuthStateChanged(auth, async (user) => {
@@ -345,7 +345,7 @@ Aarav Sharma,2025,Hindi,History,UPSC CSE,Jaipur</code>
         }
         
         if (role.toLowerCase() !== 'admin') {
-          overlay.innerHTML = '<span style="color:#ef4444;">Access Denied!</span><br><br><span style="font-size:0.9rem;color:#64748b;">Only Admins can access the Allocation Portal. Redirecting...</span>';
+          overlay.innerHTML = '<span style="color:#ef4444;">Access Denied!</span><br><br><span style="font-size:0.9rem;color: #94a3b8;">Only Admins can access the Allocation Portal. Redirecting...</span>';
           setTimeout(() => { window.location.href = '../index.html'; }, 2000);
           return;
         }
@@ -353,7 +353,7 @@ Aarav Sharma,2025,Hindi,History,UPSC CSE,Jaipur</code>
         // Valid admin, remove overlay
         overlay.style.display = 'none';
       } else {
-        overlay.innerHTML = '<span style="color:#ef4444;">Not Logged In!</span><br><br><span style="font-size:0.9rem;color:#64748b;">Redirecting to login...</span>';
+        overlay.innerHTML = '<span style="color:#ef4444;">Not Logged In!</span><br><br><span style="font-size:0.9rem;color: #94a3b8;">Redirecting to login...</span>';
         setTimeout(() => { window.location.href = '../index.html'; }, 1500);
       }
     });
