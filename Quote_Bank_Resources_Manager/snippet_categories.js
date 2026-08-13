@@ -1,10 +1,17 @@
-window.SNIPPET_CATEGORIES = {
+﻿window.SNIPPET_CATEGORIES = {
   "categories": [
     "Ethics",
     "Thinkers",
     "Gov",
-    "Society",
-    "Public Service"
+    "⚖️Ethics",
+    "🧠Thinkers",
+    "🏛️Gov",
+    "👥Society",
+    "💼Public Service",
+    "Theory Answers",
+    "Case Studies",
+    "Introductions",
+    "Conclusions"
   ],
   "ranks": [
     "Rank 1 shruti sharma",

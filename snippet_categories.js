@@ -7,7 +7,11 @@
     "🧠Thinkers",
     "🏛️Gov",
     "👥Society",
-    "💼Public Service"
+    "💼Public Service",
+    "Theory Answers",
+    "Case Studies",
+    "Introductions",
+    "Conclusions"
   ],
   "ranks": [
     "Rank 1 shruti sharma",
