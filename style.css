@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap');
+
+@font-face {
+  font-family: 'PremiumDevanagari';
+  src: local('Mangal'), local('Nirmala UI');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A8E0-A8FF;
+}
 /* ============================================
    RONE MentorOS — Main Stylesheet
    Premium UPSC/RPSC Mentorship Platform
@@ -37,9 +44,9 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
   
-  --font-main: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Mukta', 'Mangal', sans-serif;
-  --font-alt: 'Space Grotesk', 'Noto Sans Devanagari', 'Mukta', 'Mangal', sans-serif;
-  --font-body: 'Inter', 'Noto Sans Devanagari', 'Mukta', 'Mangal', sans-serif;
+  --font-main: 'PremiumDevanagari', 'Mukta', 'Plus Jakarta Sans', sans-serif;
+  --font-alt: 'PremiumDevanagari', 'Mukta', 'Space Grotesk', sans-serif;
+  --font-body: 'PremiumDevanagari', 'Mukta', 'Inter', sans-serif;
 }
 
 /* --- Utility Classes for Dark Theme --- */
@@ -1866,3 +1873,4 @@ button:hover, .btn:hover, [class*="btn"]:hover, a[class*="btn"]:hover {
   box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25) !important;
   transform: translateY(-1px);
 }
+
