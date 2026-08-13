@@ -3733,7 +3733,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       
       let customName = window.prompt("Enter a short name for this snippet (or leave blank for default):");
       if (customName === null) return; // User cancelled
-      let finalName = customName.trim() ? `${customName.trim().replace(/[^a-z0-9 _-]/gi, '_')}.png` : `Snippet_${Date.now()}.png`;
+      let safeCategory = category.replace(/[^a-z0-9 _-]/gi, '_');
+      let finalName = customName.trim() ? `${customName.trim().replace(/[^a-z0-9 _-]/gi, '_')}.png` : `${safeCategory}_${Date.now()}.png`;
       
       const saveBtn = document.getElementById('btn-save-cut');
       const cancelBtn = document.getElementById('btn-cancel-cut-save');
