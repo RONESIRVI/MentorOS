@@ -1098,31 +1098,8 @@
         if(container && catsToUse.length > 0) {
             container.innerHTML = '';
             
-            // Primary Types
-            const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
-            const primaryContainer = document.createElement('div');
-            primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0; width: 100%;';
-            
-            primaryTypes.forEach(cat => {
-              const btn = document.createElement('button');
-              btn.className = 'btn-cat-assign';
-              btn.setAttribute('data-cat', cat);
-              let bg = '#eff6ff', color = '#2563eb', border = '#bfdbfe';
-              if(cat === 'Theory Answers') { bg = '#eff6ff'; color = '#2563eb'; border = '#bfdbfe'; }
-              if(cat === 'Case Studies') { bg = '#f0fdf4'; color = '#16a34a'; border = '#bbf7d0'; }
-              if(cat === 'Introductions') { bg = '#fffbeb'; color = '#d97706'; border = '#fde68a'; }
-              if(cat === 'Conclusions') { bg = '#faf5ff'; color = '#9333ea'; border = '#e9d5ff'; }
-              btn.style = `padding:8px 14px; border-radius:20px; border:1px solid ${border}; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
-              btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; };
-              btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; };
-              btn.innerHTML = `${cat}`;
-              btn.onclick = () => savePhotoToQuoteBank(cat, btn);
-              primaryContainer.appendChild(btn);
-            });
-            
-            // Secondary Categories
-            const secondaryContainer = document.createElement('div');
-            secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px; width: 100%;';
+            const categoriesContainer = document.createElement('div');
+            categoriesContainer.style = 'display:flex; flex-wrap:wrap; gap:8px; width: 100%;';
             
             catsToUse.forEach(cat => {
                 const btn = document.createElement('button');
@@ -1133,11 +1110,10 @@
                 btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
                 btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
                 btn.onclick = () => savePhotoToQuoteBank(cat, btn);
-                secondaryContainer.appendChild(btn);
+                categoriesContainer.appendChild(btn);
             });
             
-            container.appendChild(primaryContainer);
-            container.appendChild(secondaryContainer);
+            container.appendChild(categoriesContainer);
         }
         
         // Show as image using thumbnail API
@@ -1688,10 +1664,8 @@
         if (qbFiltersContainer) {
           qbFiltersContainer.innerHTML = '';
           
-          // --- Primary Types (Top Row) ---
-          const primaryTypes = ['Theory', 'Case Studies', 'Introductions', 'Conclusions'];
-          const primaryContainer = document.createElement('div');
-          primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;';
+          const categoriesContainer = document.createElement('div');
+          categoriesContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;';
           
           // Add "All" button first
           const allBtn = document.createElement('button');
@@ -1700,69 +1674,31 @@
           allBtn.style = `padding:8px 16px; border-radius:24px; border:none; background:#111827; color:white; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; align-items:center; gap:6px;`;
           allBtn.innerHTML = `📚 All`;
           allBtn.onclick = () => window.loadQuoteBankFiles('all');
-          primaryContainer.appendChild(allBtn);
+          categoriesContainer.appendChild(allBtn);
 
-          let caseStudyCount = 0;
-          primaryTypes.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-qb-filter';
-            btn.setAttribute('data-cat', cat);
-            
-            let bg = '#f3e8ff', color = '#9333ea', iconHTML = ''; 
-            if(cat === 'Theory') { 
-                bg = '#f3e8ff'; color = '#7e22ce'; iconHTML = '💖 '; 
-            }
-            else if(cat === 'Case Studies') { 
-                caseStudyCount++;
-                if(caseStudyCount === 1) { bg = '#e0f2fe'; color = '#0369a1'; } // Blue one
-                else { bg = '#dcfce7'; color = '#15803d'; } // Green one
-            }
-            else if(cat === 'Introductions') { 
-                bg = '#fef08a'; color = '#a16207'; 
-            }
-            else if(cat === 'Conclusions') { 
-                bg = '#fce7f3'; color = '#be185d'; 
-            }
-            
-            btn.style = `padding:8px 16px; border-radius:24px; border:none; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);`;
-            btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; };
-            btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; };
-            btn.innerHTML = `${iconHTML}${cat}`;
-            btn.onclick = () => window.loadQuoteBankFiles(cat);
-            primaryContainer.appendChild(btn);
-          });
-          
-          qbFiltersContainer.appendChild(primaryContainer);
-          
-          // --- Secondary Categories (Bottom Row) ---
-          if (!dynamicCats || dynamicCats.length === 0) {
-              dynamicCats = ['Ethics', 'Thinkers', 'Gov', 'Society', 'Public Service'];
-          }
-
-          const secondaryContainer = document.createElement('div');
-          secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px;';
-          
+          // Render dynamic categories
           dynamicCats.forEach(cat => {
             const btn = document.createElement('button');
             btn.className = 'btn-qb-filter';
             btn.setAttribute('data-cat', cat);
             
             let icon = '📄';
-            if(cat.toLowerCase().includes('ethic')) icon = '📄';
-            else if(cat.toLowerCase().includes('thinker')) icon = '❤️';
-            else if(cat.toLowerCase().includes('gov')) icon = '🏛️';
-            else if(cat.toLowerCase().includes('soci')) icon = '👥';
-            else if(cat.toLowerCase().includes('public') || cat.toLowerCase().includes('service')) icon = '💼';
+            if(cat.toLowerCase().includes('ethic')) icon = '⚖️';
+            if(cat.toLowerCase().includes('thinker')) icon = '🧠';
+            if(cat.toLowerCase().includes('gov')) icon = '🏛️';
+            if(cat.toLowerCase().includes('societ')) icon = '👥';
+            if(cat.toLowerCase().includes('service')) icon = '💼';
+
+            btn.style = 'padding:8px 16px; border-radius:24px; border:1px solid #e2e8f0; background:white; color:#475569; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);';
+            btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; btn.style.borderColor = '#cbd5e1'; btn.style.color = '#0f172a'; };
+            btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; btn.style.borderColor = '#e2e8f0'; btn.style.color = '#475569'; };
             
-            btn.style = `padding:8px 16px; border-radius:24px; border:1px solid #f1f5f9; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 2px 5px rgba(0,0,0,0.04); display:flex; align-items:center; gap:6px;`;
-            btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.08)'; btn.style.borderColor = '#e2e8f0'; };
-            btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.04)'; btn.style.borderColor = '#f1f5f9'; };
             btn.innerHTML = `${icon} ${cat}`;
             btn.onclick = () => window.loadQuoteBankFiles(cat);
-            secondaryContainer.appendChild(btn);
+            categoriesContainer.appendChild(btn);
           });
           
-          qbFiltersContainer.appendChild(secondaryContainer);
+          qbFiltersContainer.appendChild(categoriesContainer);
         }
       };
       
@@ -1774,44 +1710,28 @@
       if (cmsButtonsContainer && dynamicCats.length > 0) {
         cmsButtonsContainer.innerHTML = '';
         
-        // Primary Types (Theory, Case Studies, etc.)
-        const primaryTypes = ['Theory Answers', 'Case Studies', 'Introductions', 'Conclusions'];
-        const primaryContainer = document.createElement('div');
-        primaryContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #e2e8f0;';
-        
-        primaryTypes.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.className = 'btn-cat-assign';
-          btn.setAttribute('data-cat', cat);
-          let bg = '#eff6ff', color = '#2563eb', border = '#bfdbfe';
-          if(cat === 'Theory Answers') { bg = '#eff6ff'; color = '#2563eb'; border = '#bfdbfe'; }
-          if(cat === 'Case Studies') { bg = '#f0fdf4'; color = '#16a34a'; border = '#bbf7d0'; }
-          if(cat === 'Introductions') { bg = '#fffbeb'; color = '#d97706'; border = '#fde68a'; }
-          if(cat === 'Conclusions') { bg = '#faf5ff'; color = '#9333ea'; border = '#e9d5ff'; }
-          btn.style = `padding:8px 14px; border-radius:20px; border:1px solid ${border}; background:${bg}; color:${color}; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;`;
-          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; };
-          btn.innerHTML = `${cat}`;
-          primaryContainer.appendChild(btn);
-        });
-        
-        // Secondary Categories (Ethics, Thinkers, etc.)
-        const secondaryContainer = document.createElement('div');
-        secondaryContainer.style = 'display:flex; flex-wrap:wrap; gap:8px;';
+        const categoriesContainer = document.createElement('div');
+        categoriesContainer.style = 'display:flex; flex-wrap:wrap; gap:8px;';
         
         dynamicCats.forEach(cat => {
-          const btn = document.createElement('button');
-          btn.className = 'btn-cat-assign';
-          btn.setAttribute('data-cat', cat);
-          btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
-          btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
-          btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
-          btn.innerHTML = `📄 ${cat}`;
-          secondaryContainer.appendChild(btn);
+            const btn = document.createElement('button');
+            btn.className = 'btn-cat-assign';
+            btn.setAttribute('data-cat', cat);
+            btn.innerHTML = `📄 ${cat}`;
+            btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+            btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
+            btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
+            
+            // NOTE: Using savePhotoToQuoteBank requires button context or event.
+            btn.onclick = function() {
+              if (window.savePhotoToQuoteBank) {
+                window.savePhotoToQuoteBank(cat, this);
+              }
+            };
+            categoriesContainer.appendChild(btn);
         });
         
-        cmsButtonsContainer.appendChild(primaryContainer);
-        cmsButtonsContainer.appendChild(secondaryContainer);
+        cmsButtonsContainer.appendChild(categoriesContainer);
       } else if (cmsButtonsContainer) {
         cmsButtonsContainer.innerHTML = '<p style="color:#ef4444; font-size:0.9rem;">No categories found. Please run categories updater.</p>';
       }
