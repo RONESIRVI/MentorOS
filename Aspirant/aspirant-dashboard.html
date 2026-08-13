@@ -1573,53 +1573,42 @@
       btn.textContent = "⏳ Syncing...";
       btn.disabled = true;
       
-      try {
-        // 1. Get all items from QUOTE BANK root
-        const QB_ROOT = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ'; // Quote Bank Root
-        const rootRes = await fetch(`${GAS_URL}?folderId=${QB_ROOT}`);
-        const rootData = await rootRes.json();
-        const rootItems = Array.isArray(rootData) ? rootData : (rootData.data || []);
-        
-        const folders = rootItems.filter(f => f.type === 'folder');
-        const rootFiles = rootItems.filter(f => f.type !== 'folder');
-        
-        let allQuoteFiles = [];
-        
-        // 1a. Add files that are directly in the root folder
-        rootFiles.forEach(f => {
-          allQuoteFiles.push({
-            id: f.id,
-            name: f.name,
-            category: 'General', // Default category for root files
-            link: `https://drive.google.com/file/d/${f.id}/preview`
-          });
-        });
-        
-        // 2. Fetch files for each category folder
-        for(const folder of folders) {
-          try {
-             const folderRes = await fetch(`${GAS_URL}?folderId=${folder.id}`);
-             const folderData = await folderRes.json();
-             const items = Array.isArray(folderData) ? folderData : (folderData.data || []);
-             const files = items.filter(f => f.type !== 'folder');
-             
-             // Strip emojis from folder name to get base category name
-             let catName = folder.name;
-             
-             files.forEach(f => {
-               allQuoteFiles.push({
-                 id: f.id,
-                 name: f.name,
-                 category: catName,
-                 link: `https://drive.google.com/file/d/${f.id}/preview`
-               });
-             });
-          } catch(e) {
-            console.error("Failed to fetch folder " + folder.name, e);
+      let allQuoteFiles = [];
+      let fetchCount = 0;
+
+      async function fetchRecursive(folderId, parentFolderName) {
+        try {
+          const res = await fetch(`${GAS_URL}?folderId=${folderId}`);
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.data || []);
+          
+          for (const item of items) {
+            if (item.type === 'folder') {
+              // Recurse into subfolder, passing its name so files inside get categorized correctly
+              await fetchRecursive(item.id, item.name);
+            } else {
+              // It's a file! Use the parent folder's name as category, or 'General'
+              let cat = parentFolderName || 'General';
+              
+              allQuoteFiles.push({
+                id: item.id,
+                name: item.name,
+                category: cat,
+                link: `https://drive.google.com/file/d/${item.id}/preview`
+              });
+              fetchCount++;
+              btn.textContent = `⏳ Syncing... (${fetchCount} found)`;
+            }
           }
+        } catch(e) {
+          console.error("Failed to fetch folder " + folderId, e);
         }
+      }
+
+      try {
+        const QB_ROOT = '18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ'; // Quote Bank Root
+        await fetchRecursive(QB_ROOT, 'General');
         
-        // 3. Save to localStorage
         localStorage.setItem('quoteBankFiles', JSON.stringify(allQuoteFiles));
         alert(`✅ Successfully synced ${allQuoteFiles.length} files from Quote Bank Drive!`);
         window.loadQuoteBankFiles(currentQuoteBankCategory);
@@ -1630,6 +1619,7 @@
       } finally {
         btn.textContent = originalText;
         btn.disabled = false;
+        if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
       }
     };
 
