@@ -147,7 +147,7 @@
     /* Dashboard Specific Styles (Admin Theme) */
     body {
       background-color: #f1f5f9 !important;
-      color: #0f172a !important;
+      color: #f8fafc !important;
     }
 
     .dashboard-layout {
@@ -250,8 +250,8 @@
     /* Topbar */
     .topbar {
       height: 72px;
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -273,13 +273,13 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #475569;
+      color: #cbd5e1;
     }
 
     .page-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0;
     }
 
@@ -330,12 +330,12 @@
     .welcome-text h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0 0 8px 0;
     }
 
     .welcome-text p {
-      color: #64748b;
+      color: #94a3b8;
       margin: 0;
       display: flex;
       align-items: center;
@@ -364,11 +364,11 @@
     }
 
     .stat-card {
-      background: white;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
       border-radius: 16px;
       padding: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -384,13 +384,13 @@
       font-size: 2rem;
       font-weight: 700;
       margin: 0 0 4px 0;
-      color: #0f172a;
+      color: #f8fafc;
       font-family: 'Space Grotesk', sans-serif;
     }
 
     .stat-info p {
       margin: 0;
-      color: #64748b;
+      color: #94a3b8;
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -408,7 +408,7 @@
     .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
     .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
     .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-    .stat-card.slate .stat-icon { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+    .stat-card.slate .stat-icon { background: rgba(100, 116, 139, 0.1); color: #94a3b8; }
 
     /* Content Grid */
     .content-grid {
@@ -418,11 +418,11 @@
     }
 
     .panel {
-      background: white;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
       border-radius: 16px;
       padding: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .panel-header {
@@ -435,7 +435,7 @@
     .panel-title {
       font-size: 1.1rem;
       font-weight: 600;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0;
       display: flex;
       align-items: center;
@@ -465,9 +465,9 @@
     th {
       font-size: 0.85rem;
       font-weight: 600;
-      color: #64748b;
+      color: #94a3b8;
       padding: 12px 16px;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
     td {
@@ -624,31 +624,31 @@
 
       <!-- ID Card Modal -->
       <div id="id-card-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(2px);">
-        <div style="background:white; border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
-          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color:#475569;">✕</button>
+        <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
+          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color: #cbd5e1;">✕</button>
           <div style="height:6px; width:100%; background:linear-gradient(90deg, #ef4444, #f87171);"></div>
           <div style="padding:24px 20px; text-align:center;">
             <div id="id-card-avatar" style="width:64px; height:64px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#ef4444; margin:0 auto 16px auto; border:3px solid #fee2e2; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">A</div>
-            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color:#0f172a; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color: #f8fafc; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
             <div style="display:inline-block; padding:4px 12px; background:#fee2e2; color:#b91c1c; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Admin</div>
-            <div style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0;">
-              <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
+            <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08);">
+              <p style="margin:0 0 4px 0; font-size:0.75rem; color: #94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
               <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
             </div>
-            <div id="id-card-details" style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0; margin-top:10px;">
+            <div id="id-card-details" style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08); margin-top:10px;">
               <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
                 <div>
-                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Access Level</p>
-                  <p id="id-card-access" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">Full Admin</p>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Access Level</p>
+                  <p id="id-card-access" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">Full Admin</p>
                 </div>
                 <div style="text-align:right;">
-                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Status</p>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Status</p>
                   <p id="id-card-status" style="margin:0; font-size:0.85rem; color:#10b981; font-weight:700;">Active</p>
                 </div>
               </div>
               <div>
-                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Department</p>
-                <p id="id-card-dept" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">Management</p>
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Department</p>
+                <p id="id-card-dept" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">Management</p>
               </div>
             </div>
           </div>
@@ -840,7 +840,7 @@
     window.loadUsersList = async function() {
       const tbody = document.getElementById('admin-users-table-body');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="3" style="padding:20px;text-align:center;color:#64748b;">Fetching latest users...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" style="padding:20px;text-align:center;color: #94a3b8;">Fetching latest users...</td></tr>';
       try {
         const querySnapshot = await getDocs(collection(db, 'userRoles'));
         let html = '';
@@ -855,13 +855,13 @@
             <tr style="border-bottom:1px solid #f1f5f9;">
               <td style="padding:12px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="width:36px;height:36px;background:#e2e8f0;color:#475569;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:bold;">${initial}</div>
-                  <span style="font-weight:600;color:#0f172a;">${email}</span>
+                  <div style="width:36px;height:36px;background:#e2e8f0;color: #cbd5e1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:bold;">${initial}</div>
+                  <span style="font-weight:600;color: #f8fafc;">${email}</span>
                 </div>
               </td>
               <td style="padding:12px;"><span class="status-badge ${badgeClass}">${role.charAt(0).toUpperCase()+role.slice(1)}</span></td>
               <td style="padding:12px;text-align:right;">
-                <select onchange="window.changeUserRole('${email}', this.value)" style="padding:6px;border:1px solid #e2e8f0;border-radius:6px;background:white;cursor:pointer;">
+                <select onchange="window.changeUserRole('${email}', this.value)" style="padding:6px;border: 1px solid rgba(255,255,255,0.08);border-radius:6px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;">
                   <option value="" disabled selected>Change Role...</option>
                   <option value="Aspirant">Aspirant</option>
                   <option value="Mentor">Mentor</option>
@@ -870,7 +870,7 @@
               </td>
             </tr>`;
         });
-        tbody.innerHTML = html || '<tr><td colspan="3" style="padding:20px;text-align:center;color:#64748b;">No users found.</td></tr>';
+        tbody.innerHTML = html || '<tr><td colspan="3" style="padding:20px;text-align:center;color: #94a3b8;">No users found.</td></tr>';
         const el = document.getElementById('stat-total-users');
         if (el) el.textContent = totalUsers;
       } catch (error) {
@@ -901,7 +901,7 @@
     window.loadRevenueData = async function() {
       const tbody = document.getElementById('txn-table-body');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b;">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color: #94a3b8;">Loading...</td></tr>';
       try {
         const snapshot = await getDocs(collection(db, 'transactions'));
         _allTransactions = [];
@@ -920,21 +920,21 @@
     window.renderTransactions = function(txns) {
       const tbody = document.getElementById('txn-table-body');
       if (!tbody) return;
-      if (!txns.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#64748b;">No transactions yet. Click "+ Add Transaction" to begin!</td></tr>'; return; }
+      if (!txns.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color: #94a3b8;">No transactions yet. Click "+ Add Transaction" to begin!</td></tr>'; return; }
       let html = '';
       txns.forEach(t => {
         const st = t.status||'Paid';
         const bc = st==='Paid'?'#dcfce7;color:#166534':st==='Pending'?'#fef3c7;color:#92400e':st==='Partial'?'#dbeafe;color:#1d4ed8':'#fee2e2;color:#991b1b';
         html += '<tr style="border-bottom:1px solid #f1f5f9;">'
-          + '<td style="padding:12px;"><div style="font-weight:600;color:#0f172a;">'+(t.student||'&mdash;')+'</div></td>'
-          + '<td style="padding:12px;font-size:0.9rem;color:#475569;">'+(t.course||'&mdash;')+'</td>'
-          + '<td style="padding:12px;font-weight:700;color:#0f172a;">&#8377;'+parseInt(t.amount||0).toLocaleString('en-IN')+'</td>'
-          + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color:#475569;">'+(t.mode||'UPI')+'</span></td>'
-          + '<td style="padding:12px;color:#475569;font-size:0.9rem;">'+(t.date||'&mdash;')+'</td>'
+          + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(t.student||'&mdash;')+'</div></td>'
+          + '<td style="padding:12px;font-size:0.9rem;color: #cbd5e1;">'+(t.course||'&mdash;')+'</td>'
+          + '<td style="padding:12px;font-weight:700;color: #f8fafc;">&#8377;'+parseInt(t.amount||0).toLocaleString('en-IN')+'</td>'
+          + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color: #cbd5e1;">'+(t.mode||'UPI')+'</span></td>'
+          + '<td style="padding:12px;color: #cbd5e1;font-size:0.9rem;">'+(t.date||'&mdash;')+'</td>'
           + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+st+'</span></td>'
           + '<td style="padding:12px;text-align:right;">'
           + (st==='Pending' ? '<button onclick="window.approveTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:none;background:#10b981;cursor:pointer;font-weight:600;margin-right:5px;color:white;">Approve</button>' : '')
-          + '<button onclick="window.openEditTxnModal(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #e2e8f0;background:white;cursor:pointer;font-weight:600;margin-right:5px;color:#475569;">Edit</button>'
+          + '<button onclick="window.openEditTxnModal(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border: 1px solid rgba(255,255,255,0.08);background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;font-weight:600;margin-right:5px;color: #cbd5e1;">Edit</button>'
           + '<button onclick="window.deleteTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Del</button>'
           + '</td></tr>';
       });
@@ -1016,7 +1016,7 @@
       }).join('');
 
       labelsEl.innerHTML = months.map(m =>
-        '<div style="flex:1;text-align:center;font-size:0.8rem;font-weight:600;color:#64748b;">'+m.label+'</div>'
+        '<div style="flex:1;text-align:center;font-size:0.8rem;font-weight:600;color: #94a3b8;">'+m.label+'</div>'
       ).join('');
     };
 
@@ -1102,7 +1102,7 @@
     window.loadCoursesList = async function() {
       const tbody = document.getElementById('courses-table-body');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#64748b;">Loading courses...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color: #94a3b8;">Loading courses...</td></tr>';
       try {
         const snapshot = await getDocs(collection(db, 'courses'));
         let html = '', totalCourses=0, activeCourses=0, totalEnrolled=0, totalSeats=0;
@@ -1118,21 +1118,21 @@
           const pc = epct>=90?'#ef4444':epct>=70?'#f59e0b':'#10b981';
           const safeName = (d.name||'').replace(/'/g, '&apos;');
           html += '<tr style="border-bottom:1px solid #f1f5f9;">'
-            + '<td style="padding:12px;"><div style="font-weight:600;color:#0f172a;">'+(d.name||'&mdash;')+'</div>'
-            + (d.description?'<div style="font-size:0.8rem;color:#64748b;margin-top:2px;">'+d.description.substring(0,60)+'</div>':'')
+            + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(d.name||'&mdash;')+'</div>'
+            + (d.description?'<div style="font-size:0.8rem;color: #94a3b8;margin-top:2px;">'+d.description.substring(0,60)+'</div>':'')
             + (d.startDate?'<div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Starts: '+d.startDate+'</div>':'')
             + '</td>'
-            + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color:#475569;">'+(d.category||'General')+'</span></td>'
-            + '<td style="padding:12px;"><div style="font-weight:600;color:#0f172a;">'+(d.enrolled||0)+' / '+(d.seats||'&mdash;')+'</div>'
+            + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color: #cbd5e1;">'+(d.category||'General')+'</span></td>'
+            + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(d.enrolled||0)+' / '+(d.seats||'&mdash;')+'</div>'
             + '<div style="height:5px;background:#e2e8f0;border-radius:4px;margin-top:4px;width:80px;"><div style="height:100%;width:'+epct+'%;background:'+pc+';border-radius:4px;"></div></div></td>'
-            + '<td style="padding:12px;font-weight:600;color:#0f172a;">'+(d.fee?'&#8377;'+parseInt(d.fee).toLocaleString('en-IN'):'&mdash;')+'</td>'
+            + '<td style="padding:12px;font-weight:600;color: #f8fafc;">'+(d.fee?'&#8377;'+parseInt(d.fee).toLocaleString('en-IN'):'&mdash;')+'</td>'
             + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+status+'</span></td>'
             + '<td style="padding:12px;text-align:right;">'
-            + '<button onclick="window.openEditCourseModal(\''+id+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border:1px solid #e2e8f0;background:white;cursor:pointer;font-weight:600;margin-right:6px;color:#475569;">Edit</button>'
+            + '<button onclick="window.openEditCourseModal(\''+id+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border: 1px solid rgba(255,255,255,0.08);background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;font-weight:600;margin-right:6px;color: #cbd5e1;">Edit</button>'
             + '<button onclick="window.deleteCourse(\''+id+'\',\''+safeName+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Delete</button>'
             + '</td></tr>';
         });
-        tbody.innerHTML = html || '<tr><td colspan="6" style="padding:30px;text-align:center;color:#64748b;">No courses yet. Click "+ Add New Course" to get started!</td></tr>';
+        tbody.innerHTML = html || '<tr><td colspan="6" style="padding:30px;text-align:center;color: #94a3b8;">No courses yet. Click "+ Add New Course" to get started!</td></tr>';
         const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
         s('cs-total',totalCourses); s('cs-active',activeCourses);
         s('cs-enrolled',totalEnrolled.toLocaleString('en-IN')); s('cs-seats',totalSeats.toLocaleString('en-IN'));

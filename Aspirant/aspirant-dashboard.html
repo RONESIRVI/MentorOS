@@ -153,11 +153,7 @@
   <style>
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
-    /* Dashboard Specific Styles - CRITICAL OVERRIDES */
-    body {
-      background-color: #f8fafc !important; /* Override dark theme from style.css */
-      color: #0f172a !important; /* Override white text from dark theme */
-    }
+    /* Dashboard Specific Styles */
     @keyframes cardRippleGlow {
       0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); transform: scale(0.98); }
       50% { box-shadow: 0 0 0 25px rgba(59, 130, 246, 0); transform: scale(1.01); }
@@ -363,8 +359,8 @@
     /* Topbar */
     .topbar {
       height: 72px;
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -386,13 +382,13 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-      color: #475569;
+      color: #cbd5e1;
     }
 
     .page-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0;
     }
 
@@ -443,12 +439,12 @@
     .welcome-text h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0 0 8px 0;
     }
 
     .welcome-text p {
-      color: #64748b;
+      color: #94a3b8;
       margin: 0;
       display: flex;
       align-items: center;
@@ -517,13 +513,13 @@
       font-size: 2.2rem;
       font-weight: 800;
       margin: 0 0 4px 0;
-      color: #0f172a;
+      color: #f8fafc;
       font-family: 'Space Grotesk', sans-serif;
     }
 
     .stat-info p {
       margin: 0;
-      color: #475569;
+      color: #cbd5e1;
       font-size: 0.95rem;
       font-weight: 600;
     }
@@ -557,11 +553,11 @@
     }
 
     .panel {
-      background: white;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
       border-radius: 16px;
       padding: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .panel-header {
@@ -574,7 +570,7 @@
     .panel-title {
       font-size: 1.1rem;
       font-weight: 600;
-      color: #0f172a;
+      color: #f8fafc;
       margin: 0;
       display: flex;
       align-items: center;
@@ -602,9 +598,9 @@
       align-items: center;
       justify-content: space-between;
       padding: 16px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
-      background: #f8fafc;
+      background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);
       transition: border-color 0.2s;
     }
     
@@ -639,18 +635,18 @@
       margin: 0 0 4px 0;
       font-size: 1rem;
       font-weight: 600;
-      color: #0f172a;
+      color: #f8fafc;
     }
     
     .task-item.completed .task-details h4 {
       text-decoration: line-through;
-      color: #64748b;
+      color: #94a3b8;
     }
 
     .task-details p {
       margin: 0;
       font-size: 0.85rem;
-      color: #64748b;
+      color: #94a3b8;
     }
 
     .task-meta {
@@ -673,10 +669,10 @@
 
     /* Quote Bank Styles */
     .quote-bank-layout { display: flex; gap: 24px; align-items: flex-start; }
-    .qb-sidebar { width: 250px; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+    .qb-sidebar { width: 250px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.05); }
     .qb-category-list { list-style: none; padding: 0; margin: 0; }
-    .qb-category-list li { padding: 12px 16px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; color: #475569; font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease; }
-    .qb-category-list li:hover { background: #f8fafc; color: #1e293b; }
+    .qb-category-list li { padding: 12px 16px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; color: #cbd5e1; font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease; }
+    .qb-category-list li:hover { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); color: #1e293b; }
     .qb-category-list li.active { background: #eff6ff; color: #2563eb; font-weight: 600; border-left: 3px solid #3b82f6; }
     .qb-content { flex: 1; }
     .qb-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -692,17 +688,17 @@
     .quote-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.2); border-color: rgba(96, 165, 250, 0.5); }
     .quote-card:hover::before { color: rgba(147, 197, 253, 0.2); transform: rotate(10deg); }
     .quote-title { font-size: 1.1rem; font-weight: 600; color: #1e293b; margin: 0 0 10px 0; position: relative; z-index: 1; }
-    .quote-desc { font-size: 0.9rem; color: #64748b; margin: 0 0 15px 0; position: relative; z-index: 1; }
+    .quote-desc { font-size: 0.9rem; color: #94a3b8; margin: 0 0 15px 0; position: relative; z-index: 1; }
     .quote-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 12px; margin-top: auto; position: relative; z-index: 1; }
     .btn-read-pdf { background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; border: none; cursor: pointer; }
     .btn-read-pdf:hover { background: #2563eb; }
     
     #pdf-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; display: none; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
     #pdf-modal.active { display: flex; }
-    .pdf-modal-content { background: white; width: 90%; max-width: 1000px; height: 85vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-    .pdf-modal-header { padding: 16px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .pdf-modal-content { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); width: 90%; max-width: 1000px; height: 85vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .pdf-modal-header { padding: 16px 20px; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; }
     .pdf-modal-header h3 { margin: 0; font-size: 1.1rem; color: #1e293b; }
-    .btn-close-modal { background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 4px; line-height: 1; }
+    .btn-close-modal { background: none; border: none; font-size: 1.5rem; color: #94a3b8; cursor: pointer; padding: 4px; line-height: 1; }
     .btn-close-modal:hover { color: #ef4444; }
     .pdf-iframe-container { flex: 1; background: #e2e8f0; position: relative; }
     .pdf-iframe-container iframe { width: 100%; height: 100%; border: none; }
@@ -875,10 +871,10 @@
     .magazine-card {
       display: flex;
       gap: 20px;
-      background: white;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
       border-radius: 16px;
       padding: 20px;
-      border: 1px solid #f1f5f9;
+      border: 1px solid rgba(255,255,255,0.05);
       box-shadow: 0 4px 6px rgba(0,0,0,0.02);
       transition: all 0.3s ease;
     }
@@ -949,7 +945,7 @@
     <main class="main-content">
       
       <!-- Header -->
-      <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: white; border-bottom: 1px solid #e2e8f0;">
+      <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08);">
         <button class="mobile-menu-btn" id="mobileMenuBtn" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer;">☰</button>
         <div class="page-title">
           <h2 style="margin: 0;">Dashboard</h2>
@@ -978,36 +974,36 @@
       <!-- END dashboard-canvas -->
       <!-- ID Card Modal -->
       <div id="id-card-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:999999; backdrop-filter: blur(2px);">
-        <div style="background:white; border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
-          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color:#475569;">✕</button>
+        <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
+          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color: #cbd5e1;">✕</button>
           <div style="height:6px; width:100%; background:linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
           <div style="padding:24px 20px; text-align:center;">
             <div id="id-card-avatar" style="width:64px; height:64px; background:#f1f5f9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#3b82f6; margin:0 auto 16px auto; border:3px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">A</div>
-            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color:#0f172a; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color: #f8fafc; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
             <div style="display:inline-block; padding:4px 12px; background:#dbeafe; color:#1d4ed8; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Aspirant</div>
-            <div style="background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0;">
-              <p style="margin:0 0 4px 0; font-size:0.75rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
+            <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08);">
+              <p style="margin:0 0 4px 0; font-size:0.75rem; color: #94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
               <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
             </div>
             
-            <div id="id-card-details" style="display:none; background:#f8fafc; border-radius:12px; padding:16px; text-align:left; border:1px solid #e2e8f0; margin-top:10px;">
+            <div id="id-card-details" style="display:none; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08); margin-top:10px;">
               <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
                 <div>
-                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Target</p>
-                  <p id="id-card-target" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Target</p>
+                  <p id="id-card-target" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">-</p>
                 </div>
                 <div style="text-align:right;">
-                  <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Medium</p>
-                  <p id="id-card-medium" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Medium</p>
+                  <p id="id-card-medium" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">-</p>
                 </div>
               </div>
               <div style="margin-bottom:12px;">
-                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Optional Subject</p>
-                <p id="id-card-optional" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Optional Subject</p>
+                <p id="id-card-optional" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">-</p>
               </div>
               <div>
-                <p style="margin:0 0 2px 0; font-size:0.7rem; color:#64748b; text-transform:uppercase; font-weight:600;">Target Exam</p>
-                <p id="id-card-exam" style="margin:0; font-size:0.85rem; color:#0f172a; font-weight:700;">-</p>
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Target Exam</p>
+                <p id="id-card-exam" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">-</p>
               </div>
             </div>
 
@@ -1029,30 +1025,30 @@
   <!-- Firebase Auth & Firestore Logic -->
   <!-- Google Drive PDF Modal -->
   <div id="pdf-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;z-index:999999;padding:20px;box-sizing:border-box;">
-    <div style="background:white;border-radius:15px;width:95%;height:95%;max-width:1400px;display:flex;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+    <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-radius:15px;width:95%;height:95%;max-width:1400px;display:flex;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.25);">
       <!-- Left Column: PDF -->
-      <div style="flex:2;background:#f8fafc;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;">
-        <div style="padding:15px 20px;background:white;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
-          <h3 id="pdf-modal-title" style="margin:0;font-size:1.1rem;color:#0f172a;">Document Viewer</h3>
+      <div style="flex:2;background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);border-right: 1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;">
+        <div style="padding:15px 20px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-bottom: 1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;">
+          <h3 id="pdf-modal-title" style="margin:0;font-size:1.1rem;color: #f8fafc;">Document Viewer</h3>
         </div>
         <div id="pdf-iframe-wrapper" style="flex:1;position:relative;background:#e2e8f0;">
-          <p style="text-align: center; margin-top: 50px; color: #64748b;">Loading document...</p>
+          <p style="text-align: center; margin-top: 50px; color: #94a3b8;">Loading document...</p>
         </div>
       </div>
       <!-- Right Column -->
-      <div style="flex:1;padding:30px;display:flex;flex-direction:column;background:white;min-width:350px;">
+      <div style="flex:1;padding:30px;display:flex;flex-direction:column;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);min-width:350px;">
         <!-- Ranker's Analysis View -->
         <div id="modal-rankers-view">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h2 style="margin:0; color:#0f172a;">Ranker's Analysis</h2>
+            <h2 style="margin:0; color: #f8fafc;">Ranker's Analysis</h2>
             <div>
               <button onclick="startScreenCutter()" style="background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.9rem; margin-right:10px; display:inline-flex; align-items:center; gap:6px; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 ✂️ Screen Cut Tool
               </button>
-              <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+              <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color: #94a3b8;cursor:pointer;line-height:1;padding:5px;">✕</button>
             </div>
           </div>
-          <div id="rankers-snippets-container" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
+          <div id="rankers-snippets-container" style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:15px;">
             <!-- Saved Snippets will appear here -->
           </div>
         </div>
@@ -1060,11 +1056,11 @@
         <!-- Categorize Photo View -->
         <div id="modal-categorize-view" style="display:none; flex-direction:column; height: 100%;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h2 style="margin:0; color:#0f172a;">Categorize File</h2>
-            <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color:#64748b;cursor:pointer;line-height:1;padding:5px;">✕</button>
+            <h2 style="margin:0; color: #f8fafc;">Categorize File</h2>
+            <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color: #94a3b8;cursor:pointer;line-height:1;padding:5px;">✕</button>
           </div>
-          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; flex:1; overflow-y:auto;">
-             <p style="font-size:0.95rem; color:#475569; margin-bottom: 20px;">Select a category to save this snippet into the organized Quote Bank folders.</p>
+          <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; flex:1; overflow-y:auto;">
+             <p style="font-size:0.95rem; color: #cbd5e1; margin-bottom: 20px;">Select a category to save this snippet into the organized Quote Bank folders.</p>
              <div id="categorize-buttons-container" style="display:flex; flex-wrap:wrap; gap:10px;">
                 <!-- buttons injected dynamically -->
              </div>
@@ -1106,7 +1102,7 @@
                 btn.className = 'btn-cat-assign';
                 btn.setAttribute('data-cat', cat);
                 btn.innerHTML = `📄 ${cat}`;
-                btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+                btn.style = 'padding:8px 14px; border-radius:20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
                 btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
                 btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
                 btn.onclick = () => savePhotoToQuoteBank(cat, btn);
@@ -1193,12 +1189,12 @@
 
   <!-- Modal for Viewing Evaluated Result -->
   <div id="view-eval-modal" style="display:none;position:fixed;inset:0;background:rgba(15, 23, 42, 0.7);align-items:center;justify-content:center;z-index:9999;padding:20px; backdrop-filter: blur(4px);">
-    <div style="background:white;border-radius:16px;width:95%;height:90%;max-width:1200px;display:flex;overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+    <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-radius:16px;width:95%;height:90%;max-width:1200px;display:flex;overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
       
       <!-- Left side: PDF Preview -->
-      <div style="flex:7;background:#f8fafc;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;">
-        <div style="padding:16px 24px;background:white;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="margin:0;font-size:1.1rem;color:#0f172a; display:flex; align-items:center; gap:8px;">📄 My Evaluated Copy</h3>
+      <div style="flex:7;background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);border-right: 1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;">
+        <div style="padding:16px 24px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-bottom: 1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="margin:0;font-size:1.1rem;color: #f8fafc; display:flex; align-items:center; gap:8px;">📄 My Evaluated Copy</h3>
           <a id="btn-view-annotated" href="#" target="_blank" style="background:linear-gradient(135deg, #ef4444, #dc2626);color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:6px;transition:transform 0.2s; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
             <span>🖍️</span> View Mentor's Annotations
           </a>
@@ -1209,16 +1205,16 @@
       </div>
       
       <!-- Right side: Score & Feedback -->
-      <div style="flex:3;background:white;padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;">
+      <div style="flex:3;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h2 style="margin:0;font-size:1.4rem;color:#1e293b;">Evaluation Result</h2>
           <button onclick="window.closeViewModal()" style="background:none;border:none;font-size:1.5rem;color:#94a3b8;cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</button>
         </div>
         
         <div style="background:#f1f5f9; padding:16px; border-radius:12px;">
-          <p style="margin:0 0 4px 0; font-size:0.85rem; color:#64748b; font-weight:600; text-transform:uppercase;">Subject & Topic</p>
-          <p id="view-eval-subject" style="margin:0; font-size:1.05rem; color:#0f172a; font-weight:700;"></p>
-          <p id="view-eval-topic" style="margin:4px 0 0 0; font-size:0.95rem; color:#475569;"></p>
+          <p style="margin:0 0 4px 0; font-size:0.85rem; color: #94a3b8; font-weight:600; text-transform:uppercase;">Subject & Topic</p>
+          <p id="view-eval-subject" style="margin:0; font-size:1.05rem; color: #f8fafc; font-weight:700;"></p>
+          <p id="view-eval-topic" style="margin:4px 0 0 0; font-size:0.95rem; color: #cbd5e1;"></p>
         </div>
 
         <div style="background:linear-gradient(135deg, #f0fdf4, #dcfce7); padding:20px; border-radius:12px; border:1px solid #bbf7d0; text-align:center;">
@@ -1228,10 +1224,10 @@
         
         <div style="display:flex;flex-direction:column;gap:8px;">
           <label style="font-weight:600;color:#334155; font-size:0.95rem;">💡 Mentor's Feedback</label>
-          <div id="view-eval-feedback" style="width:100%;min-height:200px;padding:16px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font-size:0.95rem;color:#334155;line-height:1.6; white-space:pre-wrap; overflow-y:auto; box-sizing:border-box;"></div>
+          <div id="view-eval-feedback" style="width:100%;min-height:200px;padding:16px;border: 1px solid rgba(255,255,255,0.15);border-radius:10px;background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);font-size:0.95rem;color:#334155;line-height:1.6; white-space:pre-wrap; overflow-y:auto; box-sizing:border-box;"></div>
         </div>
         
-        <button onclick="window.closeViewModal()" style="margin-top:auto;padding:14px;background:#e2e8f0;color:#475569;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:1rem; transition:background 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">Close Viewer</button>
+        <button onclick="window.closeViewModal()" style="margin-top:auto;padding:14px;background:#e2e8f0;color: #cbd5e1;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:1rem; transition:background 0.2s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'">Close Viewer</button>
       </div>
     </div>
   </div>
@@ -1356,7 +1352,7 @@
       
       if(filtered.length === 0) {
         container.style.display = 'block';
-        container.innerHTML = `<div style="text-align:center; padding: 40px; color:#64748b; font-size:1rem; grid-column: 1 / -1; background: white; border-radius: 24px; border: 1px dashed #cbd5e1;">
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: #94a3b8; font-size:1rem; grid-column: 1 / -1; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius: 24px; border: 1px dashed #cbd5e1;">
           <div style="font-size:3rem; margin-bottom:10px;">📭</div>
           <p>No materials found for this category.</p>
           <p style="font-size:0.85rem; margin-top:5px;">Admin needs to sync files from Google Drive or try another filter.</p>
@@ -1369,7 +1365,7 @@
         
         item.style = `
           position: relative;
-          background: #ffffff;
+          background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
           border-radius: 24px;
           padding: 24px;
           cursor: pointer;
@@ -1424,7 +1420,7 @@
         nameDiv.style = `
           font-size: 1.05rem;
           font-weight: 700;
-          color: #111827;
+          color: #f8fafc;
           width: 100%;
           line-height: 1.3;
           margin-bottom: 8px;
@@ -1436,13 +1432,13 @@
         const tagsDiv = document.createElement('div');
         tagsDiv.style = `display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;`;
         if(f.category) {
-            tagsDiv.innerHTML = `<span style="background:#f1f5f9; padding:4px 8px; border-radius:8px; font-size:0.75rem; color:#475569; font-weight:500;">${f.category}</span>`;
+            tagsDiv.innerHTML = `<span style="background:#f1f5f9; padding:4px 8px; border-radius:8px; font-size:0.75rem; color: #cbd5e1; font-weight:500;">${f.category}</span>`;
         }
         
         const descDiv = document.createElement('div');
         descDiv.style = `
           font-size: 0.8rem;
-          color: #64748b;
+          color: #94a3b8;
           line-height: 1.5;
           margin-top: auto;
         `;
@@ -1499,7 +1495,7 @@
       carousel.innerHTML = '';
 
       if (allFiles.length === 0) {
-        carousel.innerHTML = `<div style="min-width:130px; height:150px; background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; font-size:0.8rem; text-align:center; padding:12px;">
+        carousel.innerHTML = `<div style="min-width:130px; height:150px; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:16px; border: 1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; font-size:0.8rem; text-align:center; padding:12px;">
           <div style="font-size:1.5rem; margin-bottom:6px;">📭</div>
           Sync files to see recent
         </div>`;
@@ -1689,7 +1685,7 @@
             if(cat.toLowerCase().includes('societ')) icon = '👥';
             if(cat.toLowerCase().includes('service')) icon = '💼';
 
-            btn.style = 'padding:8px 16px; border-radius:24px; border:1px solid #e2e8f0; background:white; color:#475569; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);';
+            btn.style = 'padding:8px 16px; border-radius:24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color: #cbd5e1; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);';
             btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; btn.style.borderColor = '#cbd5e1'; btn.style.color = '#0f172a'; };
             btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; btn.style.borderColor = '#e2e8f0'; btn.style.color = '#475569'; };
             
@@ -1718,7 +1714,7 @@
             btn.className = 'btn-cat-assign';
             btn.setAttribute('data-cat', cat);
             btn.innerHTML = `📄 ${cat}`;
-            btn.style = 'padding:8px 14px; border-radius:20px; border:1px solid #cbd5e1; background:white; color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
+            btn.style = 'padding:8px 14px; border-radius:20px; border: 1px solid rgba(255,255,255,0.15); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color:#334155; cursor:pointer; font-weight:600; font-size:0.85rem; transition:all 0.2s; box-shadow:0 2px 4px rgba(0,0,0,0.02); display:flex; align-items:center; gap:6px;';
             btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'; btn.style.borderColor = '#94a3b8'; };
             btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)'; btn.style.borderColor = '#cbd5e1'; };
             
@@ -1843,7 +1839,7 @@
 
         const items = Array.isArray(data) ? data : (data.data || []);
         if(items.length === 0) {
-          grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#64748b;">This folder is empty.</p>`;
+          grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color: #94a3b8;">This folder is empty.</p>`;
           return;
         }
 
@@ -2001,7 +1997,7 @@
       window.loadCoursesList = async function() {
       const grid = document.getElementById('available-courses-grid');
       if (!grid) return;
-      grid.innerHTML = '<p style="color:#64748b;">Loading...</p>';
+      grid.innerHTML = '<p style="color: #94a3b8;">Loading...</p>';
       
       try {
         // 1. Fetch user's transactions
@@ -2036,22 +2032,22 @@
           html += `
             <div class="stat-card" style="display:flex; flex-direction:column; gap:12px;">
               <div>
-                <span style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;">${c.category || 'Course'}</span>
-                <h3 style="margin:8px 0 4px; font-size:1.1rem; color:#0f172a;">${c.name}</h3>
-                <p style="margin:0; font-size:0.85rem; color:#64748b;">${c.description || 'No description available.'}</p>
+                <span style="background:#f1f5f9; color: #cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; font-weight:600;">${c.category || 'Course'}</span>
+                <h3 style="margin:8px 0 4px; font-size:1.1rem; color: #f8fafc;">${c.name}</h3>
+                <p style="margin:0; font-size:0.85rem; color: #94a3b8;">${c.description || 'No description available.'}</p>
               </div>
-              <div style="font-size:0.85rem; color:#64748b;">
+              <div style="font-size:0.85rem; color: #94a3b8;">
                 <strong>Seats:</strong> ${c.enrolled || 0}/${c.seats} <br>
                 <strong>Starts:</strong> ${c.startDate || 'N/A'}
               </div>
-              <div style="margin-top:auto; padding-top:12px; border-top:1px solid #e2e8f0;">
+              <div style="margin-top:auto; padding-top:12px; border-top: 1px solid rgba(255,255,255,0.08);">
                 ${actionBtn}
               </div>
             </div>
           `;
         });
         
-        grid.innerHTML = html || '<p style="color:#64748b;">No active courses found.</p>';
+        grid.innerHTML = html || '<p style="color: #94a3b8;">No active courses found.</p>';
       } catch(err) {
         console.error(err);
         grid.innerHTML = '<p style="color:#ef4444;">Failed to load courses.</p>';
@@ -2273,7 +2269,7 @@
     window.loadMyAnswers = async function() {
       const tbody = document.getElementById('answers-table-body');
       if(!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#64748b;">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color: #94a3b8;">Loading...</td></tr>';
       
       try {
         const snap = await getDocs(query(collection(db, 'evaluations'), where('studentId', '==', _currentUserEmail)));
@@ -2293,7 +2289,7 @@
           const dStr = new Date(ev.timestamp).toLocaleDateString('en-IN');
           
           // Status badge color
-          let badgeStyle = 'background:#f1f5f9;color:#475569'; // Draft
+          let badgeStyle = 'background:#f1f5f9;color: #cbd5e1;'; // Draft
           if(ev.status === 'Submitted') badgeStyle = 'background:#dbeafe;color:#1d4ed8';
           if(ev.status === 'Evaluated' || ev.status === 'Completed' || ev.status === 'Graded') badgeStyle = 'background:#dcfce7;color:#166534';
           
@@ -2318,16 +2314,16 @@
 
           html += `<tr style="border-bottom:1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
             <td style="padding:12px; font-size:0.85rem; font-weight:600; color:#1e293b;">${ev.subject || '-'}</td>
-            <td style="padding:12px; font-size:0.85rem; color:#475569;">${ev.topic || '-'}</td>
+            <td style="padding:12px; font-size:0.85rem; color: #cbd5e1;">${ev.topic || '-'}</td>
             <td style="padding:12px;"><a href="${ev.link}" target="_blank" style="color:#3b82f6;text-decoration:none;font-weight:500; display:flex; align-items:center; gap:4px;">📄 ${ev.title}</a></td>
-            <td style="padding:12px; font-size:0.82rem; color:#64748b;">${dStr}</td>
+            <td style="padding:12px; font-size:0.82rem; color: #94a3b8;">${dStr}</td>
             <td style="padding:12px;"><span style="padding:4px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; ${badgeStyle};">${ev.status}</span></td>
-            <td style="padding:12px; font-weight:700; color:#0f172a;">${ev.marks ? ev.marks+'/100' : '-'}</td>
-            <td style="padding:12px; font-size:0.82rem; color:#64748b; max-width:180px;">${ev.feedback || '-'}</td>
+            <td style="padding:12px; font-weight:700; color: #f8fafc;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:12px; font-size:0.82rem; color: #94a3b8; max-width:180px;">${ev.feedback || '-'}</td>
             <td style="padding:12px;">${actionBtn}</td>
           </tr>`;
         });
-        tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center; padding:30px; color:#64748b;">No submissions yet. Upload your first answer above! 📝</td></tr>';
+        tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center; padding:30px; color: #94a3b8;">No submissions yet. Upload your first answer above! 📝</td></tr>';
         if(document.getElementById('stat-ans-total')) document.getElementById('stat-ans-total').textContent = total;
         if(document.getElementById('stat-ans-eval')) document.getElementById('stat-ans-eval').textContent = evald;
         if(document.getElementById('stat-ans-pend')) document.getElementById('stat-ans-pend').textContent = pend;
@@ -2688,7 +2684,7 @@ async function fetchTodayTasks() {
         });
         
         if (!hasTasks) {
-          taskList.innerHTML = '<p style="color: #64748b; padding: 16px; text-align: center;">No tasks assigned for today. Take a rest!</p>';
+          taskList.innerHTML = '<p style="color: #94a3b8; padding: 16px; text-align: center;">No tasks assigned for today. Take a rest!</p>';
         }
         
         // Helper to update dashboard stats based on completed tasks
@@ -2829,7 +2825,7 @@ async function fetchProgress() {
         }
         
         if (!hasProgress) {
-          progressList.innerHTML = '<p style="color: #64748b; text-align: center;">No progress data available.</p>';
+          progressList.innerHTML = '<p style="color: #94a3b8; text-align: center;">No progress data available.</p>';
         } else if (overallTotal > 0) {
           // Update Overall Progress Stat
           const overallPercent = Math.round((overallCompleted / overallTotal) * 100);
@@ -3120,7 +3116,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     if(assigned.length === 0) {
       listEl.style.display = 'block';
-      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files assigned yet.</p>';
+      listEl.innerHTML = '<p style="color: #94a3b8; font-size:0.9rem;">No files assigned yet.</p>';
       return;
     }
     
@@ -3128,8 +3124,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       const item = document.createElement('div');
       item.style = `
         position: relative;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 12px;
         padding: 16px 12px;
         display: flex;
@@ -3185,7 +3181,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       const catDiv = document.createElement('div');
       catDiv.style = `
         font-size: 0.7rem;
-        color: #0f172a;
+        color: #f8fafc;
         background: #e2e8f0;
         padding: 2px 8px;
         border-radius: 10px;
@@ -3320,7 +3316,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
     if(fetchedDriveFiles.length === 0) {
       listEl.style.display = 'block'; // fallback for empty message
-      listEl.innerHTML = '<p style="color:#64748b; font-size:0.9rem;">No files or folders found.</p>';
+      listEl.innerHTML = '<p style="color: #94a3b8; font-size:0.9rem;">No files or folders found.</p>';
       return;
     }
     
@@ -3331,8 +3327,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       // Card Style
       item.style = `
         position: relative;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.08);
         border-radius: 12px;
         padding: 16px 12px;
         cursor: pointer;
@@ -3425,7 +3421,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
           top: 8px;
           right: 8px;
           background: rgba(255,255,255,0.9);
-          border: 1px solid #e2e8f0;
+          border: 1px solid rgba(255,255,255,0.08);
           border-radius: 50%;
           width: 28px;
           height: 28px;
@@ -3477,35 +3473,35 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   <div id="screen-cutter-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:99999999; cursor:crosshair; background:rgba(0,0,0,0.9);">
     <canvas id="cutter-canvas" style="position:absolute; top:0; left:0; width:100vw; height:100vh;"></canvas>
     
-    <div id="cutter-toolbar" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); background:white; padding:10px 20px; border-radius:30px; display:flex; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+    <div id="cutter-toolbar" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); padding:10px 20px; border-radius:30px; display:flex; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
       <button onclick="cancelScreenCutter()" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:600;">Cancel</button>
       <button id="btn-confirm-cut" onclick="confirmScreenCut()" style="background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:20px; cursor:pointer; font-weight:600; display:none;">Confirm Cut</button>
     </div>
   </div>
 
   <div id="cut-category-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999999; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; backdrop-filter:blur(4px);">
-    <div style="background:white; padding:30px; border-radius:16px; width:400px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.25);">
-      <h3 style="margin:0 0 15px; color:#0f172a;">Save Snippet</h3>
+    <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); padding:30px; border-radius:16px; width:400px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+      <h3 style="margin:0 0 15px; color: #f8fafc;">Save Snippet</h3>
       <div style="width:100%; height:150px; background:#f1f5f9; border-radius:8px; margin-bottom:15px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
         <img id="cut-preview-img" src="" style="max-width:100%; max-height:100%; object-fit:contain;">
       </div>
       <div style="text-align:left; margin-bottom:20px;">
-        <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color:#475569;">Select Options:</label>
-        <select id="cut-category-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+        <label style="display:block; margin-bottom:8px; font-size:0.9rem; font-weight:600; color: #cbd5e1;">Select Options:</label>
+        <select id="cut-category-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
           <option value="Uncategorized">Select Category...</option>
         </select>
-        <select id="cut-rank-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+        <select id="cut-rank-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
           <option value="">Select Rank / Name (Optional)</option>
         </select>
-        <select id="cut-year-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:5px;">
+        <select id="cut-year-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
           <option value="">Select Year (Optional)</option>
         </select>
-        <select id="cut-paper-select" style="width:100%; padding:8px; border-radius:8px; border:1px solid #cbd5e1;">
+        <select id="cut-paper-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15);">
           <option value="">Select Paper (Optional)</option>
         </select>
       </div>
       <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button id="btn-cancel-cut-save" onclick="closeCutCategoryModal()" style="background:#e2e8f0; color:#475569; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Cancel</button>
+        <button id="btn-cancel-cut-save" onclick="closeCutCategoryModal()" style="background:#e2e8f0; color: #cbd5e1; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Cancel</button>
         <button id="btn-save-cut" onclick="saveScreenCut()" style="background:#10b981; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; flex:1;">Save Snippet</button>
       </div>
     </div>
@@ -3831,9 +3827,9 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       
       if (snippets.length === 0) {
         container.innerHTML = `
-          <div style="text-align:center;color:#64748b;padding:30px 0;margin:auto;">
+          <div style="text-align:center;color: #94a3b8;padding:30px 0;margin:auto;">
             <div style="font-size:3rem;margin-bottom:15px;opacity:0.5;">✂️</div>
-            <h4 style="margin:0 0 5px; color:#475569;">No Snippets Yet</h4>
+            <h4 style="margin:0 0 5px; color: #cbd5e1;">No Snippets Yet</h4>
             <p style="font-size:0.9rem;">Use the Screen Cut Tool to capture insights!</p>
           </div>
         `;
@@ -3850,13 +3846,13 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         if(snip.category.includes('Improvement')) { badgeColor = '#ef4444'; badgeBg = '#fee2e2'; }
         
         html += `
-          <div style="background:white; border-radius:10px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border:1px solid #e2e8f0; position:relative;">
-            <button onclick="deleteSnippet('${snip.id}')" style="position:absolute; top:8px; right:8px; background:white; color:#ef4444; border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">✕</button>
-            <div style="padding:10px 15px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; margin-right:30px;">
+          <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius:10px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); position:relative;">
+            <button onclick="deleteSnippet('${snip.id}')" style="position:absolute; top:8px; right:8px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color:#ef4444; border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">✕</button>
+            <div style="padding:10px 15px; border-bottom: 1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; margin-right:30px;">
               <span style="background:${badgeBg}; color:${badgeColor}; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">${snip.category}</span>
               <span style="font-size:0.7rem; color:#94a3b8;">${new Date(snip.timestamp).toLocaleDateString()}</span>
             </div>
-            <div style="padding:15px; text-align:center; background:#f8fafc;">
+            <div style="padding:15px; text-align:center; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);">
               <a href="${snip.image}" target="_blank">
                 <img src="${snip.image.includes('drive.google.com') ? snip.image.replace('/preview', '').replace('file/d/', 'uc?id=') : snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
               </a>
