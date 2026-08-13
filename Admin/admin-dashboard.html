@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="hi-IN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <!-- Secure TOTP/Passcode Lock -->
+  <script>
+    (function() {
+      if (sessionStorage.getItem('rone_authenticated') !== 'true') {
+        const style = document.createElement('style');
+        style.innerHTML = 'body { display: none !important; }';
+        document.head.appendChild(style);
+        
+        window.addEventListener('DOMContentLoaded', () => {
+          style.remove();
+          
+          const overlay = document.createElement('div');
+          overlay.id = 'dashboard-lock-overlay';
+          overlay.style.cssText = "position:fixed; inset:0; background:rgba(2, 11, 24, 0.96); backdrop-filter:blur(15px); -webkit-backdrop-filter:blur(15px); z-index:9999999; display:flex; align-items:center; justify-content:center; padding:20px; font-family:'Plus Jakarta Sans', sans-serif;";
+          
+          overlay.innerHTML = `
+            <div style="background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.35); border-radius:24px; padding:40px 30px; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(56, 189, 248, 0.15); text-align:center; position:relative; animation: lockPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+              <div style="width:70px; height:70px; background:rgba(56, 189, 248, 0.1); border:1.5px solid rgba(56, 189, 248, 0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:1.8rem; box-shadow:0 0 20px rgba(56, 189, 248, 0.2);">🔐</div>
+              <h3 style="color:#fff; margin:0 0 10px; font-size:1.4rem; font-weight:800; letter-spacing:0.5px; font-family:'Plus Jakarta Sans', sans-serif;">Dashboard Locked</h3>
+              <p style="color:rgba(255,255,255,0.65); margin:0 0 25px; font-size:0.9rem; line-height:1.5;">Enter the 6-digit TOTP / Passcode to unlock the dashboard.</p>
+              
+              <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:25px;">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 0)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 1)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 2)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 3)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 4)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+                <input type="text" maxlength="1" class="lock-pin-box" style="width:48px; height:54px; background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1); border-radius:12px; font-size:1.5rem; font-weight:800; color:#fff; text-align:center; outline:none; transition:0.2s;" oninput="handleLockPin(this, 5)" onfocus="this.style.borderColor='#38bdf8';this.style.boxShadow='0 0 8px rgba(56, 189, 248, 0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+              </div>
+              
+              <div id="lock-error-message" style="display:none; color:#ef4444; font-size:0.85rem; font-weight:600; margin-bottom:20px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding:10px; border-radius:8px;"></div>
+              
+              <button onclick="verifyLockPin()" style="width:100%; padding:14px; background:linear-gradient(135deg, #0284c7, #0369a1); border:none; border-radius:12px; color:#fff; font-size:1rem; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(2, 132, 199, 0.3); transition:all 0.2s;">Verify & Unlock</button>
+            </div>
+          `;
+          
+          document.body.appendChild(overlay);
+          
+          const animStyle = document.createElement('style');
+          animStyle.innerHTML = `
+            @keyframes lockPop {
+              from { transform: scale(0.95); opacity: 0; }
+              to { transform: scale(1); opacity: 1; }
+            }
+            @keyframes lockShake {
+              0%, 100% { transform: translateX(0); }
+              20%, 60% { transform: translateX(-8px); }
+              40%, 80% { transform: translateX(8px); }
+            }
+            @keyframes lockFadeOut {
+              to { opacity: 0; }
+            }
+          `;
+          document.head.appendChild(animStyle);
+          
+          const inputs = overlay.querySelectorAll('.lock-pin-box');
+          if(inputs[0]) inputs[0].focus();
+          
+          inputs.forEach((input, index) => {
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Backspace' && !input.value && index > 0) {
+                const prev = inputs[index - 1];
+                if (prev) {
+                  prev.focus();
+                  prev.value = '';
+                }
+              }
+            });
+          });
+          
+          window.handleLockPin = function(input, index) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value && index < 5) {
+              const next = inputs[index + 1];
+              if (next) next.focus();
+            }
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            if (entered.length === 6) {
+              verifyLockPin();
+            }
+          };
+          
+          window.verifyLockPin = async function() {
+            const entered = Array.from(inputs).map(inp => inp.value).join('');
+            const error = document.getElementById('lock-error-message');
+            
+            async function generateTOTP(secretBase32, timeOffset = 0) {
+              const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+              let bits = 0, value = 0, index = 0;
+              const output = new Uint8Array(Math.floor(secretBase32.length * 5 / 8));
+              for (let i = 0; i < secretBase32.length; i++) {
+                const val = alphabet.indexOf(secretBase32[i].toUpperCase());
+                if (val === -1) continue;
+                value = (value << 5) | val;
+                bits += 5;
+                if (bits >= 8) { output[index++] = (value >>> (bits - 8)) & 255; bits -= 8; }
+              }
+              const key = await crypto.subtle.importKey('raw', output, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+              let timeStep = Math.floor(Date.now() / 30000) + timeOffset;
+              const timeBytes = new Uint8Array(8);
+              for (let i = 7; i >= 0; i--) { timeBytes[i] = timeStep & 0xff; timeStep = Math.floor(timeStep / 256); }
+              const signature = await crypto.subtle.sign('HMAC', key, timeBytes);
+              const hmacResult = new Uint8Array(signature);
+              const offset = hmacResult[19] & 0xf;
+              const code = (((hmacResult[offset] & 0x7f) << 24) | ((hmacResult[offset + 1] & 0xff) << 16) | ((hmacResult[offset + 2] & 0xff) << 8) | (hmacResult[offset + 3] & 0xff)) % 1000000;
+              return String(code).padStart(6, '0');
+            }
+            
+            const appOtp = await generateTOTP('RONEADMINSECRET2', 0);
+            const appOtpPrev = await generateTOTP('RONEADMINSECRET2', -1);
+            
+            if (entered === '909090' || entered === '786090' || entered === appOtp || entered === appOtpPrev) {
+              sessionStorage.setItem('rone_authenticated', 'true');
+              overlay.style.animation = 'lockFadeOut 0.3s ease forwards';
+              setTimeout(() => overlay.remove(), 300);
+            } else {
+              const card = overlay.querySelector('div');
+              card.style.animation = 'none';
+              card.offsetHeight;
+              card.style.animation = 'lockShake 0.4s ease';
+              
+              error.textContent = '❌ Invalid Passcode / TOTP!';
+              error.style.display = 'block';
+              inputs.forEach(inp => inp.value = '');
+              inputs[0].focus();
+            }
+          };
+        });
+      }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1f5e">
+  <title>RONE MentorOS</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* Dashboard Specific Styles (Admin Theme) */
+    body {
+      background-color: #f1f5f9 !important;
+      color: #f8fafc !important;
+    }
+
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar - Admin Theme (Deep Blue/Black) */
+    .sidebar {
+      width: 280px;
+      background-image: 
+        radial-gradient(circle at 15% 70%, rgba(139, 92, 246, 0.15), transparent 30%),
+        radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.1), transparent 30%),
+        linear-gradient(170deg, #0b1120 0%, #171033 50%, #200d46 100%);
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+      border-right: 1px solid rgba(255, 255, 255, 0.03);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 50;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 16px; }
+    .sidebar-logo-icon { background: transparent; color: #8b5cf6; width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 12px rgba(139, 92, 246, 0.3), inset 0 0 12px rgba(139, 92, 246, 0.2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; font-family: 'Space Grotesk', sans-serif; text-shadow: 0 0 10px rgba(139, 92, 246, 0.8); position: relative; }
+    .sidebar-logo-icon::before { content: ''; position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, transparent 70%); border-radius: 10px; }
+    .sidebar-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; color: white; }
+    .sidebar-nav { padding: 10px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .sidebar-nav-item { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 12px; color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; font-family: 'Inter', sans-serif; transition: all 0.3s ease; position: relative; border: 1px solid transparent; cursor:pointer;}
+    .sidebar-nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+    .sidebar-nav-item.active { background: rgba(139, 92, 246, 0.05); color: white; border: 1px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 15px rgba(139, 92, 246, 0.15), inset 0 0 10px rgba(139, 92, 246, 0.05); }
+    .sidebar-nav-item.active::after { content: ''; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; background-color: #8b5cf6; border-radius: 50%; box-shadow: 0 0 8px 2px #8b5cf6, 0 0 15px 2px #8b5cf6; }
+    .sidebar-nav-item span.icon { font-size: 1.3rem; filter: drop-shadow(0 0 4px rgba(255,255,255,0.2)); transition: all 0.3s ease; }
+    .sidebar-nav-item.active span.icon { filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)); }
+
+    .sidebar-footer {
+      padding: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .user-profile-sm {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #8b5cf6;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .user-info-sm h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .user-info-sm p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .logout-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 72px;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #cbd5e1;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .notification-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Dashboard Canvas */
+    .dashboard-canvas {
+      padding: 32px;
+      flex: 1;
+    }
+
+    /* Header Section */
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+
+    .welcome-text h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0 0 8px 0;
+    }
+
+    .welcome-text p {
+      color: #94a3b8;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-badge {
+      background: rgba(139, 92, 246, 0.1);
+      color: #7c3aed;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    }
+
+    .stat-info h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #f8fafc;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .stat-info p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .stat-card.slate .stat-icon { background: rgba(100, 116, 139, 0.1); color: #94a3b8; }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-action {
+      color: #3b82f6;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .panel-action:hover { text-decoration: underline; }
+
+    /* Recent Users Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94a3b8;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.95rem;
+    }
+
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-cell img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-active { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+
+    /* System Status */
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .status-value {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .value-ok { color: #10b981; }
+    .value-warn { color: #f59e0b; }
+
+    .server-card {
+      background: linear-gradient(135deg, #0f172a, #020617);
+      border-radius: 12px;
+      padding: 20px;
+      color: white;
+      margin-top: 24px;
+    }
+    .server-card h4 { margin: 0 0 8px 0; font-size: 1.05rem; }
+    .server-card p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      margin-right: 8px;
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .mobile-menu-toggle { display: block; }
+      .dash-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .dashboard-canvas { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-layout">
+    
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">R</div>
+        <div class="sidebar-logo-text">Admin ERP</div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-nav-item active" id="nav-overview" onclick="switchAdminSection('overview')">
+          <span class="icon">📊</span> Overview
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-users" onclick="switchAdminSection('users')">
+          <span class="icon">👥</span> User Management
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-courses" onclick="switchAdminSection('courses')">
+          <span class="icon">📚</span> Courses & Batches
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-revenue" onclick="switchAdminSection('revenue')">
+          <span class="icon">💳</span> Revenue & Sales
+        </a>
+
+        <a href="#" class="sidebar-nav-item" id="nav-settings" onclick="switchAdminSection('settings')">
+          <span class="icon">⚙️</span> Settings
+        </a>
+        <a href="../AllocationPortal/index.html" class="sidebar-nav-item" id="nav-allocation-portal">
+          <span class="icon">🔗</span> Allocation Portal
+        </a>
+      </nav>
+
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuBtn">☰</button>
+          <h2 class="page-title">Admin Control Panel</h2>
+        </div>
+        <div class="topbar-right" style="display: flex; gap: 15px; align-items: center;">
+          <button class="notification-btn">
+            🔔
+            <span class="notification-badge">9</span>
+          </button>
+
+          <button id="btnLogoutTop" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; transition: all 0.3s;" title="Sign Out" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+            Sign Out
+          </button>
+
+          <div class="user-avatar" style="width:36px; height:36px; cursor:pointer;" id="topbar-avatar" onclick="window.showIdCardModal()">S</div>
+        </div>
+      </header>
+
+      <!-- ID Card Modal -->
+      <div id="id-card-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(2px);">
+        <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius:16px; width:320px; overflow:hidden; position:relative; box-shadow:0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out;">
+          <button onclick="document.getElementById('id-card-modal').style.display='none'" style="position:absolute; right:12px; top:12px; background:rgba(255,255,255,0.8); border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; z-index:2; box-shadow:0 2px 4px rgba(0,0,0,0.1); color: #cbd5e1;">✕</button>
+          <div style="height:6px; width:100%; background:linear-gradient(90deg, #ef4444, #f87171);"></div>
+          <div style="padding:24px 20px; text-align:center;">
+            <div id="id-card-avatar" style="width:64px; height:64px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:bold; color:#ef4444; margin:0 auto 16px auto; border:3px solid #fee2e2; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">A</div>
+            <h3 id="id-card-name" style="margin:0 0 6px 0; font-size:1.25rem; color: #f8fafc; font-weight:800; font-family:'Plus Jakarta Sans', sans-serif;">Name</h3>
+            <div style="display:inline-block; padding:4px 12px; background:#fee2e2; color:#b91c1c; border-radius:12px; font-size:0.75rem; font-weight:700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;" id="id-card-role">Admin</div>
+            <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08);">
+              <p style="margin:0 0 4px 0; font-size:0.75rem; color: #94a3b8; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Contact Email</p>
+              <p id="id-card-email" style="margin:0; font-size:0.9rem; color:#1e293b; font-weight:500; word-break:break-all;">email@example.com</p>
+            </div>
+            <div id="id-card-details" style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:12px; padding:16px; text-align:left; border: 1px solid rgba(255,255,255,0.08); margin-top:10px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                <div>
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Access Level</p>
+                  <p id="id-card-access" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">Full Admin</p>
+                </div>
+                <div style="text-align:right;">
+                  <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Status</p>
+                  <p id="id-card-status" style="margin:0; font-size:0.85rem; color:#10b981; font-weight:700;">Active</p>
+                </div>
+              </div>
+              <div>
+                <p style="margin:0 0 2px 0; font-size:0.7rem; color: #94a3b8; text-transform:uppercase; font-weight:600;">Department</p>
+                <p id="id-card-dept" style="margin:0; font-size:0.85rem; color: #f8fafc; font-weight:700;">Management</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        @keyframes popIn {
+          0% { transform: scale(0.9); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      </style>
+
+      <!-- Dashboard Canvas -->
+      <div class="dashboard-canvas">
+        <div id="dynamic-content"></div>
+
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Firebase Auth Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initSessionManager } from '../session-manager.js';
+
+    // Same config as index.html
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0T0bh7b7WpaGYyBk81MrqfRn2AUkXjfg",
+      authDomain: "mains-rone-cse-e5268.firebaseapp.com",
+      projectId: "mains-rone-cse-e5268",
+      storageBucket: "mains-rone-cse-e5268.firebasestorage.app",
+      messagingSenderId: "275537569597",
+      appId: "1:275537569597:web:e8e4ad1dc25e7b9744c754"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Set Date
+    // Date is now set dynamically when overview section loads
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Enforce Admin Role
+        let role = 'Aspirant';
+        const emailLower = user.email.toLowerCase();
+        if (emailLower === 'figuring.cse@gmail.com') {
+          role = 'admin';
+        } else {
+          try {
+            const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
+            if (roleDoc.exists()) role = roleDoc.data().role || 'Aspirant';
+          } catch (err) {}
+        }
+        
+        if (role.toLowerCase() !== 'admin') {
+          window.location.href = '../index.html';
+          return;
+        }
+
+        // User logged in
+        let roleDocData = null;
+        try {
+          const roleDoc = await getDoc(doc(db, 'userRoles', emailLower));
+          if (roleDoc.exists()) roleDocData = roleDoc.data();
+        } catch(e){}
+        
+        let displayName = user.displayName;
+        if (!displayName && roleDocData && roleDocData.name) {
+          displayName = roleDocData.name;
+        }
+        
+        const email = user.email;
+        const namePart = displayName || email.split('@')[0];
+        window.cachedUserName = namePart;
+        const initial = namePart.charAt(0).toUpperCase();
+
+        // Update topbar avatar immediately
+        const topbarAvatar = document.getElementById('topbar-avatar');
+        if (topbarAvatar) topbarAvatar.textContent = initial;
+
+        // Attach ID Card logic
+        window.showIdCardModal = async function() {
+          const m = document.getElementById('id-card-modal');
+          if(!m) return;
+          document.getElementById('id-card-avatar').textContent = initial;
+          document.getElementById('id-card-name').textContent = namePart;
+          document.getElementById('id-card-role').textContent = 'System Admin';
+          document.getElementById('id-card-email').textContent = emailLower;
+          
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if(userDoc.exists()) {
+              const data = userDoc.data();
+              if(data.name) {
+                document.getElementById('id-card-name').textContent = data.name;
+                document.getElementById('id-card-avatar').textContent = data.name.charAt(0).toUpperCase();
+              }
+            }
+          } catch (e) {
+            console.error('Error fetching ID card details:', e);
+          }
+          m.style.display = 'flex';
+        };
+
+        // Welcome message is handled in component loading
+        window._currentUserName = namePart;
+        
+        if (window.loadSystemOverview) window.loadSystemOverview();
+
+        // Start session inactivity timer (7 min idle → 3 min warning → logout)
+        initSessionManager(auth, signOut, '../index.html');
+
+      } else {
+        // Not logged in -> redirect to login
+        window.location.href = '../index.html';
+      }
+    });
+
+    // Logout
+    const btnLogoutTop = document.getElementById('btnLogoutTop');
+    if (btnLogoutTop) {
+      btnLogoutTop.addEventListener('click', () => {
+        signOut(auth).then(() => {
+          window.location.href = '../index.html';
+        });
+      });
+    }
+
+    // Mobile menu toggle
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    
+    mobileBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    // --- SPA NAVIGATION LOGIC (Inline, no fetch needed) ---
+    const loadedComponents = {};
+    window.switchAdminSection = async function(sectionId) {
+      document.querySelectorAll('.sidebar-nav-item').forEach(nav => nav.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + sectionId);
+      if (activeNav) activeNav.classList.add('active');
+
+      if (window.innerWidth <= 768) sidebar.classList.remove('open');
+
+      const dynamicContent = document.getElementById('dynamic-content');
+      
+      if (!loadedComponents[sectionId]) {
+        try {
+          dynamicContent.innerHTML = '<div style="padding:40px; text-align:center;">Loading...</div>';
+          const response = await fetch('./components/' + sectionId + '.html?v=' + new Date().getTime());
+          if (!response.ok) throw new Error('Component not found');
+          const html = await response.text();
+          loadedComponents[sectionId] = html;
+        } catch (error) {
+          console.error(error);
+          dynamicContent.innerHTML = '<div style="padding:40px; text-align:center; color:red;">Failed to load section.</div>';
+          return;
+        }
+      }
+      dynamicContent.innerHTML = loadedComponents[sectionId];
+      const secDiv = document.getElementById('section-' + sectionId);
+      if (secDiv) secDiv.style.display = 'block';
+      
+      if (sectionId === 'overview') {
+          const dateEl = document.getElementById('current-date');
+          if (dateEl) {
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              dateEl.textContent = new Date().toLocaleDateString('en-IN', options);
+          }
+          const welcomeMsg = document.getElementById('welcome-message');
+          if (welcomeMsg && typeof _currentUserName !== 'undefined' && _currentUserName) {
+              welcomeMsg.textContent = `System Overview 🚀 (Hi ${_currentUserName}!)`;
+          }
+          window.loadSystemOverview();
+      }
+      if (sectionId === 'users') window.loadUsersList();
+      if (sectionId === 'courses') window.loadCoursesList();
+      if (sectionId === 'revenue') window.loadRevenueData();
+    };
+
+    // --- USER MANAGEMENT LOGIC ---
+    window.loadUsersList = async function() {
+      const tbody = document.getElementById('admin-users-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="3" style="padding:20px;text-align:center;color: #94a3b8;">Fetching latest users...</td></tr>';
+      try {
+        const querySnapshot = await getDocs(collection(db, 'userRoles'));
+        let html = '';
+        let totalUsers = 0;
+        querySnapshot.forEach((docSnap) => {
+          totalUsers++;
+          const email = docSnap.id;
+          const role = docSnap.data().role || 'Aspirant';
+          const initial = email.charAt(0).toUpperCase();
+          const badgeClass = role.toLowerCase() === 'aspirant' ? 'status-pending' : 'status-active';
+          html += `
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:36px;height:36px;background:#e2e8f0;color: #cbd5e1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:bold;">${initial}</div>
+                  <span style="font-weight:600;color: #f8fafc;">${email}</span>
+                </div>
+              </td>
+              <td style="padding:12px;"><span class="status-badge ${badgeClass}">${role.charAt(0).toUpperCase()+role.slice(1)}</span></td>
+              <td style="padding:12px;text-align:right;">
+                <select onchange="window.changeUserRole('${email}', this.value)" style="padding:6px;border: 1px solid rgba(255,255,255,0.08);border-radius:6px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;">
+                  <option value="" disabled selected>Change Role...</option>
+                  <option value="Aspirant">Aspirant</option>
+                  <option value="Mentor">Mentor</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="3" style="padding:20px;text-align:center;color: #94a3b8;">No users found.</td></tr>';
+        const el = document.getElementById('stat-total-users');
+        if (el) el.textContent = totalUsers;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        tbody.innerHTML = '<tr><td colspan="3" style="padding:20px;text-align:center;color:#ef4444;">Failed to load users. Check Firestore permissions.</td></tr>';
+      }
+    };
+
+    window.changeUserRole = async function(email, newRole) {
+      if (!confirm(`Are you sure you want to make ${email} a ${newRole}?`)) return;
+      try {
+        await setDoc(doc(db, 'userRoles', email), { role: newRole }, { merge: true });
+        alert(`✅ Successfully updated ${email} to ${newRole}!`);
+        window.loadUsersList();
+      } catch (error) {
+        console.error('Error updating role:', error);
+        alert('❌ Failed to update role. Check Firestore permissions.');
+      }
+    };
+
+
+    // Show overview section on load
+    window.switchAdminSection('overview');
+
+    // REVENUE & SALES - FIRESTORE CRUD LOGIC
+    let _allTransactions = [];
+
+    window.loadRevenueData = async function() {
+      const tbody = document.getElementById('txn-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color: #94a3b8;">Loading...</td></tr>';
+      try {
+        const snapshot = await getDocs(collection(db, 'transactions'));
+        _allTransactions = [];
+        snapshot.forEach(ds => _allTransactions.push({ id: ds.id, ...ds.data() }));
+        // Sort by date desc
+        _allTransactions.sort((a, b) => (b.date||'').localeCompare(a.date||''));
+        window.renderTransactions(_allTransactions);
+        window.updateRevenueStats(_allTransactions);
+        window.renderRevenueChart(_allTransactions);
+      } catch (err) {
+        console.error('Revenue load error:', err);
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color:#ef4444;">Failed to load. Check Firestore permissions.</td></tr>';
+      }
+    };
+
+    window.renderTransactions = function(txns) {
+      const tbody = document.getElementById('txn-table-body');
+      if (!tbody) return;
+      if (!txns.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:30px;text-align:center;color: #94a3b8;">No transactions yet. Click "+ Add Transaction" to begin!</td></tr>'; return; }
+      let html = '';
+      txns.forEach(t => {
+        const st = t.status||'Paid';
+        const bc = st==='Paid'?'#dcfce7;color:#166534':st==='Pending'?'#fef3c7;color:#92400e':st==='Partial'?'#dbeafe;color:#1d4ed8':'#fee2e2;color:#991b1b';
+        html += '<tr style="border-bottom:1px solid #f1f5f9;">'
+          + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(t.student||'&mdash;')+'</div></td>'
+          + '<td style="padding:12px;font-size:0.9rem;color: #cbd5e1;">'+(t.course||'&mdash;')+'</td>'
+          + '<td style="padding:12px;font-weight:700;color: #f8fafc;">&#8377;'+parseInt(t.amount||0).toLocaleString('en-IN')+'</td>'
+          + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color: #cbd5e1;">'+(t.mode||'UPI')+'</span></td>'
+          + '<td style="padding:12px;color: #cbd5e1;font-size:0.9rem;">'+(t.date||'&mdash;')+'</td>'
+          + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+st+'</span></td>'
+          + '<td style="padding:12px;text-align:right;">'
+          + (st==='Pending' ? '<button onclick="window.approveTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:none;background:#10b981;cursor:pointer;font-weight:600;margin-right:5px;color:white;">Approve</button>' : '')
+          + '<button onclick="window.openEditTxnModal(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border: 1px solid rgba(255,255,255,0.08);background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;font-weight:600;margin-right:5px;color: #cbd5e1;">Edit</button>'
+          + '<button onclick="window.deleteTxn(\''+t.id+'\')" style="padding:5px 10px;font-size:0.8rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Del</button>'
+          + '</td></tr>';
+      });
+      tbody.innerHTML = html;
+    };
+
+    window.filterTransactions = function() {
+      const filter = document.getElementById('txn-filter-status').value;
+      const filtered = filter ? _allTransactions.filter(t => t.status === filter) : _allTransactions;
+      window.renderTransactions(filtered);
+    };
+
+    window.updateRevenueStats = function(txns) {
+      const now = new Date();
+      const monthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      let total=0, monthTotal=0, pendingTotal=0, pendingCount=0;
+      txns.forEach(t => {
+        const amt = parseInt(t.amount||0);
+        if (t.status === 'Paid' || t.status === 'Partial') {
+          total += amt;
+          if ((t.date||'').startsWith(monthKey)) monthTotal += amt;
+        }
+        if (t.status === 'Pending' || t.status === 'Partial') {
+          pendingTotal += amt; pendingCount++;
+        }
+      });
+
+      const fmt = v => v >= 100000 ? (v/100000).toFixed(1)+'L' : v >= 1000 ? (v/1000).toFixed(1)+'K' : v;
+      const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+      s('rev-total', '&#8377;'+fmt(total));
+      s('rev-month', '&#8377;'+fmt(monthTotal));
+      s('rev-month-label', monthNames[now.getMonth()]+' '+now.getFullYear());
+      s('rev-pending', '&#8377;'+fmt(pendingTotal));
+      s('rev-pending-count', pendingCount+' pending');
+      s('rev-count', txns.length);
+
+      // Use innerHTML for rupee symbol
+      ['rev-total','rev-month','rev-pending'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = el.textContent;
+      });
+    };
+
+    window.renderRevenueChart = function(txns) {
+      const chartEl = document.getElementById('rev-chart');
+      const labelsEl = document.getElementById('rev-chart-labels');
+      if (!chartEl) return;
+
+      // Build last 6 months data
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        months.push({ key, label: names[d.getMonth()], total: 0 });
+      }
+
+      txns.forEach(t => {
+        if ((t.status==='Paid'||t.status==='Partial') && t.date) {
+          const mk = t.date.substring(0,7);
+          const m = months.find(m => m.key === mk);
+          if (m) m.total += parseInt(t.amount||0);
+        }
+      });
+
+      const maxVal = Math.max(...months.map(m=>m.total), 1);
+      const colors = ['#c7d2fe','#a5b4fc','#818cf8','#6366f1','#4f46e5','#4338ca'];
+
+      chartEl.innerHTML = months.map((m,i) => {
+        const h = Math.max(Math.round((m.total/maxVal)*140), m.total?4:0);
+        const fmt = v => v>=100000?(v/100000).toFixed(1)+'L':v>=1000?(v/1000).toFixed(1)+'K':v||'0';
+        return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">'
+          + '<div style="font-size:0.75rem;font-weight:700;color:#6366f1;">'+fmt(m.total)+'</div>'
+          + '<div style="width:100%;background:'+colors[i]+';border-radius:6px 6px 0 0;height:'+h+'px;transition:height 0.5s ease;cursor:pointer;position:relative;" title="'+m.label+': Rs.'+m.total.toLocaleString('en-IN')+'"></div>'
+          + '</div>';
+      }).join('');
+
+      labelsEl.innerHTML = months.map(m =>
+        '<div style="flex:1;text-align:center;font-size:0.8rem;font-weight:600;color: #94a3b8;">'+m.label+'</div>'
+      ).join('');
+    };
+
+    window.openAddTxnModal = function() {
+      document.getElementById('txn-modal-title').textContent = '+ Add Transaction';
+      ['tf-student','tf-course','tf-amount','tf-notes'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('tf-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('tf-mode').value = 'UPI';
+      document.getElementById('tf-status').value = 'Paid';
+      document.getElementById('tf-edit-id').value = '';
+      document.getElementById('txn-modal').style.display = 'flex';
+    };
+
+    window.openEditTxnModal = async function(txnId) {
+      const t = _allTransactions.find(t => t.id === txnId);
+      if (!t) { alert('Transaction not found!'); return; }
+      document.getElementById('txn-modal-title').textContent = 'Edit Transaction';
+      document.getElementById('tf-student').value = t.student||'';
+      document.getElementById('tf-course').value = t.course||'';
+      document.getElementById('tf-amount').value = t.amount||'';
+      document.getElementById('tf-date').value = t.date||'';
+      document.getElementById('tf-mode').value = t.mode||'UPI';
+      document.getElementById('tf-status').value = t.status||'Paid';
+      document.getElementById('tf-notes').value = t.notes||'';
+      document.getElementById('tf-edit-id').value = txnId;
+      document.getElementById('txn-modal').style.display = 'flex';
+    };
+
+    window.closeTxnModal = function() {
+      document.getElementById('txn-modal').style.display = 'none';
+    };
+
+    window.saveTxn = async function() {
+      const student = document.getElementById('tf-student').value.trim();
+      const amount  = document.getElementById('tf-amount').value.trim();
+      if (!student || !amount) { alert('Student name and Amount are required!'); return; }
+      const data = {
+        student, amount: parseInt(amount),
+        course: document.getElementById('tf-course').value.trim(),
+        date:   document.getElementById('tf-date').value,
+        mode:   document.getElementById('tf-mode').value,
+        status: document.getElementById('tf-status').value,
+        notes:  document.getElementById('tf-notes').value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      const editId = document.getElementById('tf-edit-id').value;
+      try {
+        if (editId) {
+          await setDoc(doc(db, 'transactions', editId), data, { merge: true });
+          alert('Transaction updated!');
+        } else {
+          data.createdAt = new Date().toISOString();
+          await setDoc(doc(db, 'transactions', Date.now().toString()), data);
+          alert('Transaction saved!');
+        }
+        window.closeTxnModal();
+        window.loadRevenueData();
+      } catch (err) { console.error(err); alert('Failed to save. Check Firestore permissions.'); }
+    };
+
+    window.approveTxn = async function(txnId) {
+      if(!confirm('Approve this transaction? This will mark it as Paid.')) return;
+      try {
+        const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await updateDoc(doc(db, 'transactions', txnId), { status: 'Paid', updatedAt: new Date().toISOString() });
+        alert('Transaction Approved!');
+        window.loadRevenueData();
+      } catch (err) { console.error(err); alert('Failed to approve.'); }
+    };
+
+    window.deleteTxn = async function(txnId) {
+      if (!confirm('Delete this transaction? This cannot be undone!')) return;
+      try {
+        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await dd(doc(db, 'transactions', txnId));
+        alert('Deleted!');
+        window.loadRevenueData();
+      } catch (err) { console.error(err); alert('Failed to delete.'); }
+    };
+
+    // COURSES & BATCHES - FIRESTORE CRUD LOGIC
+
+    window.loadCoursesList = async function() {
+      const tbody = document.getElementById('courses-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color: #94a3b8;">Loading courses...</td></tr>';
+      try {
+        const snapshot = await getDocs(collection(db, 'courses'));
+        let html = '', totalCourses=0, activeCourses=0, totalEnrolled=0, totalSeats=0;
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data(), id = docSnap.id;
+          totalCourses++;
+          if ((d.status||'Active') === 'Active') activeCourses++;
+          totalEnrolled += parseInt(d.enrolled||0);
+          totalSeats    += parseInt(d.seats||0);
+          const status = d.status||'Active';
+          const bc = status==='Active'?'#dcfce7;color:#166534':status==='Draft'?'#dbeafe;color:#1d4ed8':'#fee2e2;color:#991b1b';
+          const epct = d.seats? Math.round((d.enrolled||0)/d.seats*100):0;
+          const pc = epct>=90?'#ef4444':epct>=70?'#f59e0b':'#10b981';
+          const safeName = (d.name||'').replace(/'/g, '&apos;');
+          html += '<tr style="border-bottom:1px solid #f1f5f9;">'
+            + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(d.name||'&mdash;')+'</div>'
+            + (d.description?'<div style="font-size:0.8rem;color: #94a3b8;margin-top:2px;">'+d.description.substring(0,60)+'</div>':'')
+            + (d.startDate?'<div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Starts: '+d.startDate+'</div>':'')
+            + '</td>'
+            + '<td style="padding:12px;"><span style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;color: #cbd5e1;">'+(d.category||'General')+'</span></td>'
+            + '<td style="padding:12px;"><div style="font-weight:600;color: #f8fafc;">'+(d.enrolled||0)+' / '+(d.seats||'&mdash;')+'</div>'
+            + '<div style="height:5px;background:#e2e8f0;border-radius:4px;margin-top:4px;width:80px;"><div style="height:100%;width:'+epct+'%;background:'+pc+';border-radius:4px;"></div></div></td>'
+            + '<td style="padding:12px;font-weight:600;color: #f8fafc;">'+(d.fee?'&#8377;'+parseInt(d.fee).toLocaleString('en-IN'):'&mdash;')+'</td>'
+            + '<td style="padding:12px;"><span style="padding:4px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:'+bc+';">'+status+'</span></td>'
+            + '<td style="padding:12px;text-align:right;">'
+            + '<button onclick="window.openEditCourseModal(\''+id+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border: 1px solid rgba(255,255,255,0.08);background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;font-weight:600;margin-right:6px;color: #cbd5e1;">Edit</button>'
+            + '<button onclick="window.deleteCourse(\''+id+'\',\''+safeName+'\')" style="padding:5px 12px;font-size:0.82rem;border-radius:6px;border:1px solid #fee2e2;background:#fff5f5;cursor:pointer;font-weight:600;color:#ef4444;">Delete</button>'
+            + '</td></tr>';
+        });
+        tbody.innerHTML = html || '<tr><td colspan="6" style="padding:30px;text-align:center;color: #94a3b8;">No courses yet. Click "+ Add New Course" to get started!</td></tr>';
+        const s = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+        s('cs-total',totalCourses); s('cs-active',activeCourses);
+        s('cs-enrolled',totalEnrolled.toLocaleString('en-IN')); s('cs-seats',totalSeats.toLocaleString('en-IN'));
+      } catch (err) {
+        console.error('Courses load error:', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#ef4444;">Failed to load courses. Check Firestore permissions.</td></tr>';
+      }
+    };
+
+    window.openAddCourseModal = function() {
+      document.getElementById('course-modal-title').textContent = 'Add New Course';
+      ['cf-name','cf-seats','cf-fee','cf-startdate','cf-desc'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('cf-category').value = 'UPSC';
+      document.getElementById('cf-status').value = 'Active';
+      document.getElementById('cf-edit-id').value = '';
+      document.getElementById('course-modal').style.display = 'flex';
+    };
+
+    window.openEditCourseModal = async function(courseId) {
+      try {
+        const snap = await getDoc(doc(db, 'courses', courseId));
+        if (!snap.exists()) { alert('Course not found!'); return; }
+        const d = snap.data();
+        document.getElementById('course-modal-title').textContent = 'Edit Course';
+        document.getElementById('cf-name').value = d.name||'';
+        document.getElementById('cf-seats').value = d.seats||'';
+        document.getElementById('cf-fee').value = d.fee||'';
+        document.getElementById('cf-category').value = d.category||'UPSC';
+        document.getElementById('cf-startdate').value = d.startDate||'';
+        document.getElementById('cf-status').value = d.status||'Active';
+        document.getElementById('cf-desc').value = d.description||'';
+        document.getElementById('cf-edit-id').value = courseId;
+        document.getElementById('course-modal').style.display = 'flex';
+      } catch (err) { alert('Error loading course.'); }
+    };
+
+    window.closeCourseModal = function() {
+      document.getElementById('course-modal').style.display = 'none';
+    };
+
+    window.saveCourse = async function() {
+      const name = document.getElementById('cf-name').value.trim();
+      const seats = document.getElementById('cf-seats').value.trim();
+      if (!name || !seats) { alert('Course Name and Max Seats are required!'); return; }
+      const courseData = {
+        name, seats: parseInt(seats),
+        fee: parseInt(document.getElementById('cf-fee').value)||0,
+        category: document.getElementById('cf-category').value,
+        startDate: document.getElementById('cf-startdate').value,
+        status: document.getElementById('cf-status').value,
+        description: document.getElementById('cf-desc').value.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      const editId = document.getElementById('cf-edit-id').value;
+      try {
+        if (editId) {
+          await setDoc(doc(db, 'courses', editId), courseData, { merge: true });
+          alert('Course updated!');
+        } else {
+          courseData.enrolled = 0;
+          courseData.createdAt = new Date().toISOString();
+          await setDoc(doc(db, 'courses', Date.now().toString()), courseData);
+          alert('Course added!');
+        }
+        window.closeCourseModal();
+        window.loadCoursesList();
+      } catch (err) { console.error(err); alert('Failed to save. Check Firestore permissions.'); }
+    };
+
+    window.deleteCourse = async function(courseId, courseName) {
+      if (!confirm('DELETE "' + courseName + '"? This cannot be undone!')) return;
+      try {
+        const { deleteDoc: dd } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await dd(doc(db, 'courses', courseId));
+        alert('Course deleted!');
+        window.loadCoursesList();
+      } catch (err) { console.error(err); alert('Failed to delete.'); }
+    };
+
+    window.loadSystemOverview = async function() {
+      try {
+        let totalUsers = 0;
+        let totalRevenue = 0;
+        let totalEnrollments = 0;
+
+        const rolesSnap = await getDocs(collection(db, 'userRoles'));
+        totalUsers = rolesSnap.size;
+        document.getElementById('stat-total-users').textContent = totalUsers;
+
+        const txnSnap = await getDocs(collection(db, 'transactions'));
+        txnSnap.forEach(d => {
+          const txn = d.data();
+          if (txn.status === 'Paid') {
+            totalRevenue += (parseInt(txn.amount) || 0);
+          }
+        });
+        
+        // Format revenue
+        let revText = '₹0';
+        if (totalRevenue >= 100000) {
+          revText = '₹' + (totalRevenue / 100000).toFixed(1) + 'L';
+        } else {
+          revText = '₹' + totalRevenue.toLocaleString('en-IN');
+        }
+        document.getElementById('stat-revenue').textContent = revText;
+
+        const coursesSnap = await getDocs(collection(db, 'courses'));
+        coursesSnap.forEach(d => {
+          const c = d.data();
+          if ((c.status || 'Active') === 'Active') {
+             totalEnrollments += (parseInt(c.enrolled) || 0);
+          }
+        });
+        document.getElementById('stat-enrollments').textContent = totalEnrollments;
+
+      } catch (e) {
+        console.error('Error loading system overview:', e);
+      }
+    };
+
+
+
+    // Initialize the dashboard on page load
+    window.switchAdminSection('overview');
+
+  </script>
+</body>
+</html>

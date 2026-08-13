@@ -1,0 +1,50 @@
+<div class="dash-header" style="margin-bottom: 24px;">
+  <div class="welcome-text">
+    <h1>Courses & Batches 📚</h1>
+    <p>Manage active courses, batches, and enrollment limits.</p>
+  </div>
+  <button class="panel-action" onclick="alert('Add Course functionality will be connected to Firestore soon!')" style="background:#10b981; color:white; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">+ Add New Course</button>
+</div>
+
+<div class="content-grid" style="grid-template-columns: 1fr;">
+  <div class="panel">
+    <div class="table-container">
+      <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+        <thead>
+          <tr style="text-align: left; border-bottom: 2px solid var(--border); color: var(--mute);">
+            <th style="padding: 12px; font-weight:600;">Course Name</th>
+            <th style="padding: 12px; font-weight:600;">Enrolled</th>
+            <th style="padding: 12px; font-weight:600;">Status</th>
+            <th style="padding: 12px; font-weight:600; text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px; font-weight:600;">UPSC CSE Foundation 2026</td>
+            <td style="padding: 12px;">342 / 500</td>
+            <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
+            <td style="padding: 12px; text-align:right;">
+              <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); cursor:pointer;">Edit</button>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px; font-weight:600;">RAS Mains Answer Writing</td>
+            <td style="padding: 12px;">128 / 200</td>
+            <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
+            <td style="padding: 12px; text-align:right;">
+              <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); cursor:pointer;">Edit</button>
+            </td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 12px; font-weight:600;">NCERT Base Camp</td>
+            <td style="padding: 12px;">850 / 1000</td>
+            <td style="padding: 12px;"><span class="status-badge status-active">Active</span></td>
+            <td style="padding: 12px; text-align:right;">
+              <button style="padding:4px 8px; font-size:0.8rem; border-radius:4px; border:1px solid var(--border); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); cursor:pointer;">Edit</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

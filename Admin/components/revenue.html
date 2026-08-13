@@ -1,0 +1,112 @@
+<div id="section-revenue" class="admin-section" style="display:none;">
+
+          <!-- Transaction Modal -->
+          <div id="txn-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+            <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-radius:20px;padding:36px;width:95%;max-width:520px;box-shadow:0 25px 60px rgba(0,0,0,0.2);position:relative;max-height:90vh;overflow-y:auto;">
+              <button onclick="closeTxnModal()" style="position:absolute;top:16px;right:16px;background:#f1f5f9;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">X</button>
+              <h2 id="txn-modal-title" style="margin:0 0 24px;font-size:1.25rem;font-weight:700;color: #f8fafc;">+ Add Transaction</h2>
+              <div style="display:grid;gap:14px;">
+                <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Student Name / ID *</label><input id="tf-student" type="text" placeholder="e.g. Rahul Sharma / RS001" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Course *</label><input id="tf-course" type="text" placeholder="e.g. UPSC CSE Foundation 2026" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                  <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Amount (Rs.) *</label><input id="tf-amount" type="number" placeholder="12000" min="0" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                  <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Date *</label><input id="tf-date" type="date" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;box-sizing:border-box;"></div>
+                </div>
+                <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Payment Mode</label><select id="tf-mode" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;"><option value="UPI">UPI</option><option value="Bank Transfer">Bank Transfer</option><option value="Cash">Cash</option><option value="Card">Card / Online</option><option value="Cheque">Cheque</option></select></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Status</label><select id="tf-status" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;"><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Partial">Partial</option><option value="Refunded">Refunded</option></select></div>
+                <div><label style="font-size:0.85rem;font-weight:600;color: #cbd5e1;display:block;margin-bottom:6px;">Notes</label><textarea id="tf-notes" rows="2" placeholder="Any notes..." style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.95rem;outline:none;resize:vertical;box-sizing:border-box;"></textarea></div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:24px;">
+                <button onclick="closeTxnModal()" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;font-weight:600;color: #94a3b8;">Cancel</button>
+                <button onclick="window.saveTxn()" style="flex:2;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:white;cursor:pointer;font-weight:700;font-size:0.95rem;">Save Transaction</button>
+              </div>
+              <input type="hidden" id="tf-edit-id">
+            </div>
+          </div>
+
+          <!-- Header -->
+          <div class="dash-header" style="margin-bottom:24px;">
+            <div class="welcome-text"><h1>Revenue &amp; Sales &#x1F4B3;</h1><p>Track all payments, pending fees, and monthly revenue in real-time.</p></div>
+            <button onclick="openAddTxnModal()" style="background:linear-gradient(135deg,#10b981,#059669);color:white;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:0.95rem;box-shadow:0 4px 12px rgba(16,185,129,0.3);">+ Add Transaction</button>
+          </div>
+
+          <!-- Stats Cards -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;">
+            <div style="background:linear-gradient(135deg,#1a1f5e,#2d3481);border-radius:16px;padding:22px;color:white;position:relative;overflow:hidden;">
+              <div style="font-size:0.85rem;opacity:0.8;margin-bottom:8px;font-weight:500;">Total Revenue</div>
+              <div style="font-size:2rem;font-weight:700;font-family:'Space Grotesk',sans-serif;" id="rev-total">--</div>
+              <div style="font-size:0.8rem;opacity:0.7;margin-top:4px;">All Time</div>
+              <div style="position:absolute;right:-10px;bottom:-10px;font-size:5rem;opacity:0.07;">&#x1F4B0;</div>
+            </div>
+            <div style="background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;padding:22px;color:white;position:relative;overflow:hidden;">
+              <div style="font-size:0.85rem;opacity:0.8;margin-bottom:8px;font-weight:500;">This Month</div>
+              <div style="font-size:2rem;font-weight:700;font-family:'Space Grotesk',sans-serif;" id="rev-month">--</div>
+              <div style="font-size:0.8rem;opacity:0.7;margin-top:4px;" id="rev-month-label">Loading...</div>
+              <div style="position:absolute;right:-10px;bottom:-10px;font-size:5rem;opacity:0.07;">&#x1F4C8;</div>
+            </div>
+            <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:16px;padding:22px;color:white;position:relative;overflow:hidden;">
+              <div style="font-size:0.85rem;opacity:0.8;margin-bottom:8px;font-weight:500;">Pending</div>
+              <div style="font-size:2rem;font-weight:700;font-family:'Space Grotesk',sans-serif;" id="rev-pending">--</div>
+              <div style="font-size:0.8rem;opacity:0.7;margin-top:4px;" id="rev-pending-count">-- transactions</div>
+              <div style="position:absolute;right:-10px;bottom:-10px;font-size:5rem;opacity:0.07;">&#x23F3;</div>
+            </div>
+            <div style="background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:16px;padding:22px;color:white;position:relative;overflow:hidden;">
+              <div style="font-size:0.85rem;opacity:0.8;margin-bottom:8px;font-weight:500;">Transactions</div>
+              <div style="font-size:2rem;font-weight:700;font-family:'Space Grotesk',sans-serif;" id="rev-count">--</div>
+              <div style="font-size:0.8rem;opacity:0.7;margin-top:4px;">Total Entries</div>
+              <div style="position:absolute;right:-10px;bottom:-10px;font-size:5rem;opacity:0.07;">&#x1F4CB;</div>
+            </div>
+          </div>
+
+          <!-- Monthly Bar Chart -->
+          <div class="panel" style="margin-bottom:24px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+              <h2 class="panel-title">Monthly Revenue (Last 6 Months)</h2>
+            </div>
+            <div id="rev-chart" style="display:flex;align-items:flex-end;gap:12px;height:160px;padding:0 8px;">
+              <div style="color: #94a3b8;font-size:0.9rem;">Loading chart...</div>
+            </div>
+            <div id="rev-chart-labels" style="display:flex;gap:12px;padding:8px 8px 0;"></div>
+          </div>
+
+          <!-- Transactions Table -->
+          <div class="panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <h2 class="panel-title">All Transactions</h2>
+              <div style="display:flex;gap:8px;">
+                <select id="txn-filter-status" onchange="window.filterTransactions()" style="padding:6px 12px;border: 1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:0.85rem;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);cursor:pointer;">
+                  <option value="">All Status</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Partial">Partial</option>
+                  <option value="Refunded">Refunded</option>
+                </select>
+                <button onclick="window.loadRevenueData()" style="background:#f1f5f9;border: 1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;">Refresh</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table style="width:100%;border-collapse:collapse;min-width:700px;">
+                <thead>
+                  <tr style="text-align:left;border-bottom:2px solid #e2e8f0;">
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Student</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Course</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Amount</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Mode</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Date</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;">Status</th>
+                    <th style="padding:12px;font-weight:600;color: #94a3b8;text-align:right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="txn-table-body">
+                  <tr><td colspan="7" style="padding:30px;text-align:center;color: #94a3b8;">Loading transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        <!-- END SECTION: REVENUE -->
+
+
+
+        <!-- SECTION: SETTINGS -->

@@ -1,0 +1,48 @@
+<div id="section-overview" class="admin-section">
+          <div class="dash-header">
+            <div class="welcome-text">
+              <h1 id="welcome-message">System Overview 🚀</h1>
+              <p>📅 <span id="current-date">Loading date...</span> • All systems operational</p>
+            </div>
+            <div class="admin-badge">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              System Admin
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card green">
+              <div class="stat-info"><h3 id="stat-revenue">₹0</h3><p>Total Revenue</p></div>
+              <div class="stat-icon">💰</div>
+            </div>
+            <div class="stat-card blue">
+              <div class="stat-info"><h3 id="stat-total-users">--</h3><p>Total Registered Users</p></div>
+              <div class="stat-icon">👥</div>
+            </div>
+            <div class="stat-card purple">
+              <div class="stat-info"><h3 id="stat-enrollments">0</h3><p>Active Course Enrollments</p></div>
+              <div class="stat-icon">📚</div>
+            </div>
+            <div class="stat-card slate">
+              <div class="stat-info"><h3>99.9%</h3><p>Server Uptime</p></div>
+              <div class="stat-icon">⚡</div>
+            </div>
+          </div>
+          <div class="content-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">👥 Quick Overview</h2>
+                <a href="#" class="panel-action" onclick="switchAdminSection('users')">Manage Users →</a>
+              </div>
+              <p style="color: #94a3b8; font-size:0.9rem;">To view and manage all users, go to the User Management section.</p>
+            </div>
+            <div class="panel">
+              <div class="panel-header"><h2 class="panel-title">⚡ Server Status</h2></div>
+              <div class="server-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><h4>Main Database (Firestore)</h4><p>Running optimally</p></div><span class="pulse-dot"></span></div></div>
+              <div class="server-card" style="margin-top:8px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><h4>Authentication Service</h4><p>0 login failures in 24h</p></div><span class="pulse-dot"></span></div></div>
+              <div class="server-card" style="margin-top:8px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><h4>Storage (Firebase)</h4><p>12GB / 50GB used</p></div><span class="pulse-dot"></span></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- END SECTION: OVERVIEW -->
+
+        <!-- SECTION: USER MANAGEMENT -->
