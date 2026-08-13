@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Answer Writing UI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.15), transparent 25%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Top Hero Card */
+    .hero-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .hero-text h2 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-text p {
+      color: #94a3b8;
+      margin: 8px 0 0 0;
+      font-size: 1rem;
+    }
+    .hero-icon-badge {
+      background: rgba(59, 130, 246, 0.2);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .hero-graphic {
+      width: 200px;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg width="200" height="100" xmlns="http://www.w3.org/2000/svg"><g stroke="%233b82f6" stroke-width="1.5" fill="none" opacity="0.6"><path d="M10,50 L50,20 L150,20 L190,50 L150,80 L50,80 Z" /><path d="M50,20 L50,80" /><path d="M150,20 L150,80" /><circle cx="50" cy="20" r="4" fill="%2360a5fa"/><circle cx="150" cy="20" r="4" fill="%2360a5fa"/><circle cx="10" cy="50" r="4" fill="%2360a5fa"/><circle cx="190" cy="50" r="4" fill="%2360a5fa"/><circle cx="50" cy="80" r="4" fill="%2360a5fa"/><circle cx="150" cy="80" r="4" fill="%2360a5fa"/><circle cx="100" cy="50" r="6" fill="%233b82f6" opacity="0.8" /><path d="M50,20 L100,50 L150,20" /><path d="M50,80 L100,50 L150,80" /></g></svg>') no-repeat center;
+    }
+
+    /* Glass Card Base */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.05);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.5), transparent);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin: 0 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-title .icon {
+      color: #ef4444; /* red icon for upload */
+    }
+
+    /* Grid Layouts */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Input Groups */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .input-group label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .input-group label span.req { color: #ef4444; }
+    
+    .glass-input {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #f8fafc;
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+    .glass-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      background: rgba(30, 41, 59, 0.8);
+    }
+
+    /* Custom File Upload Area */
+    .file-upload-box {
+      border: 1px dashed rgba(59, 130, 246, 0.4);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(59, 130, 246, 0.05);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .file-upload-box:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: #3b82f6;
+    }
+    .file-upload-box svg {
+      width: 24px;
+      height: 24px;
+      fill: #60a5fa;
+      margin-bottom: 8px;
+    }
+    .file-upload-box span {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      width: fit-content;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(255,255,255,0.2);
+    }
+
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+    }
+    th {
+      text-align: left;
+      padding: 0 16px 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 16px;
+      background: rgba(30, 41, 59, 0.4);
+      font-size: 0.9rem;
+    }
+    tr td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-left: 1px solid rgba(255,255,255,0.05); }
+    tr td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-right: 1px solid rgba(255,255,255,0.05); }
+    tr td { border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    
+    tr:hover td {
+      background: rgba(30, 41, 59, 0.7);
+      border-color: rgba(96, 165, 250, 0.3);
+    }
+    
+    /* Active Row Style (like in screenshot) */
+    .row-active td {
+      border-color: rgba(59, 130, 246, 0.5);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .row-active td:first-child { box-shadow: inset 2px 0 0 #3b82f6; }
+
+    /* Badges */
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .badge.eval { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge.draft { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .badge.wait { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    /* Score Circle */
+    .score-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      background: conic-gradient(#0ea5e9 54%, rgba(255,255,255,0.1) 0);
+      position: relative;
+    }
+    .score-circle::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      background: #0f172a;
+      border-radius: 50%;
+      z-index: 0;
+    }
+    .score-circle span { position: relative; z-index: 1; }
+
+    /* Icons and actions */
+    .action-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .action-btn:hover { background: rgba(59,130,246,0.2); color: #60a5fa; border-color: #3b82f6; }
+
+    .user-feedback {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; background: #334155; }
+    .read-more { font-size: 0.75rem; color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 4px; }
+    .read-more:hover { color: #60a5fa; }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- HERO -->
+  <div class="hero-card">
+    <div class="hero-text">
+      <h2>Answer Writing <span class="hero-icon-badge">PDF</span></h2>
+      <p>Submit your answer PDFs via Google Drive link for evaluation.</p>
+    </div>
+    <div class="hero-graphic"></div>
+  </div>
+
+  <!-- UPLOAD CARD -->
+  <div class="glass-card">
+    <h3 class="card-title"><span class="icon">📥</span> Upload New Submission</h3>
+    
+    <div class="form-grid">
+      <div class="input-group">
+        <label>📚 Subject <span class="req">*</span></label>
+        <select class="glass-input">
+          <option>-- Select Subject --</option>
+          <option>GS Paper 1</option>
+          <option>GS Paper 2</option>
+          <option>GS Paper 3</option>
+          <option>GS Paper 4</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>🏷️ Topic <span class="req">*</span> <span style="color:#60a5fa">💡</span></label>
+        <input type="text" class="glass-input" placeholder="e.g. French Revolution, ...">
+      </div>
+    </div>
+    
+    <div class="form-grid">
+      <div class="input-group">
+        <label>✏️ Submission Title <span class="req">*</span></label>
+        <input type="text" class="glass-input" placeholder="e.g. GS1 Answer Set - Day 3">
+      </div>
+      <div class="input-group">
+        <label>📎 Upload PDF File <span class="req">*</span></label>
+        <div class="file-upload-box">
+          <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit">🚀 Submit for Evaluation</button>
+  </div>
+
+  <!-- SUBMISSIONS TABLE -->
+  <div class="glass-card">
+    <h3 class="card-title"><span style="color:#e2e8f0">📄</span> My Submissions</h3>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>📚 Subject</th>
+            <th>🏷️ Topic</th>
+            <th>Title & PDF</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Feedback</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: Active/Evaluated -->
+          <tr class="row-active">
+            <td style="font-weight:600">CSAT</td>
+            <td style="color:#94a3b8">2525</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#60a5fa">📄</span>
+                <span style="color:#60a5fa; font-weight:600;">65</span>
+              </div>
+            </td>
+            <td style="color:#94a3b8">3/8/2026</td>
+            <td><span class="badge eval">Evaluated</span></td>
+            <td>
+              <div class="score-circle">
+                <span>54<span style="font-size:0.6rem; color:#94a3b8">/100</span></span>
+              </div>
+            </td>
+            <td style="color:#94a3b8">-</td>
+            <td><div class="action-btn">👁️</div></td>
+          </tr>
+          
+          <!-- Row 2: Draft -->
+          <tr>
+            <td style="font-weight:600">GS Paper 2</td>
+            <td style="color:#94a3b8">२२१३</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#94a3b8">📄</span>
+                <span style="color:#60a5fa; font-weight:600;">३२</span>
+              </div>
+            </td>
+            <td style="color:#94a3b8">3/8/2026</td>
+            <td><span class="badge draft">Draft</span></td>
+            <td style="color:#94a3b8">-</td>
+            <td>
+              <div class="user-feedback">
+                <div class="avatar"></div>
+                <a href="#" class="read-more">🔗 read more</a>
+              </div>
+            </td>
+            <td><div class="action-btn" style="color:#3b82f6">🚀</div></td>
+          </tr>
+          
+          <!-- Row 3: Awaiting -->
+          <tr>
+            <td style="font-weight:600">GS Paper 4</td>
+            <td style="color:#94a3b8">12</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:#94a3b8">📄</span>
+                <span style="color:#60a5fa; font-weight:600;">2121</span>
+              </div>
+            </td>
+            <td style="color:#94a3b8">4/8/2026</td>
+            <td><span class="badge wait">Awaiting...</span></td>
+            <td style="color:#94a3b8">
+              <span style="color:#f59e0b">●</span>
+            </td>
+            <td>
+              <div class="user-feedback">
+                <div class="avatar"></div>
+                <a href="#" class="read-more">🔗 read more</a>
+              </div>
+            </td>
+            <td><div class="action-btn" style="color:#f59e0b">⏳</div></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
