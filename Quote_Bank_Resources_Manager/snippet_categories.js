@@ -1,5 +1,8 @@
-window.SNIPPET_CATEGORIES = {
+﻿window.SNIPPET_CATEGORIES = {
   "categories": [
+    "Ethics",
+    "Thinkers",
+    "Gov",
     "⚖️Ethics",
     "🧠Thinkers",
     "🏛️Gov",
