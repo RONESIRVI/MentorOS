@@ -147,7 +147,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Load Snippet Categories statically -->
-  <script src="../Quote_Bank_Resources_Manager/snippet_categories.js" charset="utf-8"></script>
+  <script>
+    (function() {
+      var s = document.createElement('script');
+      s.src = '../Quote_Bank_Resources_Manager/snippet_categories.js?v=' + new Date().getTime();
+      s.charset = 'utf-8';
+      document.head.appendChild(s);
+    })();
+  </script>
   
   <link rel="stylesheet" href="../style.css">
   <style>
@@ -3835,6 +3842,14 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         if(snip.category.includes('Conclusion')) { badgeColor = '#f59e0b'; badgeBg = '#fef3c7'; }
         if(snip.category.includes('Improvement')) { badgeColor = '#ef4444'; badgeBg = '#fee2e2'; }
         
+        let imgSrc = snip.image;
+        if(imgSrc && imgSrc.includes('drive.google.com')) {
+          const match = imgSrc.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+          if(match && match[1]) {
+            imgSrc = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+          }
+        }
+        
         html += `
           <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border-radius:10px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.08); position:relative;">
             <button onclick="deleteSnippet('${snip.id}')" style="position:absolute; top:8px; right:8px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color:#ef4444; border:none; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1);">✕</button>
@@ -3844,7 +3859,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
             </div>
             <div style="padding:15px; text-align:center; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);">
               <a href="${snip.image}" target="_blank">
-                <img src="${snip.image.includes('drive.google.com') ? snip.image.replace('/preview', '').replace('file/d/', 'uc?id=') : snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
+                <img src="${imgSrc}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
               </a>
             </div>
           </div>
