@@ -1607,7 +1607,7 @@
     
     progressLog.textContent = 'Compressing ZIP…';
     const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
-    saveAs(blob, \`Converted_Images_\${new Date().toISOString().slice(0, 10)}.zip\`);
+    saveAs(blob, `Converted_Images_${new Date().toISOString().slice(0, 10)}.zip`);
     
     btnZip.disabled = false;
     btnDownloadAll.disabled = false;
