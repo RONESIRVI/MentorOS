@@ -147,9 +147,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Load Snippet Categories statically -->
-  <script>
-    document.write('<script src="../Quote_Bank_Resources_Manager/snippet_categories.js?v=' + Date.now() + '" charset="utf-8"><\\/script>');
-  </script>
+  <script src="../Quote_Bank_Resources_Manager/snippet_categories.js" charset="utf-8"></script>
   
   <link rel="stylesheet" href="../style.css">
   <style>
@@ -3846,13 +3844,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
             </div>
             <div style="padding:15px; text-align:center; background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);">
               <a href="${snip.image}" target="_blank">
-                <img src="${(() => { 
-                  if(snip.image.includes('drive.google.com')) { 
-                    const m = snip.image.match(/file\/d\/([a-zA-Z0-9_-]+)/); 
-                    return m ? 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1000' : snip.image; 
-                  } 
-                  return snip.image; 
-                })()}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
+                <img src="${snip.image.includes('drive.google.com') ? snip.image.replace('/preview', '').replace('file/d/', 'uc?id=') : snip.image}" style="max-width:100%; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:zoom-in;" onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'">
               </a>
             </div>
           </div>
