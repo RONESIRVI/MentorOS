@@ -2604,11 +2604,21 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    function isWeekend() {
+    function getPlannerDateStr() {
       const d = new Date();
-      d.setMinutes(d.getMinutes() + d.getTimezoneOffset() + 330);
+      d.setMinutes(d.getMinutes() + d.getTimezoneOffset() + 330); // IST is +5:30
+      
       const day = d.getDay();
-      return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+      if (day === 6) { // Saturday
+        d.setDate(d.getDate() - 1);
+      } else if (day === 0) { // Sunday
+        d.setDate(d.getDate() - 2);
+      }
+      
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
 
 function fetchLatestPlanner() {
@@ -2616,10 +2626,8 @@ function fetchLatestPlanner() {
       const plannerImg = document.getElementById('daily-planner-img');
       if (!plannerImg || !loadingText) return;
       
-      const todayStr = getISTDateStr();
-      const specificImgUrl = isWeekend() 
-          ? `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/weekend_plan.png?t=${Date.now()}`
-          : `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.png?t=${Date.now()}`;
+      const targetStr = getPlannerDateStr();
+      const specificImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${targetStr}.png?t=${Date.now()}`;
       const defaultImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/Pillar_Schedule.png?t=${Date.now()}`;
       
       const tempImg = new Image();
@@ -2640,10 +2648,8 @@ async function fetchTodayTasks() {
       const taskList = document.getElementById('action-plan-list');
       if (!taskList) return;
       
-      const todayStr = getISTDateStr();
-      const specificJsonUrl = isWeekend()
-          ? `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/weekend_tasks.json?t=${Date.now()}`
-          : `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.json?t=${Date.now()}`;
+      const targetStr = getPlannerDateStr();
+      const specificJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${targetStr}.json?t=${Date.now()}`;
       const defaultJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/todays_tasks.json?t=${Date.now()}`;
 
       try {
