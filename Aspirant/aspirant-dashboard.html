@@ -932,7 +932,7 @@
           <span class="icon">📝</span> Answer Writing
         </a>
         <a href="#" class="sidebar-nav-item" id="nav-quotebank" onclick="window.switchAspirantSection('quotebank')">
-          <span class="icon">📖</span> Quote Bank
+          <span class="icon">📚</span> Quote Source Files
         </a>
         <a href="#" class="sidebar-nav-item" id="nav-rankers" onclick="window.switchAspirantSection('rankers')">
           <span class="icon">🏆</span> RONE Ranker's
@@ -1064,11 +1064,11 @@
         <!-- Categorize Photo View -->
         <div id="modal-categorize-view" style="display:none; flex-direction:column; height: 100%;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h2 style="margin:0; color: #f8fafc;">Categorize File</h2>
+            <h2 style="margin:0; color: #f8fafc;">Organized Quotes</h2>
             <button class="btn-close-modal" onclick="closePdfModal()" style="background:none;border:none;font-size:1.5rem;color: #94a3b8;cursor:pointer;line-height:1;padding:5px;">✕</button>
           </div>
           <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius:12px; padding:20px; flex:1; overflow-y:auto;">
-             <p style="font-size:0.95rem; color: #cbd5e1; margin-bottom: 20px;">Select a category to save this snippet into the organized Quote Bank folders.</p>
+             <p style="font-size:0.95rem; color: #cbd5e1; margin-bottom: 20px;">Select a category to save this snippet into the Organized Quotes folders.</p>
              <div id="categorize-buttons-container" style="display:flex; flex-wrap:wrap; gap:10px;">
                 <!-- buttons injected dynamically -->
              </div>
@@ -1582,7 +1582,7 @@
     };
 
     window.fullSyncQuoteBank = async function(btn) {
-      if(!confirm("This will fetch all Quote Bank files from Google Drive and may take a minute. Continue?")) return;
+      if(!confirm("This will fetch all Quote Source files from Google Drive and may take a minute. Continue?")) return;
       const GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
       const originalText = btn.textContent;
       btn.textContent = "⏳ Syncing...";
@@ -1625,7 +1625,7 @@
         await fetchRecursive(QB_ROOT, 'General');
         
         localStorage.setItem('quoteBankFiles', JSON.stringify(allQuoteFiles));
-        alert(`✅ Successfully synced ${allQuoteFiles.length} files from Quote Bank Drive!`);
+        alert(`✅ Successfully synced ${allQuoteFiles.length} files from Quote Source Drive!`);
         window.loadQuoteBankFiles(currentQuoteBankCategory);
         if (typeof window.initRecentlyUpdated === 'function') window.initRecentlyUpdated();
         
@@ -3084,14 +3084,14 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         // NOTE: User must click Load button to fetch from a specific root
       } else {
         configPanel.style.display = 'none';
-        toggleCmsBtn.textContent = '⚙️ Manage Quote Bank Sync';
+        toggleCmsBtn.textContent = '🛠️ Manage Quote Source Sync';
         if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
       }
     } else if (e.target && e.target.id === 'btn-sync-rankers') {
       cmsBreadcrumbs = [{ id: RANKERS_ROOT_ID, name: "🏠 Ranker's Root" }];
       await window.fetchCmsFolder(RANKERS_ROOT_ID, e.target);
     } else if (e.target && e.target.id === 'btn-sync-quotebank') {
-      cmsBreadcrumbs = [{ id: QUOTE_BANK_ROOT_ID, name: "📚 Quote Bank Root" }];
+      cmsBreadcrumbs = [{ id: QUOTE_BANK_ROOT_ID, name: "📚 Quote Source Files" }];
       await window.fetchCmsFolder(QUOTE_BANK_ROOT_ID, e.target);
     } else if (e.target && (e.target.id === 'btn-full-sync-quotebank' || e.target.closest('#btn-full-sync-quotebank'))) {
       const btn = e.target.id === 'btn-full-sync-quotebank' ? e.target : e.target.closest('#btn-full-sync-quotebank');
@@ -3480,7 +3480,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   const saveCmsBtn = document.getElementById('btn-save-cms');
   if(saveCmsBtn) {
     saveCmsBtn.addEventListener('click', () => {
-      alert('Changes saved successfully! Hide this panel to see the updated Quote Bank.');
+      alert('Changes saved successfully! Hide this panel to see the updated Quote Source Files.');
       if (window.renderQuoteBankFiles) window.renderQuoteBankFiles();
     });
   }
