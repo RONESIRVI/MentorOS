@@ -3311,6 +3311,8 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
     listEl.style.gridTemplateColumns = 'repeat(auto-fill, minmax(140px, 1fr))';
     listEl.style.gap = '15px';
     listEl.style.padding = '10px 0';
+    listEl.style.opacity = '1';
+    listEl.style.pointerEvents = 'auto';
 
     if(fetchedDriveFiles.length === 0) {
       listEl.style.display = 'block'; // fallback for empty message
