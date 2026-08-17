@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Quote Bank Cards Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+        
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .qb-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* --- PREMIUM CARD CSS --- */
+        .premium-card {
+            position: relative;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 24px;
+            padding: 30px 24px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transform: translateY(0) scale(1);
+        }
+
+        /* Glowing Border Effect on Hover */
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.5), rgba(167, 139, 250, 0.1), rgba(96, 165, 250, 0.5));
+            z-index: -1;
+            margin: -2px;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        /* Abstract Graphic Background element */
+        .premium-card::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            transition: transform 0.6s ease;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.2);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        .premium-card:hover::before {
+            opacity: 1;
+        }
+
+        .premium-card:hover::after {
+            transform: scale(1.5);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%);
+        }
+
+        .card-icon-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .premium-card:hover .card-icon-wrapper {
+            transform: rotate(-10deg) scale(1.1);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            border-color: rgba(96, 165, 250, 0.5);
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(59, 130, 246, 0.2));
+        }
+
+        .card-title {
+            position: relative;
+            z-index: 1;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+            transition: color 0.3s;
+        }
+
+        .premium-card:hover .card-title {
+            color: #60a5fa;
+        }
+
+        .card-badge {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(148, 163, 184, 0.1);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: auto;
+        }
+
+        .card-footer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .read-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .premium-card:hover .read-btn {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+            transform: translateX(4px);
+        }
+
+        .file-type {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Abstract Particles inside card */
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
+        
+        .premium-card:hover .particle {
+            animation: floatUp 1.5s ease-out infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            100% { transform: translateY(-30px) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Premium Quote Bank Cards</h1>
+    <p class="subtitle">Hover over the cards to experience the smooth animations and premium feel.</p>
+
+    <div class="qb-cards-container">
+        <!-- Card 1 -->
+        <div class="premium-card">
+            <div class="particle" style="width: 4px; height: 4px; left: 20%; top: 40%; animation-delay: 0.1s;"></div>
+            <div class="particle" style="width: 6px; height: 6px; left: 80%; top: 60%; animation-delay: 0.3s;"></div>
+            <div class="particle" style="width: 3px; height: 3px; left: 50%; top: 30%; animation-delay: 0.5s;"></div>
+            
+            <div class="card-icon-wrapper">
+                🧠
+            </div>
+            <h4 class="card-title">Philosophical Thinkers - Socrates to Kant</h4>
+            <span class="card-badge" style="color: #a78bfa; background: rgba(167, 139, 250, 0.1); border-color: rgba(167, 139, 250, 0.2);">Thinkers</span>
+            
+            <div class="card-footer">
+                <div class="file-type">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    PDF Document
+                </div>
+                <button class="read-btn">
+                    Read 
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="premium-card">
+            <div class="particle" style="width: 5px; height: 5px; left: 30%; top: 50%; animation-delay: 0.2s;"></div>
+            <div class="particle" style="width: 4px; height: 4px; left: 70%; top: 20%; animation-delay: 0.4s;"></div>
+            
+            <div class="card-icon-wrapper" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1)); border-color: rgba(16, 185, 129, 0.2);">
+                ⚖️
+            </div>
+            <h4 class="card-title">Ethics & Human Interface - Complete Guide</h4>
+            <span class="card-badge" style="color: #34d399; background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.2);">Ethics</span>
+            
+            <div class="card-footer">
+                <div class="file-type">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Image
+                </div>
+                <button class="read-btn" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    View
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="premium-card">
+            <div class="card-icon-wrapper" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1)); border-color: rgba(245, 158, 11, 0.2);">
+                🏛️
+            </div>
+            <h4 class="card-title">Governance Best Practices and Case Studies</h4>
+            <span class="card-badge" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);">Gov</span>
+            
+            <div class="card-footer">
+                <div class="file-type">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    PDF Document
+                </div>
+                <button class="read-btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                    Read
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

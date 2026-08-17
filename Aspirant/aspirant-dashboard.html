@@ -2,6 +2,7 @@
 <html lang="hi-IN" dir="ltr">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="../favicon.jpg?v=2">
   <!-- Secure TOTP/Passcode Lock -->
   <script>
     (function() {
@@ -1658,7 +1659,7 @@
           qbFiltersContainer.innerHTML = '';
           
           const categoriesContainer = document.createElement('div');
-          categoriesContainer.style = 'display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;';
+          categoriesContainer.style = 'display:flex; flex-wrap:nowrap; overflow-x:auto; gap:10px; margin-bottom:15px; padding-bottom:5px; scrollbar-width:none; -ms-overflow-style:none;';
           
           // Add "All" button first
           const allBtn = document.createElement('button');
@@ -3506,7 +3507,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
   <script>
     const SNIPPET_GAS_URL = "https://script.google.com/macros/s/AKfycbyNWYSpGiJYadkmh0wxDqNUzixfA9DpAKNfEYABd_JsJvMxdZuGY-Uqsms-WOt6PIXq/exec";
-    const SNIPPET_MAIN_FOLDER_ID = "15UinxbrX7EY4tcpiDuXUkiWT_VKEsc1d";
+    const SNIPPET_MAIN_FOLDER_ID = "18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ"; // Quote Bank Root ID
     
     // Screen Cutter JS Logic
     let cutterStream = null;
