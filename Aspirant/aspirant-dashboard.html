@@ -1079,6 +1079,12 @@
   </div>
 
   <script>
+    // ==========================================
+    // ⚙️ GLOBAL BACKEND CONFIGURATION
+    // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
+    // ==========================================
+    window.MENTOR_OS_BACKEND_URL = "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
+
     let currentPdfId = null;
 
     let currentPhotoIdForCategorization = null;
@@ -1146,7 +1152,8 @@
        btnEl.innerHTML = 'Saving...';
        btnEl.disabled = true;
        
-       const GAS_URL = "https://script.google.com/macros/s/AKfycbx0Gg-U9MLuqE352oz9gfIYiYzqvQd3cmS6ndZ7pGd-giGHshi6I_OI1XQ_EaZ1XhHS/exec";
+       // --- UNIFIED BACKEND URL ---
+      const GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
        const targetRootId = "1TqXpQc1MPN5dgw41-X1rODhT3l71TeNB"; // Quote Bank Target Root ID
        
        try {
@@ -1576,7 +1583,7 @@
 
     window.fullSyncQuoteBank = async function(btn) {
       if(!confirm("This will fetch all Quote Bank files from Google Drive and may take a minute. Continue?")) return;
-      const GAS_URL = "https://script.google.com/macros/s/AKfycbx0Gg-U9MLuqE352oz9gfIYiYzqvQd3cmS6ndZ7pGd-giGHshi6I_OI1XQ_EaZ1XhHS/exec";
+      const GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
       const originalText = btn.textContent;
       btn.textContent = "⏳ Syncing...";
       btn.disabled = true;
@@ -1769,7 +1776,7 @@
       }
     });
     // --- RONE RANKERS LOGIC ---
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbx0Gg-U9MLuqE352oz9gfIYiYzqvQd3cmS6ndZ7pGd-giGHshi6I_OI1XQ_EaZ1XhHS/exec"; // Central GAS URL
+    const GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE"; // Central GAS URL
     let rankersBreadcrumbs = [];
 
     window.loadRankersFolder = async function(folderId, folderName) {
@@ -3235,7 +3242,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
 
   window.fetchCmsFolder = async function(folderId, triggerBtn = null) {
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbx0Gg-U9MLuqE352oz9gfIYiYzqvQd3cmS6ndZ7pGd-giGHshi6I_OI1XQ_EaZ1XhHS/exec";
+    const GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
     
     let originalText = '';
     if(triggerBtn) {
@@ -3518,7 +3525,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
   </div>
 
   <script>
-    const SNIPPET_GAS_URL = "https://script.google.com/macros/s/AKfycbyNWYSpGiJYadkmh0wxDqNUzixfA9DpAKNfEYABd_JsJvMxdZuGY-Uqsms-WOt6PIXq/exec";
+    const SNIPPET_GAS_URL = window.MENTOR_OS_BACKEND_URL || "PASTE_YOUR_NEW_WEB_APP_URL_HERE";
     const SNIPPET_MAIN_FOLDER_ID = "18WYtoXeu-_GqC9C5elfvt3WHzh3MUigQ"; // Quote Bank Root ID
     
     // Screen Cutter JS Logic
