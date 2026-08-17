@@ -3400,7 +3400,17 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
 
       if (isFolder) {
         item.onclick = () => {
-          cmsBreadcrumbs.push({ id: f.id, name: f.name });
+          const listEl = document.getElementById('fetched-files-list');
+          if (listEl.style.pointerEvents === 'none') return;
+          listEl.style.opacity = '0.5';
+          listEl.style.pointerEvents = 'none';
+
+          const idx = cmsBreadcrumbs.findIndex(b => b.id === f.id);
+          if (idx !== -1) {
+            cmsBreadcrumbs = cmsBreadcrumbs.slice(0, idx + 1);
+          } else {
+            cmsBreadcrumbs.push({ id: f.id, name: f.name });
+          }
           window.fetchCmsFolder(f.id);
         };
       } else {
