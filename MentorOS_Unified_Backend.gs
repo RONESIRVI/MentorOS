@@ -146,20 +146,7 @@ function doPost(e) {
   }
 }
 
-// ==========================================
-// CORS & HELPERS
-// ==========================================
-function doOptions(e) {
-  var headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
-  };
-  return ContentService.createTextOutput("").setHeaders(headers);
-}
-
 function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeaders({ "Access-Control-Allow-Origin": "*" });
+    .setMimeType(ContentService.MimeType.JSON);
 }
