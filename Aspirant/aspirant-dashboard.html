@@ -145,7 +145,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Load Snippet Categories statically -->
   <script>
@@ -159,6 +159,7 @@
   
   <link rel="stylesheet" href="../style.css">
   <style>
+    body { font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; margin-left: 5px; vertical-align: middle; }
     /* Dashboard Specific Styles */
@@ -259,7 +260,7 @@
       text-decoration: none;
       font-weight: 500;
       font-size: 0.95rem;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Outfit', sans-serif;
       transition: all 0.3s ease;
       position: relative;
       border: 1px solid transparent;
@@ -684,22 +685,129 @@
     .qb-category-list li.active { background: rgba(59, 130, 246, 0.1); color: #2563eb; font-weight: 600; border-left: 3px solid #3b82f6; }
     .qb-content { flex: 1; }
     .qb-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .qb-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: transform 0.2s; border: 1px solid transparent; }
-    .qb-badge:hover { transform: translateY(-2px); }
-    .qb-badge.blue { background: rgba(59, 130, 246, 0.1); color: #2563eb; border-color: #bfdbfe; }
-    .qb-badge.green { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
-    .qb-badge.amber { background: #fffbeb; color: #d97706; border-color: #fde68a; }
-    .qb-badge.purple { background: #faf5ff; color: #9333ea; border-color: #e9d5ff; }
-    
-    .quote-card { background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.85) 100%); border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06); border: 1px solid rgba(255,255,255,0.7); backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; display: flex; flex-direction: column; }
-    .quote-card::before { content: '"'; position: absolute; top: -15px; right: 10px; font-size: 5rem; color: rgba(226, 232, 240, 0.5); font-family: Georgia, serif; z-index: 0; transition: 0.3s; }
-    .quote-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.2); border-color: rgba(96, 165, 250, 0.5); }
-    .quote-card:hover::before { color: rgba(147, 197, 253, 0.2); transform: rotate(10deg); }
-    .quote-title { font-size: 1.1rem; font-weight: 600; color: #f8fafc; margin: 0 0 10px 0; position: relative; z-index: 1; }
-    .quote-desc { font-size: 0.9rem; color: #94a3b8; margin: 0 0 15px 0; position: relative; z-index: 1; }
-    .quote-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e2e8f0; padding-top: 12px; margin-top: auto; position: relative; z-index: 1; }
-    .btn-read-pdf { background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; border: none; cursor: pointer; }
-    .btn-read-pdf:hover { background: #2563eb; }
+    /* Premium Horizontal Filter Bar */
+    .btn-qb-filter {
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #cbd5e1;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-qb-filter:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #f8fafc;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1), 0 0 15px rgba(255,255,255,0.1);
+    }
+    .btn-qb-filter.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.4) 100%);
+      border-color: rgba(96, 165, 250, 0.5);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    /* Premium 3D Glassmorphism Cards */
+    .quote-card {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+        0 2px 4px -1px rgba(0, 0, 0, 0.06), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .quote-card::before {
+      content: '"';
+      position: absolute;
+      top: -15px;
+      right: 15px;
+      font-size: 6rem;
+      color: rgba(255, 255, 255, 0.03);
+      font-family: Georgia, serif;
+      z-index: 0;
+      transition: all 0.5s ease;
+    }
+    .quote-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.3), 
+        0 10px 10px -5px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(59, 130, 246, 0.2);
+      border-color: rgba(96, 165, 250, 0.3);
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+    }
+    .quote-card:hover::before {
+      color: rgba(96, 165, 250, 0.1);
+      transform: rotate(15deg) scale(1.1);
+    }
+    .quote-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0 0 8px 0;
+      position: relative;
+      z-index: 1;
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    .quote-desc {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin: 0 0 20px 0;
+      position: relative;
+      z-index: 1;
+      line-height: 1.5;
+    }
+    .quote-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 16px;
+      margin-top: auto;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-read-pdf {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-read-pdf:hover {
+      background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+      transform: translateY(-1px);
+    }
     
     #pdf-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; display: none; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
     #pdf-modal.active { display: flex; }
@@ -1340,10 +1448,8 @@
       document.querySelectorAll('.btn-qb-filter').forEach(btn => {
         if(btn.getAttribute('data-cat') === category) {
           btn.classList.add('active');
-          btn.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)';
         } else {
           btn.classList.remove('active');
-          btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)';
         }
       });
 
@@ -1672,7 +1778,6 @@
           const allBtn = document.createElement('button');
           allBtn.className = 'btn-qb-filter active';
           allBtn.setAttribute('data-cat', 'all');
-          allBtn.style = `padding:8px 16px; border-radius:24px; border:none; background:#111827; color:white; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:flex; align-items:center; gap:6px;`;
           allBtn.innerHTML = `📚 All`;
           allBtn.onclick = () => window.loadQuoteBankFiles('all');
           categoriesContainer.appendChild(allBtn);
@@ -1689,10 +1794,9 @@
             if(cat.toLowerCase().includes('gov')) icon = '🏛️';
             if(cat.toLowerCase().includes('societ')) icon = '👥';
             if(cat.toLowerCase().includes('service')) icon = '💼';
-
-            btn.style = 'padding:8px 16px; border-radius:24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); color: #cbd5e1; cursor:pointer; font-weight:600; font-size:0.9rem; transition:all 0.2s; display:flex; align-items:center; gap:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);';
-            btn.onmouseover = () => { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; btn.style.borderColor = '#cbd5e1'; btn.style.color = '#0f172a'; };
-            btn.onmouseout = () => { btn.style.transform = 'translateY(0)'; btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; btn.style.borderColor = '#e2e8f0'; btn.style.color = '#475569'; };
+            if(cat.toLowerCase().includes('case')) icon = '📊';
+            if(cat.toLowerCase().includes('conclus')) icon = '🎯';
+            if(cat.toLowerCase().includes('intro')) icon = '✨';
             
             btn.innerHTML = `${icon} ${cat}`;
             btn.onclick = () => window.loadQuoteBankFiles(cat);
@@ -2318,7 +2422,7 @@
           }
 
           html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease-in-out;" onmouseover="this.style.background='rgba(59,130,246,0.1)'" onmouseout="this.style.background='transparent'">
-            <td style="padding:16px 12px; font-size:0.9rem; font-weight:600; color: #f8fafc; font-family:'Inter', sans-serif;">${ev.subject || '-'}</td>
+            <td style="padding:16px 12px; font-size:0.9rem; font-weight:600; color: #f8fafc; font-family:'Outfit', sans-serif;">${ev.subject || '-'}</td>
             <td style="padding:16px 12px; font-size:0.9rem; color: #cbd5e1;">${ev.topic || '-'}</td>
             <td style="padding:16px 12px;"><a href="${ev.link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600; display:flex; align-items:center; gap:6px; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'">📄 ${ev.title}</a></td>
             <td style="padding:16px 12px; font-size:0.85rem; color: #94a3b8;">${dStr}</td>
