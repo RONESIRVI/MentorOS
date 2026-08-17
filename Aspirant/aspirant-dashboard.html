@@ -2604,13 +2604,22 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
+    function isWeekend() {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() + d.getTimezoneOffset() + 330);
+      const day = d.getDay();
+      return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+    }
+
 function fetchLatestPlanner() {
       const loadingText = document.getElementById('planner-loading');
       const plannerImg = document.getElementById('daily-planner-img');
       if (!plannerImg || !loadingText) return;
       
       const todayStr = getISTDateStr();
-      const specificImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.png?t=${Date.now()}`;
+      const specificImgUrl = isWeekend() 
+          ? `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/weekend_plan.png?t=${Date.now()}`
+          : `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.png?t=${Date.now()}`;
       const defaultImgUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/Pillar_Schedule.png?t=${Date.now()}`;
       
       const tempImg = new Image();
@@ -2632,7 +2641,9 @@ async function fetchTodayTasks() {
       if (!taskList) return;
       
       const todayStr = getISTDateStr();
-      const specificJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.json?t=${Date.now()}`;
+      const specificJsonUrl = isWeekend()
+          ? `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/weekend_tasks.json?t=${Date.now()}`
+          : `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/plan_${todayStr}.json?t=${Date.now()}`;
       const defaultJsonUrl = `https://raw.githubusercontent.com/RONESIRVI/RAS-Study-Planner/main/output/todays_tasks.json?t=${Date.now()}`;
 
       try {
