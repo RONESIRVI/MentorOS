@@ -646,16 +646,19 @@
   </script>
 
   <script>
-    // Dynamically load hero section content
+    // Dynamically load hero section content from Notepad (.txt) file
     document.addEventListener("DOMContentLoaded", function () {
-      fetch('hero-content.json?v=' + new Date().getTime())
-        .then(response => response.json())
-        .then(data => {
-          if (document.getElementById('hero-badge')) document.getElementById('hero-badge').innerHTML = data.badge;
-          if (document.getElementById('hero-title-prefix')) document.getElementById('hero-title-prefix').innerHTML = data.titlePrefix;
-          if (document.getElementById('hero-title-highlight')) document.getElementById('hero-title-highlight').innerHTML = data.titleHighlight;
-          if (document.getElementById('hero-title-suffix')) document.getElementById('hero-title-suffix').innerHTML = data.titleSuffix;
-          if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerHTML = data.subtitle;
+      fetch('hero-content.txt?v=' + new Date().getTime())
+        .then(response => response.text())
+        .then(text => {
+          const lines = text.split('\n').filter(line => line.trim() !== '');
+          if (lines.length >= 5) {
+            if (document.getElementById('hero-badge')) document.getElementById('hero-badge').innerHTML = lines[0].trim();
+            if (document.getElementById('hero-title-prefix')) document.getElementById('hero-title-prefix').innerHTML = lines[1].trim();
+            if (document.getElementById('hero-title-highlight')) document.getElementById('hero-title-highlight').innerHTML = lines[2].trim();
+            if (document.getElementById('hero-title-suffix')) document.getElementById('hero-title-suffix').innerHTML = lines[3].trim();
+            if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerHTML = lines.slice(4).join('<br>').trim();
+          }
         })
         .catch(error => console.error('Error loading hero content:', error));
     });
