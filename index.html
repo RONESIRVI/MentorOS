@@ -310,13 +310,13 @@
 
           <!-- RIGHT: Platform Info -->
           <div class="hero-info">
-            <div class="hero-badge">🥇 India's #1 UPSC/RPSC AI Mentorship Platform</div>
+            <div class="hero-badge" id="hero-badge">🥇 India's #1 UPSC/RPSC AI Mentorship Platform</div>
             <h1 class="hero-title">
-              Your Journey to<br>
-              <span class="gradient-text">IAS / RAS</span><br>
-              Starts Here
+              <span id="hero-title-prefix">Your Journey to</span><br>
+              <span class="gradient-text" id="hero-title-highlight">IAS / RAS</span><br>
+              <span id="hero-title-suffix">Starts Here</span>
             </h1>
-            <p class="hero-subtitle">
+            <p class="hero-subtitle" id="hero-subtitle">
               Complete ERP + LMS + CRM + AI Analytics — एक ही platform पर। Personal mentor, daily accountability, AI
               study planner और answer writing — सब कुछ।
             </p>
@@ -643,6 +643,22 @@
         inputs[0].focus();
       }
     }
+  </script>
+
+  <script>
+    // Dynamically load hero section content
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch('hero-content.json?v=' + new Date().getTime())
+        .then(response => response.json())
+        .then(data => {
+          if (document.getElementById('hero-badge')) document.getElementById('hero-badge').innerHTML = data.badge;
+          if (document.getElementById('hero-title-prefix')) document.getElementById('hero-title-prefix').innerHTML = data.titlePrefix;
+          if (document.getElementById('hero-title-highlight')) document.getElementById('hero-title-highlight').innerHTML = data.titleHighlight;
+          if (document.getElementById('hero-title-suffix')) document.getElementById('hero-title-suffix').innerHTML = data.titleSuffix;
+          if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerHTML = data.subtitle;
+        })
+        .catch(error => console.error('Error loading hero content:', error));
+    });
   </script>
 </body>
 
