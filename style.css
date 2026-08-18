@@ -11,26 +11,28 @@
    ============================================ */
 
 /* --- CSS Variables (Design Tokens) --- */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
 :root {
-  --navy: #0f172a;
-  --navy-dark: #020617;
-  --navy-light: #1e293b;
-  --navy-50: rgba(30, 41, 59, 0.5);
+  --navy: #05140a;
+  --navy-dark: #000a05;
+  --navy-light: #0a2914;
+  --navy-50: rgba(34, 197, 94, 0.05);
   
-  --amber: #d4af37;
-  --amber-dark: #bba06b;
-  --amber-light: #fbf7e6;
-  --gold: #d4af37;
+  --amber: #4ade80;
+  --amber-dark: #22c55e;
+  --amber-light: #86efac;
+  --gold: #4ade80;
   
   --white: #ffffff;
-  --ink: #f8fafc;
-  --ink-soft: #cbd5e1;
-  --mute: #94a3b8;
+  --ink: #4ade80;
+  --ink-soft: #22c55e;
+  --mute: #16a34a;
   
-  --border: rgba(255, 255, 255, 0.1);
-  --bg: #020617;
+  --border: rgba(34, 197, 94, 0.3);
+  --bg: #000a05;
   
-  --green: #10b981;
+  --green: #22c55e;
   --red: #ef4444;
   --purple: #8b5cf6;
   
@@ -44,30 +46,30 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
   
-  --font-main: 'PremiumDevanagari', 'Mukta', 'Plus Jakarta Sans', sans-serif;
-  --font-alt: 'PremiumDevanagari', 'Mukta', 'Space Grotesk', sans-serif;
-  --font-body: 'PremiumDevanagari', 'Mukta', 'Inter', sans-serif;
+  --font-main: 'Fira Code', 'PremiumDevanagari', monospace;
+  --font-alt: 'Fira Code', 'PremiumDevanagari', monospace;
+  --font-body: 'Fira Code', 'PremiumDevanagari', monospace;
 }
 
 /* --- Utility Classes for Dark Theme --- */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6) !important;
+  background: rgba(5, 20, 10, 0.6) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-  color: #f8fafc !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  box-shadow: inset 0 0 15px rgba(34, 197, 94, 0.1), 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  color: #4ade80 !important;
 }
 
 .neon-border {
-  border: 1px solid rgba(56, 189, 248, 0.3) !important;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15), inset 0 0 10px rgba(56, 189, 248, 0.05) !important;
+  border: 1px solid rgba(34, 197, 94, 0.5) !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.2), inset 0 0 10px rgba(34, 197, 94, 0.1) !important;
 }
 
 .dark-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: #f8fafc !important;
+  background: linear-gradient(135deg, rgba(5, 20, 10, 0.9), rgba(0, 10, 5, 0.95)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.2) !important;
+  color: #4ade80 !important;
 }
 
 /* --- Reset & Base --- */
@@ -86,7 +88,7 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--ink);
-  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+  background: #000a05;
   background-attachment: fixed;
   line-height: 1.6;
   overflow-x: hidden;
@@ -1870,7 +1872,27 @@ button, .btn, [class*="btn"], a[class*="btn"] {
 
 button:hover, .btn:hover, [class*="btn"]:hover, a[class*="btn"]:hover {
   filter: brightness(1.05);
-  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.25) !important;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.25) !important;
   transform: translateY(-1px);
+}
+
+/* === HACKER GLASS BACKGROUND ORBS === */
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.3;
+  animation: float 20s infinite ease-in-out alternate;
+}
+.bg-orb-1 { width: 500px; height: 500px; background: #22c55e; top: -100px; left: -100px; }
+.bg-orb-2 { width: 600px; height: 600px; background: #14532d; bottom: -200px; right: -100px; animation-delay: -5s; }
+.bg-orb-3 { width: 400px; height: 400px; background: #4ade80; top: 40%; left: 30%; animation-delay: -10s; opacity: 0.15; }
+.bg-orb-4 { width: 450px; height: 450px; background: #064e3b; top: 20%; right: 20%; animation-delay: -15s; opacity: 0.4; }
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, 50px) scale(1.1); }
+  100% { transform: translate(-30px, -20px) scale(0.9); }
 }
 
