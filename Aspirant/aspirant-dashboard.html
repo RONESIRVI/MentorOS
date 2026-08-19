@@ -1433,6 +1433,9 @@
       if(sectionId === 'answers') window.loadMyAnswers();
       if(sectionId === 'quotebank') window.loadQuoteBankFiles('all');
       if(sectionId === 'rankers') window.loadRankersFolder('ROOT', "RONE Ranker's Root");
+      if(sectionId === 'report') {
+          if (typeof window.initAnswerAnalytics === 'function') setTimeout(window.initAnswerAnalytics, 150);
+      }
     };
 
     // --- QUOTE BANK LOGIC ---
@@ -4009,6 +4012,108 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
       });
       container.innerHTML = html;
     }
+    // --- ANSWER WRITING ANALYTICS LOGIC ---
+    let awRadarChartInst = null;
+    let awScoreTrendChartInst = null;
+    let awSubjectChartInst = null;
+
+    window.initAnswerAnalytics = function() {
+      // Setup Chart.js Defaults for Crimson Glass Theme
+      Chart.defaults.color = '#cbd5e1';
+      Chart.defaults.font.family = "'Inter', sans-serif";
+      
+      const radarCtx = document.getElementById('awRadarChart');
+      if (radarCtx && !awRadarChartInst) {
+        awRadarChartInst = new Chart(radarCtx, {
+          type: 'radar',
+          data: {
+            labels: ['Structure', 'Content', 'Analysis', 'Intro/Conclusion', 'Grammar'],
+            datasets: [{
+              label: 'Your Avg Score',
+              data: [7, 8, 6, 5, 8],
+              backgroundColor: 'rgba(225, 29, 72, 0.2)',
+              borderColor: '#e11d48',
+              pointBackgroundColor: '#e11d48',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#e11d48'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                pointLabels: { color: '#cbd5e1', font: { size: 12 } },
+                ticks: { display: false, min: 0, max: 10 }
+              }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      const trendCtx = document.getElementById('awScoreTrendChart');
+      if (trendCtx && !awScoreTrendChartInst) {
+        const gradient = trendCtx.getContext('2d').createLinearGradient(0, 0, 0, 250);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+        awScoreTrendChartInst = new Chart(trendCtx, {
+          type: 'line',
+          data: {
+            labels: ['Ans 1', 'Ans 2', 'Ans 3', 'Ans 4', 'Ans 5', 'Ans 6', 'Ans 7', 'Ans 8', 'Ans 9', 'Ans 10'],
+            datasets: [{
+              label: 'Score (out of 10)',
+              data: [5, 5.5, 6, 6, 6.5, 7, 6.5, 7, 7.5, 8],
+              borderColor: '#6366f1',
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointBackgroundColor: '#6366f1',
+              pointBorderColor: '#fff',
+              pointRadius: 4,
+              pointHoverRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { beginAtZero: true, max: 10, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+              x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      const subCtx = document.getElementById('awSubjectChart');
+      if (subCtx && !awSubjectChartInst) {
+        awSubjectChartInst = new Chart(subCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['GS 1', 'GS 2', 'GS 3', 'GS 4', 'Essay'],
+            datasets: [{
+              data: [30, 20, 25, 15, 10],
+              backgroundColor: ['#e11d48', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 11 } } }
+            }
+          }
+        });
+      }
+    };
   </script>
 </body>
 </html>
