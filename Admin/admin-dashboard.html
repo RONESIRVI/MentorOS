@@ -146,7 +146,7 @@
   <style>
     /* Dashboard Specific Styles (Admin Theme) */
     body {
-      background-color: #f1f5f9 !important;
+      background-color: #0f070a !important;
       color: #f8fafc !important;
     }
 
@@ -159,9 +159,9 @@
     .sidebar {
       width: 280px;
       background-image: 
-        radial-gradient(circle at 15% 70%, rgba(139, 92, 246, 0.15), transparent 30%),
-        radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.1), transparent 30%),
-        linear-gradient(170deg, #0b1120 0%, #171033 50%, #200d46 100%);
+        radial-gradient(circle at 15% 70%, rgba(99, 102, 241, 0.15), transparent 30%),
+        radial-gradient(circle at 85% 30%, rgba(225, 29, 72, 0.1), transparent 30%),
+        linear-gradient(170deg, #0f070a 0%, #1a0b12 50%, #2d101a 100%);
       box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
       border-right: 1px solid rgba(255, 255, 255, 0.03);
       color: white;
@@ -174,16 +174,16 @@
       transition: transform 0.3s ease;
     }
     .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 16px; }
-    .sidebar-logo-icon { background: transparent; color: #8b5cf6; width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 12px rgba(139, 92, 246, 0.3), inset 0 0 12px rgba(139, 92, 246, 0.2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; font-family: 'Space Grotesk', sans-serif; text-shadow: 0 0 10px rgba(139, 92, 246, 0.8); position: relative; }
-    .sidebar-logo-icon::before { content: ''; position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, transparent 70%); border-radius: 10px; }
+    .sidebar-logo-icon { background: transparent; color: #e11d48; width: 46px; height: 46px; border-radius: 12px; border: 1.5px solid rgba(225, 29, 72, 0.5); box-shadow: 0 0 12px rgba(225, 29, 72, 0.3), inset 0 0 12px rgba(225, 29, 72, 0.2); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; font-family: 'Space Grotesk', sans-serif; text-shadow: 0 0 10px rgba(225, 29, 72, 0.8); position: relative; }
+    .sidebar-logo-icon::before { content: ''; position: absolute; width: 100%; height: 100%; background-image: radial-gradient(circle at center, rgba(225, 29, 72, 0.2) 0%, transparent 70%); border-radius: 10px; }
     .sidebar-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; color: white; }
     .sidebar-nav { padding: 10px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
     .sidebar-nav-item { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 12px; color: rgba(255, 255, 255, 0.85); text-decoration: none; font-weight: 500; font-size: 0.95rem; font-family: 'Inter', sans-serif; transition: all 0.3s ease; position: relative; border: 1px solid transparent; cursor:pointer;}
     .sidebar-nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
-    .sidebar-nav-item.active { background: rgba(139, 92, 246, 0.05); color: white; border: 1px solid rgba(139, 92, 246, 0.5); box-shadow: 0 0 15px rgba(139, 92, 246, 0.15), inset 0 0 10px rgba(139, 92, 246, 0.05); }
-    .sidebar-nav-item.active::after { content: ''; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; background-color: #8b5cf6; border-radius: 50%; box-shadow: 0 0 8px 2px #8b5cf6, 0 0 15px 2px #8b5cf6; }
+    .sidebar-nav-item.active { background: rgba(225, 29, 72, 0.05); color: white; border: 1px solid rgba(225, 29, 72, 0.5); box-shadow: 0 0 15px rgba(99, 102, 241, 0.15), inset 0 0 10px rgba(225, 29, 72, 0.05); }
+    .sidebar-nav-item.active::after { content: ''; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; background-color: #e11d48; border-radius: 50%; box-shadow: 0 0 8px 2px #e11d48, 0 0 15px 2px #e11d48; }
     .sidebar-nav-item span.icon { font-size: 1.3rem; filter: drop-shadow(0 0 4px rgba(255,255,255,0.2)); transition: all 0.3s ease; }
-    .sidebar-nav-item.active span.icon { filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)); }
+    .sidebar-nav-item.active span.icon { filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.6)); }
 
     .sidebar-footer {
       padding: 24px;
@@ -200,7 +200,7 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: #8b5cf6;
+      background: #e11d48;
       color: white;
       display: flex;
       align-items: center;
@@ -343,9 +343,9 @@
     }
 
     .admin-badge {
-      background: rgba(139, 92, 246, 0.1);
+      background: rgba(225, 29, 72, 0.1);
       color: #7c3aed;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(225, 29, 72, 0.2);
       padding: 8px 16px;
       border-radius: 20px;
       font-weight: 600;
@@ -407,7 +407,7 @@
 
     .stat-card.green .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
     .stat-card.blue .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-    .stat-card.purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .stat-card.purple .stat-icon { background: rgba(225, 29, 72, 0.1); color: #e11d48; }
     .stat-card.slate .stat-icon { background: rgba(100, 116, 139, 0.1); color: #94a3b8; }
 
     /* Content Grid */
