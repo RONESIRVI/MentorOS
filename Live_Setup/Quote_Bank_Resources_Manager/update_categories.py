@@ -136,9 +136,9 @@ def main():
     print("🚀 Pushing changes to GitHub...")
     try:
         # Stage all updated files
-        subprocess.run(["git", "add", "Quote_Bank_Resources_Manager/" + JSON_FILENAME], cwd=PORTAL_DIR, check=True)
+        subprocess.run(["git", "add", "Live_Setup/Quote_Bank_Resources_Manager/" + JSON_FILENAME], cwd=PORTAL_DIR, check=True)
         subprocess.run(["git", "add", JSON_FILENAME], cwd=PORTAL_DIR, check=True)
-        subprocess.run(["git", "add", "Quote_Bank_Resources_Manager/" + js_filename], cwd=PORTAL_DIR, check=True)
+        subprocess.run(["git", "add", "Live_Setup/Quote_Bank_Resources_Manager/" + js_filename], cwd=PORTAL_DIR, check=True)
         subprocess.run(["git", "add", js_filename], cwd=PORTAL_DIR, check=True)
         
         # Check if anything is staged for commit
