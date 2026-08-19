@@ -1,5 +1,6 @@
 @echo off
 cd /d "%~dp0"
+cd ..
 echo ==============================================
 echo Pushing Updates to GitHub (RONE MentorOS)
 echo ==============================================

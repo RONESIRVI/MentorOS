@@ -648,7 +648,7 @@
   <script>
     // Dynamically load hero section content from Notepad (.txt) file
     document.addEventListener("DOMContentLoaded", function () {
-      fetch('hero-content.txt?v=' + new Date().getTime())
+      fetch('Live_Setup/hero-content.txt?v=' + new Date().getTime())
         .then(response => response.text())
         .then(text => {
           const lines = text.split('\n').filter(line => line.trim() !== '');
