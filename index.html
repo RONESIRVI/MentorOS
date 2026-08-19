@@ -651,13 +651,13 @@
       fetch('Live_Setup/hero-content.txt?v=' + new Date().getTime())
         .then(response => response.text())
         .then(text => {
-          const lines = text.split('\n').filter(line => line.trim() !== '');
-          if (lines.length >= 5) {
-            if (document.getElementById('hero-badge')) document.getElementById('hero-badge').innerHTML = lines[0].trim();
-            if (document.getElementById('hero-title-prefix')) document.getElementById('hero-title-prefix').innerHTML = lines[1].trim();
-            if (document.getElementById('hero-title-highlight')) document.getElementById('hero-title-highlight').innerHTML = lines[2].trim();
-            if (document.getElementById('hero-title-suffix')) document.getElementById('hero-title-suffix').innerHTML = lines[3].trim();
-            if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerHTML = lines.slice(4).join('<br>').trim();
+          const lines = text.split('\n').map(line => line.trim());
+          if (lines.length >= 4) {
+            if (document.getElementById('hero-badge')) document.getElementById('hero-badge').innerHTML = lines[0] || '';
+            if (document.getElementById('hero-title-prefix')) document.getElementById('hero-title-prefix').innerHTML = lines[1] || '';
+            if (document.getElementById('hero-title-highlight')) document.getElementById('hero-title-highlight').innerHTML = lines[2] || '';
+            if (document.getElementById('hero-title-suffix')) document.getElementById('hero-title-suffix').innerHTML = lines[3] || '';
+            if (document.getElementById('hero-subtitle')) document.getElementById('hero-subtitle').innerHTML = lines.slice(4).join('<br>') || '';
           }
         })
         .catch(error => console.error('Error loading hero content:', error));
