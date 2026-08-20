@@ -1041,7 +1041,11 @@
   <div class="action-buttons">
     <button class="btn-action btn-convert" id="btn-convert" disabled>
       <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-      Convert to JPG
+      Convert Current PDF
+    </button>
+    <button class="btn-action btn-convert" id="btn-convert-all" disabled style="background: linear-gradient(135deg, #8b5cf6, #6366f1); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);">
+      <svg viewBox="0 0 24 24" fill="white" width="15" height="15"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      Convert All PDFs
     </button>
     <button class="btn-action btn-zip" id="btn-download-zip" style="display: none;">
       <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M20 6h-2v2h2v2h-2v2h2v2h-2v2h2c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 10H4V4h11v2h2V4c0-1.1-.9-2-2-2H4C2.9 2 2 2.9 2 4v12c0 1.1.9 2 2 2h11v-2zm-6-4l-4-5h8l-4 5z"/></svg>
@@ -1098,6 +1102,7 @@
   const actionTitle     = document.getElementById('action-title');
   const actionSubtitle  = document.getElementById('action-subtitle');
   const btnConvert      = document.getElementById('btn-convert');
+  const btnConvertAll   = document.getElementById('btn-convert-all');
   const btnZip          = document.getElementById('btn-download-zip');
   const btnDownloadAll  = document.getElementById('btn-download-all');
   const portalSection   = document.getElementById('portal-section');
@@ -1468,14 +1473,20 @@
   function updateSelectionUI() {
     const e = getActive();
     const n = e ? e.selectedPages.size : 0;
-    selectedLabel.textContent  = `${n} selected`;
-    actionTitle.textContent    = n === 0 ? 'No pages selected' : `${n} page${n !== 1 ? 's' : ''} selected`;
-    actionSubtitle.textContent = n === 0
+    const totalSelected = pdfQueue.reduce((sum, p) => sum + p.selectedPages.size, 0);
+
+    selectedLabel.textContent  = `${n} selected (Current) | ${totalSelected} selected (All PDFs)`;
+    actionTitle.textContent    = n === 0 ? 'No pages selected in current PDF' : `${n} page${n !== 1 ? 's' : ''} selected in current PDF`;
+    actionSubtitle.textContent = totalSelected === 0
       ? 'Select at least one page to convert'
-      : `DPI: ${dpiSlider.value} · Quality: ${qualitySlider.value}% · PDF: ${e?.name}`;
+      : `Total pages to convert across all PDFs: ${totalSelected} (DPI: ${dpiSlider.value} · Quality: ${qualitySlider.value}%)`;
+    
     btnConvert.disabled  = n === 0;
+    btnConvertAll.disabled = totalSelected === 0;
+    
     // reset UI to pre-conversion state if selection changes
     btnConvert.style.display = 'inline-flex';
+    btnConvertAll.style.display = 'inline-flex';
     btnZip.style.display = 'none';
     btnDownloadAll.style.display = 'none';
     portalSection.style.display = 'none';
@@ -1519,7 +1530,14 @@
   // ── Convert active PDF to Images ──────────────────────────────────
   btnConvert.addEventListener('click', async () => {
     const entry = getActive(); if (!entry || entry.selectedPages.size === 0) return;
-    await convertToImages([entry], false);
+    await convertToImages([entry]);
+  });
+
+  // ── Convert ALL PDFs to Images ────────────────────────────────────
+  btnConvertAll.addEventListener('click', async () => {
+    const entries = pdfQueue.filter(p => p.selectedPages.size > 0);
+    if (!entries.length) return;
+    await convertToImages(entries);
   });
 
   // ── Download Actions ──────────────────────────────────────────────
@@ -1581,6 +1599,7 @@
     
     // Switch action bar state
     btnConvert.style.display = 'none';
+    btnConvertAll.style.display = 'none';
     btnZip.style.display = 'inline-flex';
     btnDownloadAll.style.display = 'inline-flex';
     btnZip.disabled = false;
