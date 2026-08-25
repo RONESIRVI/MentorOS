@@ -1,22 +1,20 @@
 // Google Sheet Published CSV URL 
-// (Replace this with the actual published CSV link from Google Sheets)
-// e.g. 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=1003446063&single=true&output=csv'; 
 
 // State Data
-let appData = { months: [], transfers: {}, rawHeaders: [] };
+let appData = { categories: [], items: {}, rawHeaders: [], displayCols: [] };
 
 // DOM Elements
-const monthsTbody = document.getElementById('months-tbody');
-const transfersThead = document.getElementById('transfers-thead');
-const transfersTbody = document.getElementById('transfers-tbody');
-const transfersTitle = document.getElementById('transfers-title');
+const categoriesTbody = document.getElementById('months-tbody');
+const itemsThead = document.getElementById('transfers-thead');
+const itemsTbody = document.getElementById('transfers-tbody');
+const itemsTitle = document.getElementById('transfers-title');
 const modal = document.getElementById('transfer-modal');
 const closeModalBtn = document.getElementById('close-modal');
 const printBtn = document.getElementById('print-btn');
 const modalBodyContent = document.getElementById('modal-body-content');
 
-let selectedMonthId = null;
+let selectedCategoryId = null;
 
 // Initialize App
 function init() {
@@ -28,145 +26,125 @@ function init() {
 function loadCSVData() {
     Papa.parse(CSV_URL, {
         download: true,
-        header: true, // Output as objects using first row as keys
+        header: true, 
         skipEmptyLines: true,
         complete: function(results) {
             processParsedData(results);
         },
         error: function(error) {
             console.error('Error fetching CSV:', error);
-            transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state" style="color:red;">डेटा लोड करने में त्रुटि हुई (Error loading data).</td></tr>';
+            itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state" style="color:red;">डेटा लोड करने में त्रुटि हुई (Error loading data).</td></tr>';
         }
     });
 }
 
-// Process the raw CSV objects into our months/transfers structure
+// Process the raw CSV objects into our categories/items structure
 function processParsedData(parsed) {
     if (!parsed.data || parsed.data.length === 0) {
-        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
+        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
         return;
     }
 
-    // Extract headers (keys of the first object)
     appData.rawHeaders = Object.keys(parsed.data[0]);
 
-    // Try to find a Date column for grouping
-    // It looks for a column exactly named 'Date' or 'दिनांक' or containing 'Date'
-    let dateColumnName = appData.rawHeaders.find(h => h.toLowerCase().includes('date') || h.includes('दिनांक')) || appData.rawHeaders[0];
+    // Find grouping column: 'ExamCategory', 'TemplateType', 'Category', or fallback to 'Date' or first column
+    let groupCol = appData.rawHeaders.find(h => h.toLowerCase() === 'examcategory') 
+                || appData.rawHeaders.find(h => h.toLowerCase() === 'templatetype')
+                || appData.rawHeaders.find(h => h.toLowerCase() === 'category')
+                || appData.rawHeaders.find(h => h.toLowerCase().includes('date'))
+                || appData.rawHeaders[0];
+
+    // Determine columns for Right Pane (Table View)
+    // Preference: TestTitle, Date, FinalTotal
+    let pref1 = appData.rawHeaders.find(h => h.toLowerCase().includes('title') || h.toLowerCase().includes('test')) || appData.rawHeaders[0];
+    let pref2 = appData.rawHeaders.find(h => h.toLowerCase() === 'date' || h.toLowerCase() === 'दिनांक') || appData.rawHeaders[1] || '';
+    let pref3 = appData.rawHeaders.find(h => h.toLowerCase().includes('finaltotal') || h.toLowerCase().includes('score') || h.toLowerCase().includes('marks')) || appData.rawHeaders[2] || '';
+    
+    appData.displayCols = [pref1];
+    if (pref2) appData.displayCols.push(pref2);
+    if (pref3) appData.displayCols.push(pref3);
 
     // Reset data
-    appData.months = [];
-    appData.transfers = {};
+    appData.categories = [];
+    appData.items = {};
 
     parsed.data.forEach((row, index) => {
-        const dateStr = row[dateColumnName];
-        let monthYearStr = 'Unknown';
-        let monthId = 'unknown';
-
-        if (dateStr) {
-            // Attempt to parse date (assuming DD/MM/YYYY or YYYY-MM-DD or standard parseable string)
-            // A simple logic for DD/MM/YYYY:
-            let dObj = new Date(dateStr);
-            if (dateStr.includes('/')) {
-                const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    // Try to guess if it's DD/MM/YYYY
-                    dObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-                }
-            }
-            
-            if (!isNaN(dObj.getTime())) {
-                const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                const monthName = monthsName[dObj.getMonth()];
-                const year = dObj.getFullYear();
-                monthYearStr = `${monthName}-${year}`;
-                monthId = `${monthName.substring(0,3).toLowerCase()}-${String(year).substring(2,4)}`; 
-            } else {
-                monthYearStr = dateStr; // fallback to raw string if parsing fails
-                monthId = dateStr.replace(/\\s+/g, '-').toLowerCase();
-            }
+        let groupVal = row[groupCol];
+        if (!groupVal || groupVal.trim() === '') {
+            groupVal = 'Other / Uncategorized';
         }
+        
+        let catId = groupVal.replace(/\s+/g, '-').toLowerCase();
 
-        // Add to month list
-        let existingMonth = appData.months.find(m => m.id === monthId);
-        if (existingMonth) {
-            existingMonth.notices += 1;
+        // Add to category list
+        let existingCat = appData.categories.find(c => c.id === catId);
+        if (existingCat) {
+            existingCat.count += 1;
         } else {
-            appData.months.push({
-                id: monthId,
-                monthYear: monthYearStr,
-                notices: 1
+            appData.categories.push({
+                id: catId,
+                name: groupVal,
+                count: 1
             });
         }
 
-        // Add to transfers array
-        if (!appData.transfers[monthId]) {
-            appData.transfers[monthId] = [];
+        // Add to items array
+        if (!appData.items[catId]) {
+            appData.items[catId] = [];
         }
         
-        // Save the entire row object along with a unique ID
-        appData.transfers[monthId].push({
+        appData.items[catId].push({
             _internalId: 'row_' + index,
             rowData: row 
         });
     });
 
-    // Sort months roughly (you can implement advanced sorting here)
-    // Currently rendering as parsed.
-
-    renderMonthsList();
+    renderCategoriesList();
     renderDynamicHeaders();
     
-    // Auto-select first month
-    if (appData.months.length > 0) {
-        selectMonth(appData.months[0].id, appData.months[0].monthYear);
+    // Auto-select first category
+    if (appData.categories.length > 0) {
+        selectCategory(appData.categories[0].id, appData.categories[0].name);
     } else {
-        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
+        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
     }
 }
 
-// Render dynamic table headers based on CSV columns
+// Render dynamic table headers for the right pane
 function renderDynamicHeaders() {
     let theadHTML = '<tr>';
-    
-    // We can choose to show only the first 2-3 columns in the table to save space, 
-    // and show everything in the modal. Or show all columns. 
-    // For this generic approach, we'll show up to 3 columns + 'VIEW' button
-    const colsToShow = appData.rawHeaders.slice(0, 3); 
-    
-    colsToShow.forEach(header => {
+    appData.displayCols.forEach(header => {
         theadHTML += `<th>${header}</th>`;
     });
-    
     theadHTML += '<th>देखें (VIEW)</th></tr>';
-    transfersThead.innerHTML = theadHTML;
+    itemsThead.innerHTML = theadHTML;
 }
 
 // Render the left pane list
-function renderMonthsList() {
-    monthsTbody.innerHTML = '';
+function renderCategoriesList() {
+    categoriesTbody.innerHTML = '';
     
-    appData.months.forEach(month => {
+    appData.categories.forEach(cat => {
         const tr = document.createElement('tr');
-        tr.dataset.id = month.id;
+        tr.dataset.id = cat.id;
         
         tr.innerHTML = `
-            <td>${month.monthYear}</td>
-            <td>${month.notices}</td>
+            <td>${cat.name}</td>
+            <td>${cat.count}</td>
             <td>
-                <a href="#" class="action-icon view-month-btn" aria-label="View ${month.monthYear}">
+                <a href="#" class="action-icon view-month-btn" aria-label="View ${cat.name}">
                     <i class="ph ph-eye"></i>
                 </a>
             </td>
         `;
         
-        tr.addEventListener('click', () => selectMonth(month.id, month.monthYear));
-        monthsTbody.appendChild(tr);
+        tr.addEventListener('click', () => selectCategory(cat.id, cat.name));
+        categoriesTbody.appendChild(tr);
     });
 }
 
-// Handle month selection
-function selectMonth(id, title) {
+// Handle category selection
+function selectCategory(id, title) {
     document.querySelectorAll('#months-tbody tr').forEach(row => {
         row.classList.remove('selected');
     });
@@ -176,29 +154,27 @@ function selectMonth(id, title) {
         selectedRow.classList.add('selected');
     }
     
-    selectedMonthId = id;
-    transfersTitle.textContent = `विषय: ${title}`;
+    selectedCategoryId = id;
+    itemsTitle.textContent = `विषय: ${title}`;
     
-    renderTransfersList(id);
+    renderItemsList(id);
 }
 
-// Render the right pane list dynamically based on selected month
-function renderTransfersList(monthId) {
-    transfersTbody.innerHTML = '';
-    const items = appData.transfers[monthId] || [];
+// Render the right pane list based on selected category
+function renderItemsList(catId) {
+    itemsTbody.innerHTML = '';
+    const items = appData.items[catId] || [];
     
     if (items.length === 0) {
-        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">इस महीने के लिए कोई जानकारी नहीं मिली।</td></tr>';
+        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">इस श्रेणी के लिए कोई जानकारी नहीं मिली।</td></tr>';
         return;
     }
-    
-    const ObjectKeysToShow = appData.rawHeaders.slice(0, 3);
     
     items.forEach(item => {
         const tr = document.createElement('tr');
         
         let trHTML = '';
-        ObjectKeysToShow.forEach(key => {
+        appData.displayCols.forEach(key => {
             trHTML += `<td>${item.rowData[key] || '-'}</td>`;
         });
         
@@ -219,41 +195,44 @@ function renderTransfersList(monthId) {
             openModal(item.rowData);
         });
         
-        transfersTbody.appendChild(tr);
+        itemsTbody.appendChild(tr);
     });
 }
 
-
-// Dynamic Modal Generation
+// Dynamic Modal Generation (skips empty fields)
 function openModal(rowData) {
     let modalHTML = '';
     
-    appData.rawHeaders.forEach((key, index) => {
+    // First field as Title (e.g. TestTitle or CandidateName)
+    let titleKey = appData.rawHeaders.find(h => h.toLowerCase().includes('title')) || appData.rawHeaders[0];
+    
+    modalHTML += `<h4 style="margin-bottom: 1.5rem; font-weight: 700; font-size: 1.2rem; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">${titleKey}: ${rowData[titleKey]}</h4>`;
+    
+    // Grid container for structured look
+    modalHTML += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">';
+    
+    appData.rawHeaders.forEach(key => {
         const value = rowData[key];
-        if (!value) return; // Skip empty fields
+        if (!value || value.trim() === '' || key === titleKey) return; 
         
-        // Treat the first item as a subtitle, the rest as blocks
-        if (index === 0) {
-            modalHTML += `<h4 style="margin-bottom: 1.5rem; font-weight: 500; font-size: 1rem;" class="text-muted">${key}: ${value}</h4>`;
+        let displayValue = value;
+        if(value.startsWith('http')) {
+            displayValue = `<a href="${value}" target="_blank" style="color: #3b82f6; word-break: break-all; font-weight:600;">Link <i class="ph ph-link"></i></a>`;
         } else {
-            // Check if value is a link
-            let displayValue = value;
-            if(value.startsWith('http')) {
-                displayValue = `<a href="${value}" target="_blank" style="color: #3b82f6; word-break: break-all;">${value}</a>`;
-            } else {
-                displayValue = value.replace(/\\n/g, '<br>');
-            }
-            
-            modalHTML += `
-            <div style="margin-bottom: 1.25rem;">
-                <p style="margin:0 0 4px 0; font-size:0.8rem; color: var(--text-muted); text-transform:uppercase; font-weight:600;">${key}</p>
-                <div class="transfer-text" style="font-size: 1rem; padding: 1rem; margin-top: 5px;">
-                    ${displayValue}
-                </div>
-            </div>
-            `;
+            displayValue = value.replace(/\n/g, '<br>');
         }
+        
+        modalHTML += `
+        <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <p style="margin:0 0 4px 0; font-size:0.75rem; color: #64748b; text-transform:uppercase; font-weight:700;">${key}</p>
+            <div style="font-size: 0.95rem; font-weight: 600; color: #334155;">
+                ${displayValue}
+            </div>
+        </div>
+        `;
     });
+    
+    modalHTML += '</div>'; // End Grid
     
     modalBodyContent.innerHTML = modalHTML;
     
@@ -268,24 +247,20 @@ function closeModal() {
 
 // Setup static event listeners
 function setupEventListeners() {
-    // Details Modal
     closeModalBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
     
-    // Global Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (!modal.classList.contains('hidden')) closeModal();
         }
     });
     
-    // Print functionality
     printBtn.addEventListener('click', () => {
         window.print();
     });
 }
 
-// Start app
 document.addEventListener('DOMContentLoaded', init);
