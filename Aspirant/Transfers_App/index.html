@@ -20,9 +20,11 @@
     <div class="background-mesh"></div>
 
     <main class="app-container">
-        <header class="app-header">
+        
+        <!-- DASHBOARD 1: GENERAL TEST SERIES -->
+        <header class="app-header" style="margin-top: 20px;">
             <div class="header-content">
-                <h1>UPSC अध्ययन पोर्टल</h1>
+                <h1>UPSC अध्ययन पोर्टल - सामान्य टेस्ट</h1>
                 <p>यहाँ आप UPSC से संबंधित महत्वपूर्ण अध्ययन सामग्री, नोट्स और करंट अफेयर्स को महीने-वार देख सकते हैं। यह डेटा सीधे Google Sheet से लाइव आ रहा है।</p>
             </div>
         </header>
@@ -30,26 +32,25 @@
         <section class="controls-section">
             <div class="search-container">
                 <div class="custom-select">
-                    <select id="category-select" aria-label="Select Category">
+                    <select id="category-select-1" aria-label="Select Category">
                         <option value="">श्रेणी चुनें (Select Category)</option>
-                        <!-- Populated by JS -->
                     </select>
                     <i class="ph ph-caret-down"></i>
                 </div>
-                <button id="search-btn" class="btn btn-primary">
+                <button class="btn btn-primary">
                     <i class="ph ph-magnifying-glass"></i> खोजें
                 </button>
             </div>
         </section>
 
         <div class="dashboard-layout">
-            <!-- Left Pane: Category List -->
+            <!-- Left Pane -->
             <aside class="panel list-panel">
                 <div class="panel-header">
                     <h2>परीक्षा श्रेणियां (Exam Categories)</h2>
                 </div>
                 <div class="table-container">
-                    <table class="data-table" id="months-table">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>श्रेणी (Category)</th>
@@ -57,34 +58,97 @@
                                 <th>देखें</th>
                             </tr>
                         </thead>
-                        <tbody id="months-tbody">
+                        <tbody id="categories-tbody-1">
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
             </aside>
 
-            <!-- Right Pane: specific transfers -->
+            <!-- Right Pane -->
             <section class="panel details-panel">
                 <div class="panel-header">
-                    <h2 id="transfers-title">विषय सूची</h2>
+                    <h2 id="items-title-1">विषय सूची</h2>
                 </div>
                 <div class="table-container">
-                    <table class="data-table" id="transfers-table">
-                        <thead id="transfers-thead">
+                    <table class="data-table">
+                        <thead id="items-thead-1">
                             <!-- Headers Populated dynamically by JS -->
                         </thead>
-                        <tbody id="transfers-tbody">
-                            <!-- Populated by JS -->
+                        <tbody id="items-tbody-1">
                             <tr><td colspan="100%" class="empty-state">डेटा लोड हो रहा है... (Loading data)</td></tr>
                         </tbody>
                     </table>
                 </div>
             </section>
         </div>
+
+
+        <!-- DASHBOARD 2: UPSC MAINS -->
+        <header class="app-header" style="margin-top: 60px;">
+            <div class="header-content">
+                <h1 style="background: linear-gradient(90deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">UPSC MAINS - विशेष टेस्ट सीरीज़</h1>
+                <p>यह सेक्शन केवल UPSC MAINS की दूसरी शीट के लिए है और स्वतंत्र रूप से काम करता है।</p>
+            </div>
+        </header>
+
+        <section class="controls-section">
+            <div class="search-container">
+                <div class="custom-select">
+                    <select id="category-select-2" aria-label="Select Category">
+                        <option value="">श्रेणी चुनें (Select Category)</option>
+                    </select>
+                    <i class="ph ph-caret-down"></i>
+                </div>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="ph ph-magnifying-glass"></i> खोजें
+                </button>
+            </div>
+        </section>
+
+        <div class="dashboard-layout">
+            <!-- Left Pane -->
+            <aside class="panel list-panel">
+                <div class="panel-header">
+                    <h2>परीक्षा श्रेणियां (Exam Categories)</h2>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>श्रेणी (Category)</th>
+                                <th>टेस्ट की संख्या</th>
+                                <th>देखें</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-tbody-2">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </aside>
+
+            <!-- Right Pane -->
+            <section class="panel details-panel">
+                <div class="panel-header">
+                    <h2 id="items-title-2">विषय सूची</h2>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead id="items-thead-2">
+                            <!-- Headers Populated dynamically by JS -->
+                        </thead>
+                        <tbody id="items-tbody-2">
+                            <tr><td colspan="100%" class="empty-state">डेटा लोड हो रहा है... (Loading data)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
     </main>
 
-    <!-- Details Modal -->
+    <!-- Shared Details Modal -->
     <div id="transfer-modal" class="modal-overlay hidden" aria-hidden="true">
         <div class="modal-content glass-effect">
             <div class="modal-header">

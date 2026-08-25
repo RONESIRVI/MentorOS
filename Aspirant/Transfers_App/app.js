@@ -1,240 +1,220 @@
-// Google Sheet Published CSV URL 
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=1003446063&single=true&output=csv'; 
+class DynamicDashboard {
+    constructor(config) {
+        this.csvUrl = config.csvUrl;
+        this.elements = {
+            categorySelect: document.getElementById(config.categorySelectId),
+            categoriesTbody: document.getElementById(config.categoriesTbodyId),
+            itemsThead: document.getElementById(config.itemsTheadId),
+            itemsTbody: document.getElementById(config.itemsTbodyId),
+            itemsTitle: document.getElementById(config.itemsTitleId)
+        };
+        this.appData = { categories: [], items: {}, rawHeaders: [], displayCols: [] };
+        this.selectedCategoryId = null;
 
-// State Data
-let appData = { categories: [], items: {}, rawHeaders: [], displayCols: [] };
-
-// DOM Elements
-const categoriesTbody = document.getElementById('months-tbody');
-const itemsThead = document.getElementById('transfers-thead');
-const itemsTbody = document.getElementById('transfers-tbody');
-const itemsTitle = document.getElementById('transfers-title');
-const modal = document.getElementById('transfer-modal');
-const closeModalBtn = document.getElementById('close-modal');
-const printBtn = document.getElementById('print-btn');
-const modalBodyContent = document.getElementById('modal-body-content');
-
-let selectedCategoryId = null;
-
-// Initialize App
-function init() {
-    loadCSVData();
-    setupEventListeners();
-}
-
-// Fetch and Parse CSV Data using PapaParse
-function loadCSVData() {
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: true, 
-        skipEmptyLines: true,
-        complete: function(results) {
-            processParsedData(results);
-        },
-        error: function(error) {
-            console.error('Error fetching CSV:', error);
-            itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state" style="color:red;">डेटा लोड करने में त्रुटि हुई (Error loading data).</td></tr>';
-        }
-    });
-}
-
-// Process the raw CSV objects into our categories/items structure
-function processParsedData(parsed) {
-    if (!parsed.data || parsed.data.length === 0) {
-        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
-        return;
+        this.init();
     }
 
-    appData.rawHeaders = Object.keys(parsed.data[0]);
+    init() {
+        this.loadCSVData();
+        this.setupEventListeners();
+    }
 
-    // Find grouping column: 'ExamCategory', 'TemplateType', 'Category', or fallback to 'Date' or first column
-    let groupCol = appData.rawHeaders.find(h => h.toLowerCase() === 'examcategory') 
-                || appData.rawHeaders.find(h => h.toLowerCase() === 'templatetype')
-                || appData.rawHeaders.find(h => h.toLowerCase() === 'category')
-                || appData.rawHeaders.find(h => h.toLowerCase().includes('date'))
-                || appData.rawHeaders[0];
+    loadCSVData() {
+        const self = this;
+        Papa.parse(this.csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                self.processParsedData(results);
+            },
+            error: function(error) {
+                console.error('Error fetching CSV:', error);
+                self.elements.itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state" style="color:red;">डेटा लोड करने में त्रुटि हुई (Error loading data).</td></tr>';
+            }
+        });
+    }
 
-    // Determine columns for Right Pane (Table View)
-    // Preference: TestTitle, Date, FinalTotal
-    let pref1 = appData.rawHeaders.find(h => h.toLowerCase().includes('title') || h.toLowerCase().includes('test')) || appData.rawHeaders[0];
-    let pref2 = appData.rawHeaders.find(h => h.toLowerCase() === 'date' || h.toLowerCase() === 'दिनांक') || appData.rawHeaders[1] || '';
-    let pref3 = appData.rawHeaders.find(h => h.toLowerCase().includes('finaltotal') || h.toLowerCase().includes('score') || h.toLowerCase().includes('marks')) || appData.rawHeaders[2] || '';
-    
-    appData.displayCols = [pref1];
-    if (pref2) appData.displayCols.push(pref2);
-    if (pref3) appData.displayCols.push(pref3);
+    processParsedData(parsed) {
+        if (!parsed.data || parsed.data.length === 0) {
+            this.elements.itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
+            return;
+        }
 
-    // Reset data
-    appData.categories = [];
-    appData.items = {};
+        this.appData.rawHeaders = Object.keys(parsed.data[0]);
 
-    parsed.data.forEach((row, index) => {
-        let groupVal = row[groupCol];
-        if (!groupVal || groupVal.trim() === '') {
-            groupVal = 'Other / Uncategorized';
+        let groupCol = this.appData.rawHeaders.find(h => h.toLowerCase() === 'examcategory') 
+                    || this.appData.rawHeaders.find(h => h.toLowerCase() === 'templatetype')
+                    || this.appData.rawHeaders.find(h => h.toLowerCase() === 'category')
+                    || this.appData.rawHeaders.find(h => h.toLowerCase().includes('date'))
+                    || this.appData.rawHeaders[0];
+
+        let pref1 = this.appData.rawHeaders.find(h => h.toLowerCase().includes('title') || h.toLowerCase().includes('test')) || this.appData.rawHeaders[0];
+        let pref2 = this.appData.rawHeaders.find(h => h.toLowerCase() === 'date' || h.toLowerCase() === 'दिनांक') || this.appData.rawHeaders[1] || '';
+        let pref3 = this.appData.rawHeaders.find(h => h.toLowerCase().includes('finaltotal') || h.toLowerCase().includes('score') || h.toLowerCase().includes('marks')) || this.appData.rawHeaders[2] || '';
+        
+        this.appData.displayCols = [pref1];
+        if (pref2) this.appData.displayCols.push(pref2);
+        if (pref3) this.appData.displayCols.push(pref3);
+
+        this.appData.categories = [];
+        this.appData.items = {};
+
+        parsed.data.forEach((row, index) => {
+            let groupVal = row[groupCol];
+            if (!groupVal || groupVal.trim() === '') {
+                groupVal = 'Other / Uncategorized';
+            }
+            
+            let catId = groupVal.replace(/\s+/g, '-').toLowerCase();
+
+            let existingCat = this.appData.categories.find(c => c.id === catId);
+            if (existingCat) {
+                existingCat.count += 1;
+            } else {
+                this.appData.categories.push({ id: catId, name: groupVal, count: 1 });
+            }
+
+            if (!this.appData.items[catId]) {
+                this.appData.items[catId] = [];
+            }
+            
+            this.appData.items[catId].push({
+                _internalId: 'row_' + index,
+                rowData: row 
+            });
+        });
+
+        this.renderCategoriesList();
+        this.renderDynamicHeaders();
+        this.populateCategoryDropdown();
+        
+        if (this.appData.categories.length > 0) {
+            this.selectCategory(this.appData.categories[0].id, this.appData.categories[0].name);
+        } else {
+            this.elements.itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
+        }
+    }
+
+    renderDynamicHeaders() {
+        let theadHTML = '<tr>';
+        this.appData.displayCols.forEach(header => {
+            theadHTML += `<th>${header}</th>`;
+        });
+        theadHTML += '<th>देखें (VIEW)</th></tr>';
+        this.elements.itemsThead.innerHTML = theadHTML;
+    }
+
+    populateCategoryDropdown() {
+        if (!this.elements.categorySelect) return;
+        this.elements.categorySelect.innerHTML = '<option value="">श्रेणी चुनें (Select Category)</option>';
+        this.appData.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            this.elements.categorySelect.appendChild(option);
+        });
+    }
+
+    renderCategoriesList() {
+        this.elements.categoriesTbody.innerHTML = '';
+        this.appData.categories.forEach(cat => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = cat.id;
+            tr.innerHTML = `
+                <td>${cat.name}</td>
+                <td>${cat.count}</td>
+                <td>
+                    <a href="#" class="action-icon view-month-btn" aria-label="View ${cat.name}">
+                        <i class="ph ph-eye"></i>
+                    </a>
+                </td>
+            `;
+            tr.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.selectCategory(cat.id, cat.name);
+            });
+            this.elements.categoriesTbody.appendChild(tr);
+        });
+    }
+
+    selectCategory(id, title) {
+        const rows = this.elements.categoriesTbody.querySelectorAll('tr');
+        rows.forEach(row => row.classList.remove('selected'));
+        
+        const selectedRow = this.elements.categoriesTbody.querySelector(`tr[data-id="${id}"]`);
+        if (selectedRow) selectedRow.classList.add('selected');
+        
+        this.selectedCategoryId = id;
+        this.elements.itemsTitle.textContent = `विषय: ${title}`;
+        
+        if (this.elements.categorySelect) {
+            this.elements.categorySelect.value = id;
         }
         
-        let catId = groupVal.replace(/\s+/g, '-').toLowerCase();
+        this.renderItemsList(id);
+    }
 
-        // Add to category list
-        let existingCat = appData.categories.find(c => c.id === catId);
-        if (existingCat) {
-            existingCat.count += 1;
-        } else {
-            appData.categories.push({
-                id: catId,
-                name: groupVal,
-                count: 1
+    renderItemsList(catId) {
+        this.elements.itemsTbody.innerHTML = '';
+        const items = this.appData.items[catId] || [];
+        
+        if (items.length === 0) {
+            this.elements.itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">इस श्रेणी के लिए कोई जानकारी नहीं मिली।</td></tr>';
+            return;
+        }
+        
+        items.forEach(item => {
+            const tr = document.createElement('tr');
+            let trHTML = '';
+            this.appData.displayCols.forEach(key => {
+                trHTML += `<td>${item.rowData[key] || '-'}</td>`;
+            });
+            trHTML += `
+                <td>
+                    <a href="#" class="action-icon view-transfer-btn" aria-label="View Details">
+                        <i class="ph ph-eye"></i>
+                    </a>
+                </td>
+            `;
+            tr.innerHTML = trHTML;
+            
+            const viewBtn = tr.querySelector('.view-transfer-btn');
+            viewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.openSharedModal(item.rowData, this.appData.rawHeaders);
+            });
+            
+            this.elements.itemsTbody.appendChild(tr);
+        });
+    }
+
+    setupEventListeners() {
+        if (this.elements.categorySelect) {
+            this.elements.categorySelect.addEventListener('change', (e) => {
+                const selectedId = e.target.value;
+                if (selectedId) {
+                    const cat = this.appData.categories.find(c => c.id === selectedId);
+                    if (cat) this.selectCategory(cat.id, cat.name);
+                }
             });
         }
-
-        // Add to items array
-        if (!appData.items[catId]) {
-            appData.items[catId] = [];
-        }
-        
-        appData.items[catId].push({
-            _internalId: 'row_' + index,
-            rowData: row 
-        });
-    });
-
-    renderCategoriesList();
-    renderDynamicHeaders();
-    populateCategoryDropdown();
-    
-    // Auto-select first category
-    if (appData.categories.length > 0) {
-        selectCategory(appData.categories[0].id, appData.categories[0].name);
-    } else {
-        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
     }
 }
 
-// Render dynamic table headers for the right pane
-function renderDynamicHeaders() {
-    let theadHTML = '<tr>';
-    appData.displayCols.forEach(header => {
-        theadHTML += `<th>${header}</th>`;
-    });
-    theadHTML += '<th>देखें (VIEW)</th></tr>';
-    itemsThead.innerHTML = theadHTML;
-}
-
-// Populate the search dropdown with categories
-function populateCategoryDropdown() {
-    const categorySelect = document.getElementById('category-select');
-    if (!categorySelect) return;
-    
-    // Clear existing options except the first one
-    categorySelect.innerHTML = '<option value="">श्रेणी चुनें (Select Category)</option>';
-    
-    appData.categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat.id;
-        option.textContent = cat.name;
-        categorySelect.appendChild(option);
-    });
-}
-
-// Render the left pane list
-function renderCategoriesList() {
-    categoriesTbody.innerHTML = '';
-    
-    appData.categories.forEach(cat => {
-        const tr = document.createElement('tr');
-        tr.dataset.id = cat.id;
-        
-        tr.innerHTML = `
-            <td>${cat.name}</td>
-            <td>${cat.count}</td>
-            <td>
-                <a href="#" class="action-icon view-month-btn" aria-label="View ${cat.name}">
-                    <i class="ph ph-eye"></i>
-                </a>
-            </td>
-        `;
-        
-        tr.addEventListener('click', () => selectCategory(cat.id, cat.name));
-        categoriesTbody.appendChild(tr);
-    });
-}
-
-// Handle category selection
-function selectCategory(id, title) {
-    document.querySelectorAll('#months-tbody tr').forEach(row => {
-        row.classList.remove('selected');
-    });
-    
-    const selectedRow = document.querySelector(`#months-tbody tr[data-id="${id}"]`);
-    if (selectedRow) {
-        selectedRow.classList.add('selected');
-    }
-    
-    selectedCategoryId = id;
-    itemsTitle.textContent = `विषय: ${title}`;
-    
-    // Also update the dropdown to match if it exists
-    const categorySelect = document.getElementById('category-select');
-    if (categorySelect) {
-        categorySelect.value = id;
-    }
-    
-    renderItemsList(id);
-}
-
-// Render the right pane list based on selected category
-function renderItemsList(catId) {
-    itemsTbody.innerHTML = '';
-    const items = appData.items[catId] || [];
-    
-    if (items.length === 0) {
-        itemsTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">इस श्रेणी के लिए कोई जानकारी नहीं मिली।</td></tr>';
-        return;
-    }
-    
-    items.forEach(item => {
-        const tr = document.createElement('tr');
-        
-        let trHTML = '';
-        appData.displayCols.forEach(key => {
-            trHTML += `<td>${item.rowData[key] || '-'}</td>`;
-        });
-        
-        trHTML += `
-            <td>
-                <a href="#" class="action-icon view-transfer-btn" aria-label="View Details">
-                    <i class="ph ph-eye"></i>
-                </a>
-            </td>
-        `;
-        
-        tr.innerHTML = trHTML;
-        
-        const viewBtn = tr.querySelector('.view-transfer-btn');
-        viewBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openModal(item.rowData);
-        });
-        
-        itemsTbody.appendChild(tr);
-    });
-}
-
-// Dynamic Modal Generation (skips empty fields)
-function openModal(rowData) {
+// --- SHARED MODAL LOGIC ---
+window.openSharedModal = function(rowData, rawHeaders) {
+    const modal = document.getElementById('transfer-modal');
+    const modalBodyContent = document.getElementById('modal-body-content');
     let modalHTML = '';
     
-    // First field as Title (e.g. TestTitle or CandidateName)
-    let titleKey = appData.rawHeaders.find(h => h.toLowerCase().includes('title')) || appData.rawHeaders[0];
+    let titleKey = rawHeaders.find(h => h.toLowerCase().includes('title')) || rawHeaders[0];
     
     modalHTML += `<h4 style="margin-bottom: 1.5rem; font-weight: 700; font-size: 1.2rem; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">${titleKey}: ${rowData[titleKey]}</h4>`;
-    
-    // Grid container for structured look
     modalHTML += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">';
     
-    appData.rawHeaders.forEach(key => {
+    rawHeaders.forEach(key => {
         const value = rowData[key];
         if (!value || value.trim() === '' || key === titleKey) return; 
         
@@ -255,49 +235,48 @@ function openModal(rowData) {
         `;
     });
     
-    modalHTML += '</div>'; // End Grid
-    
+    modalHTML += '</div>'; 
     modalBodyContent.innerHTML = modalHTML;
-    
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden'; 
-}
+};
 
-function closeModal() {
+function closeSharedModal() {
+    const modal = document.getElementById('transfer-modal');
     modal.classList.add('hidden');
     document.body.style.overflow = '';
 }
 
-// Setup static event listeners
-function setupEventListeners() {
-    closeModalBtn.addEventListener('click', closeModal);
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Setup shared modal listeners
+    const modal = document.getElementById('transfer-modal');
+    document.getElementById('close-modal').addEventListener('click', closeSharedModal);
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+        if (e.target === modal) closeSharedModal();
     });
-    
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (!modal.classList.contains('hidden')) closeModal();
-        }
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeSharedModal();
     });
-    
-    printBtn.addEventListener('click', () => {
-        window.print();
-    });
-    
-    // Dropdown change event
-    const categorySelect = document.getElementById('category-select');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', (e) => {
-            const selectedId = e.target.value;
-            if (selectedId) {
-                const cat = appData.categories.find(c => c.id === selectedId);
-                if (cat) {
-                    selectCategory(cat.id, cat.name);
-                }
-            }
-        });
-    }
-}
+    document.getElementById('print-btn').addEventListener('click', () => window.print());
 
-document.addEventListener('DOMContentLoaded', init);
+    // Dashboard 1 (General Test Series - gid 1003446063)
+    new DynamicDashboard({
+        csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=1003446063&single=true&output=csv',
+        categorySelectId: 'category-select-1',
+        categoriesTbodyId: 'categories-tbody-1',
+        itemsTheadId: 'items-thead-1',
+        itemsTbodyId: 'items-tbody-1',
+        itemsTitleId: 'items-title-1'
+    });
+
+    // Dashboard 2 (UPSC MAINS - gid 644171246)
+    new DynamicDashboard({
+        csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=644171246&single=true&output=csv',
+        categorySelectId: 'category-select-2',
+        categoriesTbodyId: 'categories-tbody-2',
+        itemsTheadId: 'items-thead-2',
+        itemsTbodyId: 'items-tbody-2',
+        itemsTitleId: 'items-title-2'
+    });
+});
