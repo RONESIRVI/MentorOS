@@ -67,7 +67,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* Header */
@@ -168,8 +168,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
-    flex: 1;
-    min-height: 0; /* Important for scrollable children */
+    height: 450px; /* Fixed height for each dashboard so they both fit nicely and scroll internally */
 }
 
 /* Panels */
