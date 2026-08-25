@@ -1,63 +1,145 @@
-// Default Initial Data (only used if localStorage is empty)
-const defaultData = {
-    months: [
-        { id: 'aug-26', monthYear: 'August-2026', notices: 2 },
-        { id: 'jun-26', monthYear: 'June-2026', notices: 5 },
-    ],
-    transfers: {
-        'aug-26': [
-            { id: 't1', date: '13/08/2026', title: '1857 की क्रांति - मुख्य कारण', detail: '1857 की क्रांति के मुख्य कारणों में राजनीतिक, आर्थिक, सामाजिक और धार्मिक कारण शामिल थे...' },
-            { id: 't2', date: '17/08/2026', title: 'भारतीय राष्ट्रीय कांग्रेस की स्थापना', detail: 'भारतीय राष्ट्रीय कांग्रेस की स्थापना 28 दिसंबर 1885 को बॉम्बे में हुई थी...' }
-        ],
-        'jun-26': [
-            { id: 't3', date: '09/06/2026', title: 'मौर्य साम्राज्य का पतन', detail: 'अशोक की मृत्यु के बाद मौर्य साम्राज्य का पतन शुरू हो गया था...' },
-            { id: 't4', date: '17/06/2026', title: 'सिंधु घाटी सभ्यता', detail: 'सिंधु घाटी सभ्यता एक कांस्य युगीन सभ्यता थी...' }
-        ]
-    }
-};
+// Google Sheet Published CSV URL 
+// (Replace this with the actual published CSV link from Google Sheets)
+// e.g. 'https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv'
+const CSV_URL = 'dummy.csv'; 
 
-// State Data (Loaded from LocalStorage or Default)
-let appData = { months: [], transfers: {} };
+// State Data
+let appData = { months: [], transfers: {}, rawHeaders: [] };
 
 // DOM Elements
 const monthsTbody = document.getElementById('months-tbody');
+const transfersThead = document.getElementById('transfers-thead');
 const transfersTbody = document.getElementById('transfers-tbody');
 const transfersTitle = document.getElementById('transfers-title');
 const modal = document.getElementById('transfer-modal');
 const closeModalBtn = document.getElementById('close-modal');
 const printBtn = document.getElementById('print-btn');
-const modalSubtitle = document.getElementById('modal-subtitle');
-const modalText = document.getElementById('modal-text');
-
-// Form Modal Elements
-const addModal = document.getElementById('add-modal');
-const addNewBtn = document.getElementById('add-new-btn');
-const closeAddModalBtn = document.getElementById('close-add-modal');
-const addForm = document.getElementById('add-form');
+const modalBodyContent = document.getElementById('modal-body-content');
 
 let selectedMonthId = null;
 
 // Initialize App
 function init() {
-    loadData();
-    renderMonthsList();
+    loadCSVData();
     setupEventListeners();
 }
 
-// Load data from localStorage
-function loadData() {
-    const storedData = localStorage.getItem('upscAppData');
-    if (storedData) {
-        appData = JSON.parse(storedData);
+// Fetch and Parse CSV Data using PapaParse
+function loadCSVData() {
+    Papa.parse(CSV_URL, {
+        download: true,
+        header: true, // Output as objects using first row as keys
+        skipEmptyLines: true,
+        complete: function(results) {
+            processParsedData(results);
+        },
+        error: function(error) {
+            console.error('Error fetching CSV:', error);
+            transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state" style="color:red;">डेटा लोड करने में त्रुटि हुई (Error loading data).</td></tr>';
+        }
+    });
+}
+
+// Process the raw CSV objects into our months/transfers structure
+function processParsedData(parsed) {
+    if (!parsed.data || parsed.data.length === 0) {
+        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
+        return;
+    }
+
+    // Extract headers (keys of the first object)
+    appData.rawHeaders = Object.keys(parsed.data[0]);
+
+    // Try to find a Date column for grouping
+    // It looks for a column exactly named 'Date' or 'दिनांक' or containing 'Date'
+    let dateColumnName = appData.rawHeaders.find(h => h.toLowerCase().includes('date') || h.includes('दिनांक')) || appData.rawHeaders[0];
+
+    // Reset data
+    appData.months = [];
+    appData.transfers = {};
+
+    parsed.data.forEach((row, index) => {
+        const dateStr = row[dateColumnName];
+        let monthYearStr = 'Unknown';
+        let monthId = 'unknown';
+
+        if (dateStr) {
+            // Attempt to parse date (assuming DD/MM/YYYY or YYYY-MM-DD or standard parseable string)
+            // A simple logic for DD/MM/YYYY:
+            let dObj = new Date(dateStr);
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    // Try to guess if it's DD/MM/YYYY
+                    dObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                }
+            }
+            
+            if (!isNaN(dObj.getTime())) {
+                const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const monthName = monthsName[dObj.getMonth()];
+                const year = dObj.getFullYear();
+                monthYearStr = `${monthName}-${year}`;
+                monthId = `${monthName.substring(0,3).toLowerCase()}-${String(year).substring(2,4)}`; 
+            } else {
+                monthYearStr = dateStr; // fallback to raw string if parsing fails
+                monthId = dateStr.replace(/\\s+/g, '-').toLowerCase();
+            }
+        }
+
+        // Add to month list
+        let existingMonth = appData.months.find(m => m.id === monthId);
+        if (existingMonth) {
+            existingMonth.notices += 1;
+        } else {
+            appData.months.push({
+                id: monthId,
+                monthYear: monthYearStr,
+                notices: 1
+            });
+        }
+
+        // Add to transfers array
+        if (!appData.transfers[monthId]) {
+            appData.transfers[monthId] = [];
+        }
+        
+        // Save the entire row object along with a unique ID
+        appData.transfers[monthId].push({
+            _internalId: 'row_' + index,
+            rowData: row 
+        });
+    });
+
+    // Sort months roughly (you can implement advanced sorting here)
+    // Currently rendering as parsed.
+
+    renderMonthsList();
+    renderDynamicHeaders();
+    
+    // Auto-select first month
+    if (appData.months.length > 0) {
+        selectMonth(appData.months[0].id, appData.months[0].monthYear);
     } else {
-        appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy default
-        saveData();
+        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">कोई डेटा नहीं मिला (No data found).</td></tr>';
     }
 }
 
-// Save data to localStorage
-function saveData() {
-    localStorage.setItem('upscAppData', JSON.stringify(appData));
+// Render dynamic table headers based on CSV columns
+function renderDynamicHeaders() {
+    let theadHTML = '<tr>';
+    
+    // We can choose to show only the first 2-3 columns in the table to save space, 
+    // and show everything in the modal. Or show all columns. 
+    // For this generic approach, we'll show up to 3 columns + 'VIEW' button
+    const colsToShow = appData.rawHeaders.slice(0, 3); 
+    
+    colsToShow.forEach(header => {
+        theadHTML += `<th>${header}</th>`;
+    });
+    
+    theadHTML += '<th>देखें (VIEW)</th></tr>';
+    transfersThead.innerHTML = theadHTML;
 }
 
 // Render the left pane list
@@ -78,9 +160,7 @@ function renderMonthsList() {
             </td>
         `;
         
-        // Row click event
         tr.addEventListener('click', () => selectMonth(month.id, month.monthYear));
-        
         monthsTbody.appendChild(tr);
     });
 }
@@ -102,22 +182,27 @@ function selectMonth(id, title) {
     renderTransfersList(id);
 }
 
-// Render the right pane list based on selected month
+// Render the right pane list dynamically based on selected month
 function renderTransfersList(monthId) {
     transfersTbody.innerHTML = '';
-    const transfers = appData.transfers[monthId] || [];
+    const items = appData.transfers[monthId] || [];
     
-    if (transfers.length === 0) {
-        transfersTbody.innerHTML = '<tr><td colspan="3" class="empty-state">इस महीने के लिए कोई जानकारी नहीं मिली।</td></tr>';
+    if (items.length === 0) {
+        transfersTbody.innerHTML = '<tr><td colspan="100%" class="empty-state">इस महीने के लिए कोई जानकारी नहीं मिली।</td></tr>';
         return;
     }
     
-    transfers.forEach(transfer => {
+    const ObjectKeysToShow = appData.rawHeaders.slice(0, 3);
+    
+    items.forEach(item => {
         const tr = document.createElement('tr');
         
-        tr.innerHTML = `
-            <td>${transfer.date}</td>
-            <td>${transfer.title}</td>
+        let trHTML = '';
+        ObjectKeysToShow.forEach(key => {
+            trHTML += `<td>${item.rowData[key] || '-'}</td>`;
+        });
+        
+        trHTML += `
             <td>
                 <a href="#" class="action-icon view-transfer-btn" aria-label="View Details">
                     <i class="ph ph-eye"></i>
@@ -125,111 +210,52 @@ function renderTransfersList(monthId) {
             </td>
         `;
         
+        tr.innerHTML = trHTML;
+        
         const viewBtn = tr.querySelector('.view-transfer-btn');
         viewBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            openModal(transfer);
+            openModal(item.rowData);
         });
         
         transfersTbody.appendChild(tr);
     });
 }
 
-// Add New Entry Logic
-addForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+
+// Dynamic Modal Generation
+function openModal(rowData) {
+    let modalHTML = '';
     
-    try {
-        const dateInput = document.getElementById('entry-date').value; // Expected YYYY-MM-DD
-        const titleInput = document.getElementById('entry-title').value;
-        const detailsInput = document.getElementById('entry-details').value;
+    appData.rawHeaders.forEach((key, index) => {
+        const value = rowData[key];
+        if (!value) return; // Skip empty fields
         
-        if(!dateInput || !titleInput || !detailsInput) {
-            alert('कृपया सभी फ़ील्ड भरें। (Please fill all fields.)');
-            return;
-        }
-        
-        // Robust Date Parsing
-        let year, monthIndex, day;
-        const parts = dateInput.split('-');
-        if (parts.length === 3) {
-            year = parts[0];
-            monthIndex = parseInt(parts[1], 10) - 1;
-            day = parts[2];
+        // Treat the first item as a subtitle, the rest as blocks
+        if (index === 0) {
+            modalHTML += `<h4 style="margin-bottom: 1.5rem; font-weight: 500; font-size: 1rem;" class="text-muted">${key}: ${value}</h4>`;
         } else {
-            const d = new Date(dateInput);
-            if (isNaN(d.getTime())) {
-                alert('कृपया सही दिनांक दर्ज करें (Please enter a valid date).');
-                return;
+            // Check if value is a link
+            let displayValue = value;
+            if(value.startsWith('http')) {
+                displayValue = `<a href="${value}" target="_blank" style="color: #3b82f6; word-break: break-all;">${value}</a>`;
+            } else {
+                displayValue = value.replace(/\\n/g, '<br>');
             }
-            year = d.getFullYear();
-            monthIndex = d.getMonth();
-            day = String(d.getDate()).padStart(2, '0');
+            
+            modalHTML += `
+            <div style="margin-bottom: 1.25rem;">
+                <p style="margin:0 0 4px 0; font-size:0.8rem; color: var(--text-muted); text-transform:uppercase; font-weight:600;">${key}</p>
+                <div class="transfer-text" style="font-size: 1rem; padding: 1rem; margin-top: 5px;">
+                    ${displayValue}
+                </div>
+            </div>
+            `;
         }
-
-        const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const monthName = monthsName[monthIndex];
-        
-        if (!monthName) {
-            alert('अमान्य दिनांक (Invalid Date).');
-            return;
-        }
-        
-        const displayDate = `${String(day).padStart(2, '0')}/${String(monthIndex + 1).padStart(2, '0')}/${year}`;
-        const monthYear = `${monthName}-${year}`;
-        const monthId = `${monthName.substring(0,3).toLowerCase()}-${String(year).substring(2,4)}`; // e.g. aug-26
-        
-        // Create new transfer object
-        const newEntry = {
-            id: 't' + Date.now(),
-            date: displayDate,
-            title: titleInput,
-            detail: detailsInput
-        };
-        
-        // Check if month exists
-        let existingMonth = appData.months.find(m => m.id === monthId);
-        
-        if (existingMonth) {
-            existingMonth.notices += 1;
-        } else {
-            // Add new month at the beginning
-            appData.months.unshift({
-                id: monthId,
-                monthYear: monthYear,
-                notices: 1
-            });
-        }
-        
-        // Add to transfers array
-        if (!appData.transfers[monthId]) {
-            appData.transfers[monthId] = [];
-        }
-        appData.transfers[monthId].unshift(newEntry); // Add to top
-        
-        saveData();
-        renderMonthsList();
-        selectMonth(monthId, monthYear); // Auto select the new/updated month
-        
-        // Reset and close
-        addForm.reset();
-        closeAddModal();
-        
-    } catch (error) {
-        console.error(error);
-        alert('डेटा सेव करते समय एक त्रुटि हुई: ' + error.message);
-    }
-});
-
-
-// Details Modal Functions
-function openModal(transfer) {
-    modalSubtitle.textContent = `दिनांक: ${transfer.date}`;
+    });
     
-    // Format text to handle line breaks properly
-    const formattedText = transfer.detail.replace(/\n/g, '<br>');
-    modalText.innerHTML = formattedText;
+    modalBodyContent.innerHTML = modalHTML;
     
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden'; 
@@ -237,17 +263,6 @@ function openModal(transfer) {
 
 function closeModal() {
     modal.classList.add('hidden');
-    document.body.style.overflow = '';
-}
-
-// Add Form Modal Functions
-function openAddModal() {
-    addModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeAddModal() {
-    addModal.classList.add('hidden');
     document.body.style.overflow = '';
 }
 
@@ -259,18 +274,10 @@ function setupEventListeners() {
         if (e.target === modal) closeModal();
     });
     
-    // Add form Modal
-    addNewBtn.addEventListener('click', openAddModal);
-    closeAddModalBtn.addEventListener('click', closeAddModal);
-    addModal.addEventListener('click', (e) => {
-        if (e.target === addModal) closeAddModal();
-    });
-    
     // Global Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (!modal.classList.contains('hidden')) closeModal();
-            if (!addModal.classList.contains('hidden')) closeAddModal();
         }
     });
     
@@ -278,11 +285,6 @@ function setupEventListeners() {
     printBtn.addEventListener('click', () => {
         window.print();
     });
-    
-    // Select first month by default on load
-    if (appData.months.length > 0) {
-        selectMonth(appData.months[0].id, appData.months[0].monthYear);
-    }
 }
 
 // Start app

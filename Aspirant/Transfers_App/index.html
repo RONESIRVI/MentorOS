@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="styles.css">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <div class="background-mesh"></div>
@@ -21,15 +23,12 @@
         <header class="app-header">
             <div class="header-content">
                 <h1>UPSC अध्ययन पोर्टल</h1>
-                <p>यहाँ आप UPSC से संबंधित महत्वपूर्ण अध्ययन सामग्री, नोट्स और करंट अफेयर्स को महीने-वार देख और जोड़ सकते हैं।</p>
+                <p>यहाँ आप UPSC से संबंधित महत्वपूर्ण अध्ययन सामग्री, नोट्स और करंट अफेयर्स को महीने-वार देख सकते हैं। यह डेटा सीधे Google Sheet से लाइव आ रहा है।</p>
             </div>
         </header>
 
         <section class="controls-section">
             <div class="search-container">
-                <button id="add-new-btn" class="btn btn-success">
-                    <i class="ph ph-plus-circle"></i> नई जानकारी जोड़ें
-                </button>
                 <div class="custom-select">
                     <select id="year-select" aria-label="Select Year">
                         <option value="">वर्ष चुनें</option>
@@ -56,7 +55,7 @@
                         <thead>
                             <tr>
                                 <th>महीना-वर्ष</th>
-                                <th>विषयों की संख्या</th>
+                                <th>टॉपिक्स की संख्या</th>
                                 <th>देखें</th>
                             </tr>
                         </thead>
@@ -74,16 +73,12 @@
                 </div>
                 <div class="table-container">
                     <table class="data-table" id="transfers-table">
-                        <thead>
-                            <tr>
-                                <th>दिनांक</th>
-                                <th>विषय (TOPIC)</th>
-                                <th>देखें</th>
-                            </tr>
+                        <thead id="transfers-thead">
+                            <!-- Headers Populated dynamically by JS -->
                         </thead>
                         <tbody id="transfers-tbody">
                             <!-- Populated by JS -->
-                            <tr><td colspan="3" class="empty-state">कृपया बाएँ पैनल से कोई महीना चुनें</td></tr>
+                            <tr><td colspan="100%" class="empty-state">डेटा लोड हो रहा है... (Loading data)</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -95,16 +90,13 @@
     <div id="transfer-modal" class="modal-overlay hidden" aria-hidden="true">
         <div class="modal-content glass-effect">
             <div class="modal-header">
-                <h3 id="modal-title">विषय की विस्तृत जानकारी</h3>
+                <h3 id="modal-title">विस्तृत जानकारी</h3>
                 <button id="close-modal" class="icon-btn" aria-label="Close modal">
                     <i class="ph ph-x"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <h4 id="modal-subtitle" class="text-muted">दिनांक</h4>
-                <div id="modal-text" class="transfer-text">
-                    <!-- Details here -->
-                </div>
+            <div class="modal-body" id="modal-body-content">
+                <!-- Dynamically populated by JS based on CSV columns -->
             </div>
             <div class="modal-footer">
                 <button id="share-btn" class="icon-btn tooltip" aria-label="Share">
@@ -115,37 +107,6 @@
                     <i class="ph ph-printer"></i>
                     <span class="tooltip-text">प्रिंट करें</span>
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add New Entry Modal -->
-    <div id="add-modal" class="modal-overlay hidden" aria-hidden="true">
-        <div class="modal-content glass-effect form-modal">
-            <div class="modal-header">
-                <h3>नई अध्ययन सामग्री जोड़ें</h3>
-                <button id="close-add-modal" class="icon-btn" aria-label="Close modal">
-                    <i class="ph ph-x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="add-form">
-                    <div class="form-group">
-                        <label for="entry-date">दिनांक (Date)</label>
-                        <input type="date" id="entry-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="entry-title">विषय (Topic/Title)</label>
-                        <input type="text" id="entry-title" placeholder="उदाहरण: 1857 की क्रांति" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="entry-details">विस्तृत जानकारी (Details)</label>
-                        <textarea id="entry-details" rows="5" placeholder="यहाँ नोट्स या विवरण लिखें..." required></textarea>
-                    </div>
-                    <div class="modal-footer form-footer">
-                        <button type="submit" class="btn btn-primary">सुरक्षित करें (Save)</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
