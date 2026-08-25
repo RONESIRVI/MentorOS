@@ -107,7 +107,7 @@ class DynamicDashboard {
 
     populateCategoryDropdown() {
         if (!this.elements.categorySelect) return;
-        this.elements.categorySelect.innerHTML = '<option value="">श्रेणी चुनें (Select Category)</option>';
+        this.elements.categorySelect.innerHTML = '<option value="">वर्ष चुनें (Select Year)</option>';
         this.appData.categories.forEach(cat => {
             const option = document.createElement('option');
             option.value = cat.id;
@@ -146,7 +146,7 @@ class DynamicDashboard {
         if (selectedRow) selectedRow.classList.add('selected');
         
         this.selectedCategoryId = id;
-        this.elements.itemsTitle.textContent = `विषय: ${title}`;
+        this.elements.itemsTitle.textContent = `CandidateName: ${title}`;
         
         if (this.elements.categorySelect) {
             this.elements.categorySelect.value = id;
