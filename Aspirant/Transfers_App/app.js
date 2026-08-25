@@ -101,6 +101,7 @@ function processParsedData(parsed) {
 
     renderCategoriesList();
     renderDynamicHeaders();
+    populateCategoryDropdown();
     
     // Auto-select first category
     if (appData.categories.length > 0) {
@@ -118,6 +119,22 @@ function renderDynamicHeaders() {
     });
     theadHTML += '<th>देखें (VIEW)</th></tr>';
     itemsThead.innerHTML = theadHTML;
+}
+
+// Populate the search dropdown with categories
+function populateCategoryDropdown() {
+    const categorySelect = document.getElementById('category-select');
+    if (!categorySelect) return;
+    
+    // Clear existing options except the first one
+    categorySelect.innerHTML = '<option value="">श्रेणी चुनें (Select Category)</option>';
+    
+    appData.categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name;
+        categorySelect.appendChild(option);
+    });
 }
 
 // Render the left pane list
@@ -156,6 +173,12 @@ function selectCategory(id, title) {
     
     selectedCategoryId = id;
     itemsTitle.textContent = `विषय: ${title}`;
+    
+    // Also update the dropdown to match if it exists
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.value = id;
+    }
     
     renderItemsList(id);
 }
@@ -261,6 +284,20 @@ function setupEventListeners() {
     printBtn.addEventListener('click', () => {
         window.print();
     });
+    
+    // Dropdown change event
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (selectedId) {
+                const cat = appData.categories.find(c => c.id === selectedId);
+                if (cat) {
+                    selectCategory(cat.id, cat.name);
+                }
+            }
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
