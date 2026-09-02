@@ -3,6 +3,8 @@ class DynamicDashboard {
         this.csvUrl = config.csvUrl;
         this.elements = {
             categorySelect: document.getElementById(config.categorySelectId),
+            categoriesThead: document.getElementById(config.categoriesTheadId),
+            categoriesTitle: document.getElementById(config.categoriesTitleId),
             categoriesTbody: document.getElementById(config.categoriesTbodyId),
             itemsThead: document.getElementById(config.itemsTheadId),
             itemsTbody: document.getElementById(config.itemsTbodyId),
@@ -48,6 +50,8 @@ class DynamicDashboard {
                     || this.appData.rawHeaders.find(h => h.toLowerCase() === 'category')
                     || this.appData.rawHeaders.find(h => h.toLowerCase().includes('date'))
                     || this.appData.rawHeaders[0];
+
+        this.appData.groupCol = groupCol;
 
         let pref1 = this.appData.rawHeaders.find(h => h.toLowerCase().includes('title') || h.toLowerCase().includes('test')) || this.appData.rawHeaders[0];
         let pref2 = this.appData.rawHeaders.find(h => h.toLowerCase() === 'date' || h.toLowerCase() === 'दिनांक') || this.appData.rawHeaders[1] || '';
@@ -103,6 +107,13 @@ class DynamicDashboard {
         });
         theadHTML += '<th>देखें (VIEW)</th></tr>';
         this.elements.itemsThead.innerHTML = theadHTML;
+        
+        if (this.elements.categoriesThead) {
+            this.elements.categoriesThead.innerHTML = `<tr><th>${this.appData.groupCol}</th><th>टेस्ट की संख्या</th><th>देखें</th></tr>`;
+        }
+        if (this.elements.categoriesTitle) {
+            this.elements.categoriesTitle.innerHTML = this.appData.groupCol;
+        }
     }
 
     populateCategoryDropdown() {
@@ -264,6 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
     new DynamicDashboard({
         csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=1003446063&single=true&output=csv',
         categorySelectId: 'category-select-1',
+        categoriesTheadId: 'categories-thead-1',
+        categoriesTitleId: 'categories-title-1',
         categoriesTbodyId: 'categories-tbody-1',
         itemsTheadId: 'items-thead-1',
         itemsTbodyId: 'items-tbody-1',
@@ -274,6 +287,8 @@ document.addEventListener('DOMContentLoaded', () => {
     new DynamicDashboard({
         csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyQdEJ4jJnmD0cCEpBtVHtw0d1z8nEYQRdoze10qmVMj4ydNDJqc8_3v-BZj_1hn4aHbOyWh8l-6d6/pub?gid=644171246&single=true&output=csv',
         categorySelectId: 'category-select-2',
+        categoriesTheadId: 'categories-thead-2',
+        categoriesTitleId: 'categories-title-2',
         categoriesTbodyId: 'categories-tbody-2',
         itemsTheadId: 'items-thead-2',
         itemsTbodyId: 'items-tbody-2',
