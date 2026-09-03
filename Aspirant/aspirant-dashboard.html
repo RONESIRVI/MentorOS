@@ -2180,7 +2180,7 @@
       
       const file = fileInput.files[0];
       if(file.type !== 'application/pdf') { alert('Only PDF files are allowed.'); return; }
-      if(file.size > 15 * 1024 * 1024) { alert('File size must be less than 15MB.'); return; }
+      if(file.size > 49 * 1024 * 1024) { alert('File size must be less than 49MB.'); return; }
 
       const btn = document.getElementById('btn-submit-ans');
       const progressContainer = document.getElementById('upload-progress-container');
@@ -2286,7 +2286,7 @@
       fileInput.onchange = async (e) => {
         const file = e.target.files[0];
         if(!file) return;
-        if(file.size > 15 * 1024 * 1024) { alert('File size must be less than 15MB.'); return; }
+        if(file.size > 49 * 1024 * 1024) { alert('File size must be less than 49MB.'); return; }
         
         const oldText = btn.textContent;
         btn.textContent = 'Uploading...';
