@@ -856,6 +856,7 @@
           formData.append('subject', subject);
           formData.append('topic', topicFinal);
           formData.append('courseName', subject); // for backward compat
+          formData.append('submissionTitle', title);
 
           try {
             const response = await fetch(scriptURL, {
