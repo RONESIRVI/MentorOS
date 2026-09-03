@@ -847,7 +847,7 @@
           progressBar.style.width = '60%';
           progressPercent.textContent = 'Sending to Drive...';
           
-          const scriptURL = "https://script.google.com/macros/s/AKfycbwU8mCDP7z8Wlu7nV3_sDZiVH59KUx-vLL63FQzMZbhvvq0i-ze_cIfGAFft7olRCZR/exec";
+          const scriptURL = "https://script.google.com/macros/s/AKfycbyCYIKq5vx5_PhjYyEG6und4aP3Uua9aaVaZR0JUm9KcWbBUC5ZFC1dLC5NUWqc9TY8/exec";
           
           const formData = new URLSearchParams();
           formData.append('fileData', base64Data);
