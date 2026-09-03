@@ -2,6 +2,15 @@
 <html lang="hi-IN" dir="ltr">
 <head>
   <meta charset="UTF-8">
+  <style>
+    @font-face {
+      font-family: 'Century Schoolbook';
+      src: url('../assets/fonts/SCHLBKB.TTF') format('truetype');
+    }
+    .century-font {
+      font-family: 'Century Schoolbook', serif !important;
+    }
+  </style>
   <link rel="icon" type="image/jpeg" href="../favicon.jpg?v=2">
   <!-- Secure TOTP/Passcode Lock -->
   <script>
@@ -1814,6 +1823,39 @@
       // Initialize if we are already on the page
       window.initQuoteBankFilters();
 
+      // 3. Populate Topper Name Dropdowns (ans-topper & cut-rank-select)
+      window.initAnswerToppers = function() {
+        let ranks = [];
+        try {
+          if (window.SNIPPET_CATEGORIES) {
+            ranks = window.SNIPPET_CATEGORIES.ranks || [];
+          }
+        } catch(err) {
+          console.error("Could not load snippet_categories.js", err);
+        }
+
+        const topperSelect = document.getElementById('ans-topper');
+        if (topperSelect && topperSelect.options.length <= 1) {
+          ranks.forEach(rank => {
+            const opt = document.createElement('option');
+            opt.value = rank;
+            opt.textContent = rank;
+            opt.style.background = '#0f172a';
+            topperSelect.appendChild(opt);
+          });
+        }
+      };
+
+      // Set up a MutationObserver to populate #ans-topper when it is injected into the DOM
+      const observer = new MutationObserver(() => {
+        if (document.getElementById('ans-topper')) {
+          window.initAnswerToppers();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+      
+      window.initAnswerToppers();
+
       // 3. Populate CMS Categorize Buttons (With Primary Types)
       const cmsButtonsContainer = document.getElementById('dynamic-cat-buttons');
       if (cmsButtonsContainer && dynamicCats.length > 0) {
@@ -2172,6 +2214,8 @@
       const subject = document.getElementById('ans-subject').value.trim();
       const topic = document.getElementById('ans-topic').value.trim();
       const fileInput = document.getElementById('ans-file');
+      const topperSelect = document.getElementById('ans-topper');
+      const topperName = topperSelect ? topperSelect.value : '';
       
       if(!subject) { alert('Please select a Subject.'); return; }
       if(!title) { alert('Please enter a Submission Title.'); return; }
@@ -2215,6 +2259,7 @@
           formData.append('topic', topicFinal);
           formData.append('courseName', subject); // for backward compat
           formData.append('submissionTitle', title);
+          if (topperName) formData.append('topperName', topperName);
 
           try {
             const response = await fetch(scriptURL, {
@@ -3633,7 +3678,7 @@ Your Token might be invalid or expired. I've cleared it, please try clicking Syn
         <select id="cut-category-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
           <option value="Uncategorized">Select Category...</option>
         </select>
-        <select id="cut-rank-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
+        <select id="cut-rank-select" class="century-font" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">
           <option value="">Select Rank / Name (Optional)</option>
         </select>
         <select id="cut-year-select" style="width:100%; padding:8px; border-radius:8px; border: 1px solid rgba(255,255,255,0.15); margin-bottom:5px;">

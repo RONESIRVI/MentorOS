@@ -814,6 +814,8 @@
       const subject = document.getElementById('ans-subject').value.trim();
       const topic = document.getElementById('ans-topic').value.trim();
       const fileInput = document.getElementById('ans-file');
+      const topperSelect = document.getElementById('ans-topper');
+      const topperName = topperSelect ? topperSelect.value : '';
       
       if(!subject) { alert('Please select a Subject.'); return; }
       if(!title) { alert('Please enter a Submission Title.'); return; }
@@ -857,6 +859,7 @@
           formData.append('topic', topicFinal);
           formData.append('courseName', subject); // for backward compat
           formData.append('submissionTitle', title);
+          if (topperName) formData.append('topperName', topperName);
 
           try {
             const response = await fetch(scriptURL, {
