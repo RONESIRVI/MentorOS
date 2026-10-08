@@ -22,8 +22,8 @@ const db = getFirestore(app);
 const ROLE_REDIRECTS = {
   admin:    'Admin/admin-dashboard.html',
   Admin:    'Admin/admin-dashboard.html',
-  mentor:   'Admin/admin-dashboard.html?tab=mentor',
-  Mentor:   'Admin/admin-dashboard.html?tab=mentor',
+  mentor:   'Mentor/mentor-dashboard.html',
+  Mentor:   'Mentor/mentor-dashboard.html',
   aspirant: 'Aspirant/aspirant-dashboard.html',
   Aspirant: 'Aspirant/aspirant-dashboard.html'
 };
@@ -36,11 +36,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const role = await getUserRole(user.email);
     
-    // Allow both Admin & Mentor logins to access Admin dashboard suite
-    const isUserAdminOrMentor = (role.toLowerCase() === 'admin' || role.toLowerCase() === 'mentor');
-    const isExpectedAdminOrMentor = (expectedRoleLogin && (expectedRoleLogin.toLowerCase() === 'admin' || expectedRoleLogin.toLowerCase() === 'mentor'));
-
-    if (expectedRoleLogin && !isUserAdminOrMentor && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
+    if (expectedRoleLogin && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
        await signOut(auth);
        const displayRole = role.charAt(0).toUpperCase() + role.slice(1);
        const displayExpected = expectedRoleLogin.charAt(0).toUpperCase() + expectedRoleLogin.slice(1);
@@ -49,7 +45,7 @@ onAuthStateChanged(auth, async (user) => {
        
        // Reset all login buttons if they were stuck on "Signing in..."
        document.querySelectorAll('.btn-login').forEach(btn => {
-         if (btn.textContent.includes('Signing in')) {
+         if (btn.textContent.includes('Signing in') || btn.disabled) {
            btn.disabled = false;
            if (btn.classList.contains('mentor-btn')) btn.textContent = 'Login as Mentor →';
            else if (btn.classList.contains('admin-btn')) btn.textContent = 'Login to Admin ERP →';
@@ -72,13 +68,12 @@ onAuthStateChanged(auth, async (user) => {
 async function getUserRole(email) {
   const emailLower = email.toLowerCase();
   if (emailLower === SUPER_ADMIN_EMAIL) return 'admin';
+  if (emailLower === 'ronesirvi@gmail.com') return 'mentor';
   try {
     const roleDocRef = doc(db, 'userRoles', emailLower);
     const roleDoc = await getDoc(roleDocRef);
     if (roleDoc.exists()) {
-      const dbRole = roleDoc.data().role || 'Aspirant';
-      if (dbRole.toLowerCase() === 'mentor') return 'admin'; // Mentors transferred to Admin with dual dashboard
-      return dbRole;
+      return roleDoc.data().role || 'Aspirant';
     } else {
       // Auto-register new user as Aspirant
       await setDoc(roleDocRef, { role: 'Aspirant' });
@@ -195,6 +190,24 @@ studentForm?.addEventListener('submit', async (e) => {
   }
 });
 
+const mentorForm = document.querySelector('#tab-mentor-content form');
+mentorForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  expectedRoleLogin = 'mentor';
+  const email    = document.getElementById('mentor-email').value.trim();
+  const password = document.getElementById('mentor-password').value;
+  const btn      = mentorForm.querySelector('button[type="submit"]');
+
+  if (!email || !password) return;
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    btn.textContent = 'Login as Mentor →'; btn.disabled = false;
+    showError(getErrorMessage(err.code));
+  }
+});
+
 const adminForm = document.querySelector('#tab-admin-content form');
 adminForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -208,7 +221,7 @@ adminForm?.addEventListener('submit', async (e) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (err) {
-    btn.textContent = 'Login to Admin & Mentor Panel →'; btn.disabled = false;
+    btn.textContent = 'Login to Admin ERP →'; btn.disabled = false;
     showError(getErrorMessage(err.code));
   }
 });

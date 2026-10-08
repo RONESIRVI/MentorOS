@@ -368,9 +368,13 @@
             role = roleDoc.data().role || 'Mentor';
           }
           
-          if (role.toLowerCase() === 'mentor' || role.toLowerCase() === 'admin') {
-            let displayName = user.displayName;
-            if (!displayName) {
+          if (role.toLowerCase() !== 'mentor') {
+            window.location.href = '../index.html';
+            return;
+          }
+          
+          let displayName = user.displayName;
+          if (!displayName) {
               try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists() && userDoc.data().name) {
@@ -442,11 +446,7 @@
               m.style.display = 'flex';
             };
 
-          } else {
-            alert('Access Denied. Mentor role required.');
-            await signOut(auth);
-            window.location.href = '../index.html';
-          }
+
         } catch (e) {
           console.error(e);
           window.location.href = '../index.html';

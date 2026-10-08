@@ -70,7 +70,8 @@
               <div class="dropdown-section">
                 <h4 class="dropdown-heading">Portals</h4>
                 <a href="javascript:void(0)" onclick="openTotpModal('aspirant')" class="dropdown-item">🎓 Aspirant Portal</a>
-                <a href="javascript:void(0)" onclick="openTotpModal('admin')" class="dropdown-item">⚙️ Admin & Mentor ERP</a>
+                <a href="javascript:void(0)" onclick="openTotpModal('mentor')" class="dropdown-item">👨‍🏫 Mentor Portal</a>
+                <a href="javascript:void(0)" onclick="openTotpModal('admin')" class="dropdown-item">⚙️ Admin ERP</a>
               </div>
               <div class="dropdown-section">
                 <h4 class="dropdown-heading">Learning</h4>
@@ -139,7 +140,8 @@
     <div class="mobile-menu" id="mobileMenu">
       <div class="mobile-menu-inner">
         <a href="javascript:void(0)" onclick="openTotpModal('aspirant')" class="mobile-link">🎓 Student Login</a>
-        <a href="javascript:void(0)" onclick="openTotpModal('admin')" class="mobile-link">⚙️ Admin & Mentor Login</a>
+        <a href="javascript:void(0)" onclick="openTotpModal('mentor')" class="mobile-link">👨‍🏫 Mentor Login</a>
+        <a href="javascript:void(0)" onclick="openTotpModal('admin')" class="mobile-link">⚙️ Admin Login</a>
         <hr class="mobile-divider">
         <a href="#workflow" class="mobile-link">📚 LMS Courses</a>
         <a href="#workflow" class="mobile-link">✍️ Answer Writing</a>
@@ -171,7 +173,8 @@
           <div class="login-card" id="student-login">
             <div class="login-tabs">
               <button class="login-tab active" data-tab="student" id="tab-student">🎓 Aspirant</button>
-              <button class="login-tab" data-tab="admin" id="tab-admin">⚙️ Admin / Mentor ERP</button>
+              <button class="login-tab" data-tab="mentor" id="tab-mentor">👨‍🏫 Mentor</button>
+              <button class="login-tab" data-tab="admin" id="tab-admin">⚙️ Admin</button>
             </div>
 
             <!-- Student Login Form -->
@@ -242,21 +245,52 @@
               <p class="signup-link">New to RONE? <a href="#courses">Register as Aspirant →</a></p>
             </div>
 
-            <!-- Admin & Mentor Login Form -->
-            <div class="tab-content" id="tab-admin-content">
+            <!-- Mentor Login Form -->
+            <div class="tab-content" id="tab-mentor-content">
               <div class="login-header">
-                <h2 class="login-title">Admin & Mentor ERP</h2>
-                <p class="login-subtitle">Full platform management, mentorship & analytics</p>
+                <h2 class="login-title">Mentor Portal</h2>
+                <p class="login-subtitle">Access your student management dashboard</p>
               </div>
               <form class="login-form">
                 <div class="form-group">
-                  <label for="admin-email">Admin / Mentor ID or Email</label>
+                  <label for="mentor-email">Mentor ID / Email</label>
                   <div class="input-wrap">
                     <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
-                    <input type="text" id="admin-email" placeholder="Enter Admin / Mentor ID or email">
+                    <input type="text" id="mentor-email" placeholder="Enter Mentor ID or email">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="mentor-password">Password</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <input type="password" id="mentor-password" placeholder="Enter password">
+                  </div>
+                </div>
+                <button type="submit" class="btn-login mentor-btn">Login as Mentor →</button>
+              </form>
+            </div>
+
+            <!-- Admin Login Form -->
+            <div class="tab-content" id="tab-admin-content">
+              <div class="login-header">
+                <h2 class="login-title">Admin ERP</h2>
+                <p class="login-subtitle">Full platform management & analytics</p>
+              </div>
+              <form class="login-form">
+                <div class="form-group">
+                  <label for="admin-email">Admin Username / Email</label>
+                  <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <input type="text" id="admin-email" placeholder="Enter admin username or email">
                   </div>
                 </div>
                 <div class="form-group">
@@ -269,7 +303,7 @@
                     <input type="password" id="admin-password" placeholder="Enter password">
                   </div>
                 </div>
-                <button type="submit" class="btn-login admin-btn">Login to Admin & Mentor Panel →</button>
+                <button type="submit" class="btn-login admin-btn">Login to Admin ERP →</button>
               </form>
             </div>
           </div>
