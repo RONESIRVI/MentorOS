@@ -195,24 +195,6 @@ studentForm?.addEventListener('submit', async (e) => {
   }
 });
 
-const mentorForm = document.querySelector('#tab-mentor-content form');
-mentorForm?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  expectedRoleLogin = 'mentor';
-  const email    = document.getElementById('mentor-email').value.trim();
-  const password = document.getElementById('mentor-password').value;
-  const btn      = mentorForm.querySelector('button[type="submit"]');
-
-  if (!email || !password) return;
-  btn.textContent = 'Signing in...'; btn.disabled = true;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    btn.textContent = 'Login as Mentor →'; btn.disabled = false;
-    showError(getErrorMessage(err.code));
-  }
-});
-
 const adminForm = document.querySelector('#tab-admin-content form');
 adminForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -226,7 +208,7 @@ adminForm?.addEventListener('submit', async (e) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (err) {
-    btn.textContent = 'Login to Admin ERP →'; btn.disabled = false;
+    btn.textContent = 'Login to Admin & Mentor Panel →'; btn.disabled = false;
     showError(getErrorMessage(err.code));
   }
 });
