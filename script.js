@@ -71,7 +71,7 @@ onAuthStateChanged(auth, async (user) => {
 
 async function getUserRole(email) {
   const emailLower = email.toLowerCase();
-  if (emailLower === SUPER_ADMIN_EMAIL || emailLower === 'ronesirvi@gmail.com') return 'admin';
+  if (emailLower === SUPER_ADMIN_EMAIL) return 'admin';
   try {
     const roleDocRef = doc(db, 'userRoles', emailLower);
     const roleDoc = await getDoc(roleDocRef);
