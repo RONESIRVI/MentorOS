@@ -368,7 +368,7 @@
             role = roleDoc.data().role || 'Mentor';
           }
           
-          if (role.toLowerCase() === 'mentor') {
+          if (role.toLowerCase() === 'mentor' || role.toLowerCase() === 'admin') {
             let displayName = user.displayName;
             if (!displayName) {
               try {

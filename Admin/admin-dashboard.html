@@ -576,6 +576,7 @@
       </div>
       
       <nav class="sidebar-nav">
+        <div style="padding: 10px 18px 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">⚡ Admin Suite</div>
         <a href="#" class="sidebar-nav-item active" id="nav-overview" onclick="switchAdminSection('overview')">
           <span class="icon">📊</span> Overview
         </a>
@@ -595,6 +596,20 @@
         <a href="../AllocationPortal/index.html" class="sidebar-nav-item" id="nav-allocation-portal">
           <span class="icon">🔗</span> Allocation Portal
         </a>
+
+        <div style="padding: 16px 18px 4px; font-size: 0.7rem; font-weight: 700; color: #e11d48; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 10px;">🎓 Mentor Suite</div>
+        <a href="#" class="sidebar-nav-item" id="nav-mentor-overview" onclick="switchAdminSection('mentor-overview')">
+          <span class="icon">🏠</span> Mentor Dashboard
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-mentor-students" onclick="switchAdminSection('mentor-students')">
+          <span class="icon">👨‍🎓</span> My Students
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-mentor-evaluations" onclick="switchAdminSection('mentor-evaluations')">
+          <span class="icon">✍️</span> Copy Evaluations
+        </a>
+        <a href="#" class="sidebar-nav-item" id="nav-mentor-schedule" onclick="switchAdminSection('mentor-schedule')">
+          <span class="icon">📅</span> Calendar & Calls
+        </a>
       </nav>
 
     </aside>
@@ -604,9 +619,13 @@
       
       <!-- Topbar -->
       <header class="topbar">
-        <div class="topbar-left">
+        <div class="topbar-left" style="display: flex; align-items: center; gap: 16px;">
           <button class="mobile-menu-toggle" id="mobileMenuBtn">☰</button>
-          <h2 class="page-title">Admin Control Panel</h2>
+          <h2 class="page-title" id="admin-page-title" style="margin:0;">Admin Control Panel</h2>
+          <div style="display: flex; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 3px; margin-left: 10px;">
+            <button id="mode-btn-admin" onclick="switchAdminSection('overview')" style="padding: 6px 14px; border-radius: 16px; border: none; background: #3b82f6; color: white; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">📊 Admin ERP</button>
+            <button id="mode-btn-mentor" onclick="switchAdminSection('mentor-overview')" style="padding: 6px 14px; border-radius: 16px; border: none; background: transparent; color: #94a3b8; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">🎓 Mentor Workspace</button>
+          </div>
         </div>
         <div class="topbar-right" style="display: flex; gap: 15px; align-items: center;">
           <button class="notification-btn">
@@ -660,6 +679,61 @@
           100% { transform: scale(1); opacity: 1; }
         }
       </style>
+
+      <!-- Evaluation Modal -->
+      <div id="eval-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;z-index:999;padding:20px;">
+        <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-radius:15px;width:95%;height:90%;max-width:1400px;display:flex;overflow:hidden;">
+          <div style="flex:2;background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px);border-right: 1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;">
+            <div style="padding:15px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);border-bottom: 1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;">
+              <h3 style="margin:0;font-size:1.1rem;color: #f8fafc;">📄 Student's Copy</h3>
+              <a id="btn-annotate-pdf" href="#" target="_blank" style="background:#ef4444;color:white;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:6px;transition:0.2s;">
+                🖍️ Open to Draw / Annotate
+              </a>
+            </div>
+            <div style="flex:1;position:relative;">
+              <iframe id="eval-pdf-frame" src="" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe>
+            </div>
+          </div>
+          <div style="flex:1;padding:30px;display:flex;flex-direction:column;overflow-y:auto;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);min-width:350px;">
+            <h2 style="margin:0 0 16px; color: #f8fafc;">✍️ Evaluate Copy</h2>
+            <input type="hidden" id="eval-id">
+            <div id="eval-context"></div>
+            <div style="margin-bottom:15px;">
+              <label style="display:block;margin-bottom:5px;font-weight:600;color: #cbd5e1;">Marks (out of 100)</label>
+              <input type="number" id="eval-marks" style="width:100%;padding:12px;border: 1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:1rem;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:20px;flex:1;display:flex;flex-direction:column;">
+              <label style="display:block;margin-bottom:5px;font-weight:600;color: #cbd5e1;">Feedback Comments</label>
+              <textarea id="eval-feedback" style="width:100%;flex:1;min-height:150px;padding:12px;border: 1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:inherit;font-size:0.95rem;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:auto;">
+              <button onclick="window.closeEvalModal()" style="flex:1;padding:12px;border: 1px solid rgba(255,255,255,0.15);border-radius:8px;background: rgba(30, 41, 59, 0.6);color: #cbd5e1;font-weight:600;cursor:pointer;">Cancel</button>
+              <button onclick="window.saveEval()" style="flex:2;padding:12px;background:#e11d48;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;">Submit Evaluation</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Meeting Modal -->
+      <div id="meet-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999;">
+        <div style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);padding:30px;border-radius:15px;width:90%;max-width:500px;">
+          <h2 style="color:#f8fafc; margin-top:0;">Schedule Meeting</h2>
+          <div style="margin-bottom:10px;">
+            <label style="color:#cbd5e1;">Topic</label>
+            <input type="text" id="meet-title" style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;margin-bottom:10px;background:rgba(15, 23, 42, 0.6);color:#fff;">
+            <label style="color:#cbd5e1;">Student Name</label>
+            <input type="text" id="meet-student" style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;margin-bottom:10px;background:rgba(15, 23, 42, 0.6);color:#fff;">
+            <label style="color:#cbd5e1;">Time</label>
+            <input type="text" id="meet-time" placeholder="e.g. 14:00" style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;margin-bottom:10px;background:rgba(15, 23, 42, 0.6);color:#fff;">
+            <label style="color:#cbd5e1;">Meeting Link (Google Meet / Zoom)</label>
+            <input type="text" id="meet-link" placeholder="https://meet.google.com/..." style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;background:rgba(15, 23, 42, 0.6);color:#fff;">
+          </div>
+          <div style="display:flex;gap:10px;margin-top:20px;">
+            <button onclick="window.closeMeetModal()" style="flex:1;padding:10px;border:1px solid rgba(255,255,255,0.15);border-radius:6px;background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px);color:#cbd5e1;cursor:pointer;">Cancel</button>
+            <button onclick="window.saveMeet()" style="flex:2;padding:10px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Schedule</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Dashboard Canvas -->
       <div class="dashboard-canvas">
@@ -798,6 +872,26 @@
       const activeNav = document.getElementById('nav-' + sectionId);
       if (activeNav) activeNav.classList.add('active');
 
+      const isMentorTab = sectionId.startsWith('mentor-');
+      const modeAdminBtn = document.getElementById('mode-btn-admin');
+      const modeMentorBtn = document.getElementById('mode-btn-mentor');
+      const pageTitleEl = document.getElementById('admin-page-title');
+      if (modeAdminBtn && modeMentorBtn) {
+        if (isMentorTab) {
+          modeAdminBtn.style.background = 'transparent';
+          modeAdminBtn.style.color = '#94a3b8';
+          modeMentorBtn.style.background = '#e11d48';
+          modeMentorBtn.style.color = 'white';
+          if (pageTitleEl) pageTitleEl.textContent = 'Mentor Workspace';
+        } else {
+          modeAdminBtn.style.background = '#3b82f6';
+          modeAdminBtn.style.color = 'white';
+          modeMentorBtn.style.background = 'transparent';
+          modeMentorBtn.style.color = '#94a3b8';
+          if (pageTitleEl) pageTitleEl.textContent = 'Admin Control Panel';
+        }
+      }
+
       if (window.innerWidth <= 768) sidebar.classList.remove('open');
 
       const dynamicContent = document.getElementById('dynamic-content');
@@ -834,6 +928,22 @@
       if (sectionId === 'users') window.loadUsersList();
       if (sectionId === 'courses') window.loadCoursesList();
       if (sectionId === 'revenue') window.loadRevenueData();
+
+      if (sectionId === 'mentor-overview') {
+          const dateEl = document.getElementById('current-date');
+          if (dateEl) {
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              dateEl.textContent = new Date().toLocaleDateString('en-IN', options);
+          }
+          const welcomeMsg = document.getElementById('welcome-message');
+          if (welcomeMsg && typeof _currentUserName !== 'undefined' && _currentUserName) {
+              welcomeMsg.textContent = `Welcome, Admin Mentor (${_currentUserName})! 👋`;
+          }
+          window.loadMentorData();
+      }
+      if (sectionId === 'mentor-students') window.loadStudents();
+      if (sectionId === 'mentor-evaluations') window.loadEvaluations();
+      if (sectionId === 'mentor-schedule') window.loadSchedule();
     };
 
     // --- USER MANAGEMENT LOGIC ---
@@ -1253,10 +1363,223 @@
       }
     };
 
+    // --- MENTOR WORKSPACE LOGIC ---
+    const _esc = (s) => (s||'').replace(/'/g, '&apos;').replace(/"/g, '&quot;');
 
+    window.loadMentorData = async function() {
+      try {
+        const queryRel = query(collection(db, 'userRoles'), where('role', '==', 'Aspirant'));
+        const stuSnap = await getDocs(queryRel);
+        const elStu = document.getElementById('stat-students');
+        if (elStu) elStu.textContent = stuSnap.size;
 
-    // Initialize the dashboard on page load
-    window.switchAdminSection('overview');
+        const evSnap = await getDocs(collection(db, 'evaluations'));
+        let pending = 0;
+        evSnap.forEach(d => { if(d.data().status === 'Pending' || d.data().status === 'Submitted') pending++; });
+        const elEv = document.getElementById('stat-evals');
+        if (elEv) elEv.textContent = pending;
+
+        const scSnap = await getDocs(collection(db, 'meetings'));
+        const elSc = document.getElementById('stat-meetings');
+        if (elSc) elSc.textContent = scSnap.size;
+      } catch (e) {
+        console.error('Mentor stats load error', e);
+      }
+    };
+
+    window.loadStudents = async function() {
+      const tbody = document.getElementById('students-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:#cbd5e1;">Loading...</td></tr>';
+      try {
+        const snap = await getDocs(query(collection(db, 'userRoles'), where('role', '==', 'Aspirant')));
+        let html = '';
+        snap.forEach(d => {
+          const user = d.data();
+          const userEmail = d.id;
+          const userName = user.name || userEmail.split('@')[0];
+          html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <td style="padding:15px; font-weight:600; color:#f8fafc;">${_esc(userName)}</td>
+            <td style="padding:15px; color: #94a3b8;">${_esc(userEmail)}</td>
+            <td style="padding:15px; color:#10b981; font-weight:600;">Active</td>
+            <td style="padding:15px; text-align:right;">
+              <button onclick="alert('View progress coming soon')" style="background:transparent; border:1px solid #e11d48; color:#e11d48; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Progress</button>
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="4" style="padding:20px;text-align:center;color:#cbd5e1;">No students found</td></tr>';
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:#ef4444;">Error loading students</td></tr>';
+      }
+    };
+
+    window.loadEvaluations = async function() {
+      const tbody = document.getElementById('evaluations-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#cbd5e1;">Loading...</td></tr>';
+      try {
+        const snap = await getDocs(collection(db, 'evaluations'));
+        let html = '';
+        snap.forEach(d => {
+          const ev = d.data();
+          window.evalDataMap = window.evalDataMap || {};
+          window.evalDataMap[d.id] = ev;
+          const isPending = ev.status === 'Pending' || ev.status === 'Submitted';
+          const badge = isPending ? '<span style="background:#fef3c7;color:#d97706;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Pending</span>' : '<span style="background:#dcfce7;color:#166534;padding:4px 8px;border-radius:4px;font-size:0.8rem;font-weight:600;">Evaluated</span>';
+          html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <td style="padding:15px; font-weight:600; color:#f8fafc;">${_esc(ev.studentName)}</td>
+            <td style="padding:15px; color:#cbd5e1;">${_esc(ev.assignmentTitle || ev.title)}</td>
+            <td style="padding:15px;">${badge}</td>
+            <td style="padding:15px; color:#f8fafc;">${ev.marks ? ev.marks+'/100' : '-'}</td>
+            <td style="padding:15px; text-align:right;">
+              ${isPending ? `<button onclick="window.openEvalModal('${d.id}')" style="background:#e11d48; color:white; border:none; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Evaluate</button>` : `<button onclick="window.viewEval('${d.id}')" style="background:transparent; border:1px solid #3b82f6; color:#3b82f6; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">View</button>`}
+            </td>
+          </tr>`;
+        });
+        tbody.innerHTML = html || '<tr><td colspan="5" style="padding:20px;text-align:center;color:#cbd5e1;">No evaluations found</td></tr>';
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#ef4444;">Error loading evaluations</td></tr>';
+      }
+    };
+
+    window.loadSchedule = async function() {
+      const list = document.getElementById('meeting-list-container');
+      if (!list) return;
+      list.innerHTML = '<div style="padding:20px; color:#cbd5e1;">Loading meetings...</div>';
+      try {
+        const snap = await getDocs(collection(db, 'meetings'));
+        let html = '';
+        snap.forEach(d => {
+          const m = d.data();
+          html += `<div style="display:flex; align-items:flex-start; gap:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:16px;">
+            <div style="background:rgba(59,130,246,0.1); color:#3b82f6; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.9rem; text-align:center; min-width:65px;">${_esc(m.time)}</div>
+            <div style="flex:1;">
+              <h4 style="margin:0 0 4px; color:#f8fafc;">${_esc(m.title)} — ${_esc(m.studentName)}</h4>
+              <p style="margin:0; color:#94a3b8; font-size:0.9rem;">${_esc(m.description)}</p>
+            </div>
+            <a href="${_esc(m.link)}" target="_blank" style="background:rgba(15, 23, 42, 0.6); color:#3b82f6; border:1px solid #3b82f6; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; text-decoration:none; align-self:center;">Join Meet</a>
+          </div>`;
+        });
+        list.innerHTML = html || '<div style="padding:20px; color:#94a3b8;">No upcoming meetings.</div>';
+      } catch(e) {
+        list.innerHTML = '<div style="padding:20px; color:#ef4444;">Error loading meetings</div>';
+      }
+    };
+
+    window.viewEval = async function(id) {
+      const ev = (window.evalDataMap && window.evalDataMap[id]);
+      if(!ev) return;
+      await window.openEvalModal(id);
+      document.getElementById('eval-marks').value = ev.marks || '';
+      document.getElementById('eval-feedback').value = ev.feedback || '';
+      document.getElementById('eval-marks').disabled = true;
+      document.getElementById('eval-feedback').disabled = true;
+      const btnSave = document.querySelector('#eval-modal button[onclick="window.saveEval()"]');
+      if (btnSave) btnSave.style.display = 'none';
+    };
+
+    window.openEvalModal = async function(id) {
+      const ev = (window.evalDataMap && window.evalDataMap[id]) || {};
+      const studentName = ev.studentName || '';
+      const subject = ev.subject || '';
+      const topic = ev.topic || '';
+      const title = ev.title || '';
+      const pdfLink = ev.link || '';
+      document.getElementById('eval-id').value = id;
+      document.getElementById('eval-marks').value = '';
+      document.getElementById('eval-feedback').value = '';
+      document.getElementById('eval-marks').disabled = false;
+      document.getElementById('eval-feedback').disabled = false;
+      const btnSave = document.querySelector('#eval-modal button[onclick="window.saveEval()"]');
+      if (btnSave) btnSave.style.display = 'block';
+      
+      let previewLink = pdfLink;
+      if (pdfLink && pdfLink.includes('drive.google.com') && pdfLink.includes('/view')) {
+        previewLink = pdfLink.replace('/view', '/preview');
+      } else if (pdfLink && pdfLink.includes('drive.google.com') && !pdfLink.includes('/preview')) {
+        previewLink = pdfLink + '/preview';
+      }
+      const frame = document.getElementById('eval-pdf-frame');
+      if(frame) frame.src = previewLink;
+      
+      const btnAnn = document.getElementById('btn-annotate-pdf');
+      if(btnAnn) btnAnn.href = pdfLink;
+
+      const ctx = document.getElementById('eval-context');
+      if(ctx) ctx.innerHTML = `
+        <div style="background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border-radius:10px; padding:14px; margin-bottom:16px; border-left:4px solid #3b82f6;">
+          <p style="margin:0 0 4px; font-size:0.85rem; color: #94a3b8;">👤 <strong style="color:#f8fafc;">${_esc(studentName)}</strong> &nbsp;|
+          📚 ${_esc(subject)} &nbsp;|
+          🏷️ ${_esc(topic)||'General'}</p>
+          <p style="margin:0; font-size:0.85rem; color:#f8fafc;"><strong>✏️ ${_esc(title)}</strong></p>
+        </div>`;
+      document.getElementById('eval-modal').style.display = 'flex';
+    };
+
+    window.closeEvalModal = function() {
+      document.getElementById('eval-modal').style.display = 'none';
+      const frame = document.getElementById('eval-pdf-frame');
+      if(frame) frame.src = '';
+    };
+
+    window.saveEval = async function() {
+      const id = document.getElementById('eval-id').value;
+      const marks = document.getElementById('eval-marks').value;
+      const feedback = document.getElementById('eval-feedback').value;
+      try {
+        const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await updateDoc(doc(db, 'evaluations', id), {
+          marks: marks,
+          feedback: feedback,
+          status: 'Evaluated',
+          evaluatedAt: new Date().toISOString()
+        });
+        alert('Evaluation saved!');
+        window.closeEvalModal();
+        window.loadEvaluations();
+      } catch(e) {
+        console.error(e);
+        alert('Error saving evaluation: ' + e.message);
+      }
+    };
+
+    window.openMeetModal = function() {
+      document.getElementById('meet-modal').style.display = 'flex';
+    };
+
+    window.closeMeetModal = function() {
+      document.getElementById('meet-modal').style.display = 'none';
+    };
+
+    window.saveMeet = async function() {
+      const title = document.getElementById('meet-title').value;
+      const name = document.getElementById('meet-student').value;
+      const time = document.getElementById('meet-time').value;
+      const link = document.getElementById('meet-link').value;
+      if(!title || !name || !time || !link) { alert('All fields required'); return; }
+      try {
+        const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        await setDoc(doc(db, 'meetings', Date.now().toString()), {
+          title, studentName: name, time, link, description: 'Scheduled by Admin Mentor'
+        });
+        alert('Meeting scheduled!');
+        window.closeMeetModal();
+        window.loadSchedule();
+      } catch(e) {
+        alert('Failed to schedule meeting');
+      }
+    };
+
+    // Initialize the dashboard on page load based on URL query parameter or default
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab');
+    if (initialTab === 'mentor' || initialTab === 'mentor-overview') {
+      window.switchAdminSection('mentor-overview');
+    } else if (initialTab && initialTab.startsWith('mentor-')) {
+      window.switchAdminSection(initialTab);
+    } else {
+      window.switchAdminSection('overview');
+    }
 
   </script>
 </body>

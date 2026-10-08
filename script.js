@@ -22,8 +22,8 @@ const db = getFirestore(app);
 const ROLE_REDIRECTS = {
   admin:    'Admin/admin-dashboard.html',
   Admin:    'Admin/admin-dashboard.html',
-  mentor:   'Mentor/mentor-dashboard.html',
-  Mentor:   'Mentor/mentor-dashboard.html',
+  mentor:   'Admin/admin-dashboard.html?tab=mentor',
+  Mentor:   'Admin/admin-dashboard.html?tab=mentor',
   aspirant: 'Aspirant/aspirant-dashboard.html',
   Aspirant: 'Aspirant/aspirant-dashboard.html'
 };
@@ -36,8 +36,11 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const role = await getUserRole(user.email);
     
-    // Strict Tab Checking during login
-    if (expectedRoleLogin && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
+    // Allow both Admin & Mentor logins to access Admin dashboard suite
+    const isUserAdminOrMentor = (role.toLowerCase() === 'admin' || role.toLowerCase() === 'mentor');
+    const isExpectedAdminOrMentor = (expectedRoleLogin && (expectedRoleLogin.toLowerCase() === 'admin' || expectedRoleLogin.toLowerCase() === 'mentor'));
+
+    if (expectedRoleLogin && !isUserAdminOrMentor && expectedRoleLogin.toLowerCase() !== role.toLowerCase()) {
        await signOut(auth);
        const displayRole = role.charAt(0).toUpperCase() + role.slice(1);
        const displayExpected = expectedRoleLogin.charAt(0).toUpperCase() + expectedRoleLogin.slice(1);
@@ -68,12 +71,14 @@ onAuthStateChanged(auth, async (user) => {
 
 async function getUserRole(email) {
   const emailLower = email.toLowerCase();
-  if (emailLower === SUPER_ADMIN_EMAIL) return 'admin';
+  if (emailLower === SUPER_ADMIN_EMAIL || emailLower === 'ronesirvi@gmail.com') return 'admin';
   try {
     const roleDocRef = doc(db, 'userRoles', emailLower);
     const roleDoc = await getDoc(roleDocRef);
     if (roleDoc.exists()) {
-      return roleDoc.data().role || 'Aspirant';
+      const dbRole = roleDoc.data().role || 'Aspirant';
+      if (dbRole.toLowerCase() === 'mentor') return 'admin'; // Mentors transferred to Admin with dual dashboard
+      return dbRole;
     } else {
       // Auto-register new user as Aspirant
       await setDoc(roleDocRef, { role: 'Aspirant' });
